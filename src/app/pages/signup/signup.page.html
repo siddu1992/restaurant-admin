@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Sign Up</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="swiggy-signup-card">
+    <div class="swiggy-signup-header">
+      <ion-icon name="restaurant-outline" size="large"></ion-icon>
+      <h1>Create Your Owner Account</h1>
+      <p>Join the platform and manage your restaurant with ease</p>
+    </div>
+    <form [formGroup]="signupForm">
+      <ion-item>
+        <ion-label position="stacked">Owner Name</ion-label>
+        <ion-input formControlName="ownerName"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input formControlName="email" type="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Phone</ion-label>
+        <ion-input formControlName="phone"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Password</ion-label>
+        <ion-input formControlName="password" type="password"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Confirm Password</ion-label>
+        <ion-input formControlName="confirmPassword" type="password"></ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="signup()">Sign Up</ion-button>
+      <div class="swiggy-signup-footer">
+        <span>Already have an account?</span>
+        <ion-button fill="clear" (click)="goToLogin()">Login</ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content> 

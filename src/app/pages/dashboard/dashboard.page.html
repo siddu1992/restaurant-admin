@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+    <p>Loading...</p>
+  </div>
+  <div class="swiggy-card" *ngIf="!isLoading && restaurant">
+    <h2>{{ restaurant.name }}</h2>
+    <p class="address">{{ restaurant.address }}</p>
+    <p class="cuisine">{{ restaurant.cuisine }}</p>
+    <p class="desc">{{ restaurant.description }}</p>
+    <div class="meta">
+      <span>⏱ {{ restaurant.deliveryTime }}</span>
+      <span>₹{{ restaurant.minOrder }} min order</span>
+    </div>
+    <div class="dashboard-actions">
+      <ion-card (click)="navigateToFoodManagement()">
+        <ion-card-content>
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <h3>Manage Food</h3>
+        </ion-card-content>
+      </ion-card>
+      <ion-card (click)="navigateToOrders()">
+        <ion-card-content>
+          <ion-icon name="list-outline"></ion-icon>
+          <h3>Orders</h3>
+        </ion-card-content>
+      </ion-card>
+      <ion-card (click)="navigateToAnalytics()">
+        <ion-card-content>
+          <ion-icon name="analytics-outline"></ion-icon>
+          <h3>Analytics</h3>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+  <div *ngIf="!isLoading && !restaurant">
+    <p>No restaurant found. Please add your restaurant.</p>
+  </div>
+</ion-content> 

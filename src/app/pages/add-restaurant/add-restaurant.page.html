@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Add Restaurant</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div class="swiggy-add-restaurant-card">
+    <div class="swiggy-add-restaurant-header">
+      <ion-icon name="storefront-outline" size="large"></ion-icon>
+      <h1>Add Your Restaurant</h1>
+      <p>Enter your restaurant details to get started</p>
+    </div>
+    <form [formGroup]="restaurantForm">
+      <ion-item>
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input formControlName="name" placeholder="Restaurant name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Address</ion-label>
+        <ion-input formControlName="address" placeholder="Restaurant address"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Cuisine</ion-label>
+        <ion-input formControlName="cuisine" placeholder="Cuisine type"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea formControlName="description" placeholder="Describe your restaurant"></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Delivery Time</ion-label>
+        <ion-input formControlName="deliveryTime" placeholder="e.g., 25-35 min"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Min Order</ion-label>
+        <ion-input formControlName="minOrder" type="number" placeholder="Minimum order amount"></ion-input>
+      </ion-item>
+      <ion-item style="display:none;">
+        <ion-label position="stacked">Latitude</ion-label>
+        <ion-input formControlName="latitude" readonly></ion-input>
+      </ion-item>
+      <ion-item style="display:none;">
+        <ion-label position="stacked">Longitude</ion-label>
+        <ion-input formControlName="longitude" readonly></ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="addRestaurant()">Add Restaurant</ion-button>
+    </form>
+  </div>
+</ion-content> 

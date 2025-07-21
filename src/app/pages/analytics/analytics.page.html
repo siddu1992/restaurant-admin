@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Analytics</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+    <p>Loading analytics...</p>
+  </div>
+  <div *ngIf="!isLoading">
+    <h2>Analytics Dashboard</h2>
+    <p>Analytics data will be displayed here.</p>
+  </div>
+</ion-content> 

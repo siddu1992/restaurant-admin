@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Restaurant Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+    <p>Loading...</p>
+  </div>
+  <div *ngIf="!isLoading && restaurant">
+    <h2>{{ restaurant.name }}</h2>
+    <p>{{ restaurant.address }}</p>
+    <p>{{ restaurant.cuisine }}</p>
+    <p>{{ restaurant.description }}</p>
+    <p>Delivery Time: {{ restaurant.deliveryTime }}</p>
+    <p>Min Order: {{ restaurant.minOrder }}</p>
+  </div>
+  <div *ngIf="!isLoading && !restaurant">
+    <p>No restaurant found.</p>
+  </div>
+</ion-content> 
