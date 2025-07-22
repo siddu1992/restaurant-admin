@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ApiService, Order } from '../../services/api.service';
+import { ApiService, Order, Restaurant } from '../../services/api.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-orders',
@@ -11,7 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   styleUrls: ['./orders.page.scss'],
   standalone: true,
   providers:[ApiService],
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule]
 })
 export class OrdersPage implements OnInit {
   orders: Order[] = [];
@@ -44,28 +45,20 @@ export class OrdersPage implements OnInit {
   async loadOrders() {
     try {
       this.isLoading = true;
-      this.orders = await this.apiService.getRestaurantOrders(this.restaurantId).toPromise() || [];
+      const selectedRestaurantStr = localStorage.getItem('selectedRestaurant');
+      let selectedRestaurant!: Restaurant;
+      if (selectedRestaurantStr) {
+        selectedRestaurant = JSON.parse(selectedRestaurantStr);
+      }
+  
+
+       this.apiService.getRestaurantOrders(selectedRestaurant._id).subscribe((res)=>{
+        this.orders = res
+       this.filterOrders();
+
+      }) || [];
       
-      // Mock data for demo
-      this.orders = [
-        {
-          _id: '1',
-          customerName: 'John Doe',
-          customerPhone: '+1234567890',
-          items: [
-            { food: 'Pizza Margherita', quantity: 2, price: 12.99 },
-            { food: 'Coke', quantity: 1, price: 2.99 }
-          ],
-          totalAmount: 28.97,
-          status: 'pending',
-          restaurant: this.restaurantId,
-          deliveryAddress: '123 Main St, City, State 12345',
-          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          updatedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-        }
-      ];
       
-      this.filterOrders();
     } catch (error) {
       console.error('Error loading orders:', error);
       await this.showToast('Error loading orders');

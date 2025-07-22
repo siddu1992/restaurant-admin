@@ -4,19 +4,39 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="warning" [routerLink]="['/add-food']">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
   <div *ngIf="isLoading">
     <ion-spinner></ion-spinner>
     <p>Loading...</p>
   </div>
   <div *ngIf="!isLoading && foods.length">
     <ion-list>
-      <ion-item *ngFor="let food of foods">
-        <ion-label>
-          <h2>{{ food.name }}</h2>
+      <ion-card *ngFor="let food of foods" class="food-card">
+        <img [src]="food.image" alt="{{ food.name }}" class="food-image" />
+        <ion-card-header>
+          <ion-card-title>{{ food.name }}</ion-card-title>
+          <ion-card-subtitle>{{ food.category }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
           <p>{{ food.description }}</p>
           <p>₹{{ food.price }}</p>
-        </ion-label>
-      </ion-item>
+          <ion-toggle color="success" [(ngModel)]="food.available" (ionChange)="toggleAvailability(food)">
+            {{ food.available ? 'Enabled' : 'Disabled' }}
+          </ion-toggle>
+          <div class="food-actions">
+            <ion-button color="primary" size="small" (click)="editFood(food)">
+              <ion-icon name="create-outline"></ion-icon> Edit
+            </ion-button>
+            <ion-button color="danger" size="small" (click)="deleteFood(food)">
+              <ion-icon name="trash-outline"></ion-icon> Delete
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
     </ion-list>
   </div>
   <div *ngIf="!isLoading && !foods.length">

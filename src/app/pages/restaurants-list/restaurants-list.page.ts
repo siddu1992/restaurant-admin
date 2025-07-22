@@ -22,16 +22,22 @@ export class RestaurantsListPage implements OnInit {
   ngOnInit() {
     const owner = JSON.parse(localStorage.getItem('authUser') || '{}');
     this.apiService.getRestaurantByOwner(owner.id).subscribe(restaurant => {
+        this.isLoading = false
         if (restaurant && restaurant.length>0) {
           this.restaurants = restaurant;
         } else {
           this.router.navigate(['/add-restaurant']);
         }
+      },(err)=>{
+        this.isLoading=false
       });
   }
 
   goToDashboard(restaurant: Restaurant) {
     localStorage.setItem('selectedRestaurant', JSON.stringify(restaurant));
     this.router.navigate(['/dashboard']);
+  }
+  editRestaurant(restaurant: Restaurant) {
+    this.router.navigate(['/restaurant-profile'], { state: { restaurantId: restaurant._id } });
   }
 } 

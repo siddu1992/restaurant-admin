@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Restaurant Profile</ion-title>
+    <ion-title>Edit Restaurant</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
@@ -8,15 +8,41 @@
     <ion-spinner></ion-spinner>
     <p>Loading...</p>
   </div>
-  <div *ngIf="!isLoading && restaurant">
-    <h2>{{ restaurant.name }}</h2>
-    <p>{{ restaurant.address }}</p>
-    <p>{{ restaurant.cuisine }}</p>
-    <p>{{ restaurant.description }}</p>
-    <p>Delivery Time: {{ restaurant.deliveryTime }}</p>
-    <p>Min Order: {{ restaurant.minOrder }}</p>
-  </div>
-  <div *ngIf="!isLoading && !restaurant">
-    <p>No restaurant found.</p>
-  </div>
+  <form *ngIf="!isLoading" [formGroup]="restaurantForm" (ngSubmit)="saveRestaurant()">
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input formControlName="name" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Address</ion-label>
+        <ion-input formControlName="address" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Cuisine</ion-label>
+        <ion-input formControlName="cuisine"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Image URL</ion-label>
+        <ion-input formControlName="image"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Minimum Order</ion-label>
+        <ion-input type="number" formControlName="minOrder"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Delivery Time</ion-label>
+        <ion-input formControlName="deliveryTime"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea formControlName="description"></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label>Available</ion-label>
+        <ion-toggle formControlName="available"></ion-toggle>
+      </ion-item>
+    </ion-list>
+    <ion-button expand="block" type="submit" [disabled]="restaurantForm.invalid">Save</ion-button>
+  </form>
 </ion-content> 

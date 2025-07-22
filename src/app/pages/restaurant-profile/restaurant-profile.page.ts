@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService, Restaurant } from '../../services/api.service';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-restaurant-profile',
@@ -10,46 +12,70 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./restaurant-profile.page.scss'],
   standalone: true,
   providers: [ApiService],
-  imports: [IonicModule, CommonModule, HttpClientModule]
+  imports: [IonicModule, CommonModule, HttpClientModule, FormsModule, ReactiveFormsModule]
 })
 export class RestaurantProfilePage implements OnInit {
-  restaurant: Restaurant | null = null;
+  restaurantForm!: FormGroup;
   isLoading = true;
+  restaurantId!: string;
 
   constructor(
     private apiService: ApiService,
+    private fb: FormBuilder,
     private toastController: ToastController,
-    private loadingController: LoadingController
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    this.loadRestaurantProfile();
+    // Get restaurantId from navigation state
+    const nav = this.router.getCurrentNavigation();
+    this.restaurantId = nav?.extras?.state?.['restaurantId'];
+    if (!this.restaurantId) {
+      this.isLoading = false;
+      return;
+    }
+    this.restaurantForm = this.fb.group({
+      name: ['', Validators.required],
+      address: ['', Validators.required],
+      cuisine: [''],
+      image: ['',Validators.required],
+      minOrder: [0],
+      deliveryTime: ['',Validators.required],
+      description: ['',Validators.required],
+      available: [true]
+    });
+    this.loadRestaurant();
   }
 
-  async loadRestaurantProfile() {
-    try {
-      this.isLoading = true;
-      const restaurant = JSON.parse(localStorage.getItem('restaurant') || '{}');
-      if (restaurant && restaurant.id) {
-        this.apiService.getRestaurant(restaurant.id).subscribe(res => {
-          this.restaurant = res;
-          this.isLoading = false;
-        });
-      } else {
-        this.restaurant = null;
-        this.isLoading = false;
-      }
-    } catch (error) {
-      await this.showToast('Error loading restaurant profile');
+  loadRestaurant() {
+    this.apiService.getRestaurant(this.restaurantId).subscribe((restaurant: Restaurant) => {
+      this.restaurantForm.patchValue(restaurant);
       this.isLoading = false;
-    }
+    }, err => {
+      this.showToast('Failed to load restaurant.');
+      this.isLoading = false;
+    });
+  }
+
+  saveRestaurant() {
+    if (this.restaurantForm.invalid) return;
+    this.apiService.updateRestaurant(this.restaurantId, this.restaurantForm.value).subscribe(
+      () => {
+        this.showToast('Restaurant updated successfully.');
+        this.router.navigate(['/restaurants-list']);
+      },
+      err => {
+        this.showToast('Failed to update restaurant.');
+      }
+    );
   }
 
   async showToast(message: string) {
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3000,
-      color: 'warning'
+      color: 'success'
     });
     await toast.present();
   }

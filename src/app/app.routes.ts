@@ -42,4 +42,12 @@ export const routes: Routes = [
     path: 'restaurants-list',
     loadComponent: () => import('./pages/restaurants-list/restaurants-list.page').then(m => m.RestaurantsListPage),
   },
+  {
+    path: 'add-food',
+    loadComponent: () => import('./pages/add-food/add-food.page').then((m) => m.AddFoodPage),
+  },
+  {
+    path: 'edit-food/:id',
+    loadComponent: () => import('./pages/edit-food/edit-food.page').then(m => m.EditFoodPage)
+  },
 ];

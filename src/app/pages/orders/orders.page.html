@@ -117,8 +117,9 @@
             <div class="item-list">
               <div *ngFor="let item of order.items" class="order-item">
                 <span class="item-quantity">{{ item.quantity }}x</span>
-                <span class="item-name">{{ item.food }}</span>
+                <span class="item-name">{{ item.food.name }}</span>
                 <span class="item-price">₹{{ item.price | number:'1.2-2' }}</span>
+              
               </div>
             </div>
           </div>

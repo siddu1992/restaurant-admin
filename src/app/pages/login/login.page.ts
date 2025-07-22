@@ -47,7 +47,7 @@ export class LoginPage {
           localStorage.setItem('authUser', JSON.stringify(response.user));
           localStorage.setItem('restaurant', JSON.stringify(response.restaurant));
           localStorage.setItem('authToken', response.token || 'demo-token');
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/restaurants-list']);
         },
         error: async (error) => {
           await loading.dismiss();

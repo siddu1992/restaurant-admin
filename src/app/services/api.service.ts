@@ -27,17 +27,14 @@ export interface Food {
   category: string;
   available?: boolean;
   restaurant: string;
+  quantity?: number
 }
 
 export interface Order {
   _id: string;
   customerName: string;
   customerPhone: string;
-  items: Array<{
-    food: string;
-    quantity: number;
-    price: number;
-  }>;
+  items:Item[]
   totalAmount: number;
   status: string;
   restaurant: string;
@@ -45,7 +42,12 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface Item {
+  food: Food
+  quantity: number
+  price: number
+  _id: string
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -107,6 +109,14 @@ export class ApiService {
 
   deleteFood(foodId: string): Observable<any> {
     return this.http.delete(`${this.baseUrl}/foods/${foodId}`);
+  }
+
+  addFood(foodData: any) {
+    return this.http.post(`${this.baseUrl}/foods`, foodData);
+  }
+
+  getFoodById(foodId: string) {
+    return this.http.get<any>(`${this.baseUrl}/foods/${foodId}`);
   }
 
   // Order Management
