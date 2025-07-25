@@ -57,6 +57,13 @@
             <p>Delivered</p>
           </div>
         </div>
+        <div class="stat-card">
+          <ion-icon name="person-add-outline" color="secondary"></ion-icon>
+          <div class="stat-content">
+            <h4>{{ getOrderStats().assigned }}</h4>
+            <p>Assigned</p>
+          </div>
+        </div>
       </div>
       
       <div class="revenue-card">
@@ -167,6 +174,15 @@
                 Cancel
               </ion-button>
             </div>
+            <ng-container *ngIf="order.status === 'ready'">
+              <ion-item lines="none">
+                <ion-label>Assign Delivery</ion-label>
+                <ion-select [disabled]="assigningOrderId === order._id" placeholder="Select Delivery Person" (ionChange)="assignDelivery(order, $event.detail.value)">
+                  <ion-select-option *ngFor="let person of deliveryPeople" [value]="person._id">{{ person.name }}</ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-spinner *ngIf="assigningOrderId === order._id && assigning" name="crescent" color="primary"></ion-spinner>
+            </ng-container>
           </div>
         </div>
 

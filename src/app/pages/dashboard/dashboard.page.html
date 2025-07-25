@@ -38,6 +38,33 @@
       </ion-card>
     </div>
   </div>
+  <ion-button expand="block" color="primary" (click)="toggleDeliveryForm()">
+    {{ showDeliveryForm ? 'Cancel' : 'Add Delivery Person' }}
+  </ion-button>
+  <form *ngIf="showDeliveryForm" (ngSubmit)="registerDeliveryPerson()" style="margin-top: 16px;">
+    <ion-list>
+      <ion-item>
+        <ion-label position="floating">Name</ion-label>
+        <ion-input [(ngModel)]="deliveryForm.name" name="name" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input [(ngModel)]="deliveryForm.email" name="email" type="email" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input [(ngModel)]="deliveryForm.password" name="password" type="password" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Phone</ion-label>
+        <ion-input [(ngModel)]="deliveryForm.phone" name="phone" type="tel"></ion-input>
+      </ion-item>
+    </ion-list>
+    <ion-button expand="block" type="submit" [disabled]="registeringDelivery">
+      <ion-spinner *ngIf="registeringDelivery" name="crescent"></ion-spinner>
+      <span *ngIf="!registeringDelivery">Register Delivery Person</span>
+    </ion-button>
+  </form>
   <div *ngIf="!isLoading && !restaurant">
     <p>No restaurant found. Please add your restaurant.</p>
   </div>

@@ -4,6 +4,7 @@ import { ApiService, Restaurant } from '../../services/api.service';
 import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,11 +12,19 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
   providers: [ApiService],
-  imports: [IonicModule, CommonModule, HttpClientModule]
+  imports: [IonicModule, CommonModule, HttpClientModule, FormsModule, ReactiveFormsModule]
 })
 export class DashboardPage implements OnInit {
   restaurant: Restaurant | null = null;
   isLoading = true;
+  showDeliveryForm = false;
+  deliveryForm = {
+    name: '',
+    email: '',
+    password: '',
+    phone: ''
+  };
+  registeringDelivery = false;
 
   constructor(
     private router: Router,
@@ -52,6 +61,28 @@ export class DashboardPage implements OnInit {
   }
   navigateToAnalytics() {
     this.router.navigate(['/analytics']);
+  }
+
+  toggleDeliveryForm() {
+    this.showDeliveryForm = !this.showDeliveryForm;
+  }
+
+  async registerDeliveryPerson() {
+    if (!this.deliveryForm.name || !this.deliveryForm.email || !this.deliveryForm.password) {
+      this.showToast('Please fill all required fields');
+      return;
+    }
+    this.registeringDelivery = true;
+    try {
+      await this.apiService.registerDeliveryPerson(this.deliveryForm).toPromise();
+      this.showToast('Delivery person registered!');
+      this.deliveryForm = { name: '', email: '', password: '', phone: '' };
+      this.showDeliveryForm = false;
+    } catch (err) {
+      this.showToast('Failed to register delivery person');
+    } finally {
+      this.registeringDelivery = false;
+    }
   }
 
   async showToast(message: string) {

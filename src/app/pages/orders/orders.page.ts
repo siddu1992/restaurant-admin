@@ -20,10 +20,14 @@ export class OrdersPage implements OnInit {
   isLoading = true;
   selectedStatus = 'all';
   restaurantId = 'demo-restaurant-id';
+  deliveryPeople: any[] = [];
+  assigningOrderId: string | null = null;
+  assigning = false;
 
   statusOptions = [
     { value: 'all', label: 'All Orders' },
     { value: 'pending', label: 'Pending' },
+    { value: 'assigned', label: 'Assigned' }, // Added assigned
     { value: 'preparing', label: 'Preparing' },
     { value: 'ready', label: 'Ready' },
     { value: 'delivered', label: 'Delivered' },
@@ -40,6 +44,7 @@ export class OrdersPage implements OnInit {
 
   ngOnInit() {
     this.loadOrders();
+    this.loadDeliveryPeople();
   }
 
   async loadOrders() {
@@ -65,6 +70,33 @@ export class OrdersPage implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  loadDeliveryPeople() {
+    // Example: fetch all users with role 'delivery'
+    this.apiService.getAllDeliveryPeople?.().subscribe(
+      (people) => this.deliveryPeople = people,
+      (err) => this.deliveryPeople = []
+    );
+  }
+
+  assignDelivery(order: Order, deliveryPersonId: string) {
+    if (!order || !order.delivery || !deliveryPersonId) return;
+    this.assigningOrderId = order._id;
+    this.assigning = true;
+    this.apiService.assignDeliveryPerson(order.delivery._id, deliveryPersonId).subscribe(
+      () => {
+        this.assigningOrderId = null;
+        this.assigning = false;
+        this.showToast('Delivery person assigned!');
+        this.loadOrders();
+      },
+      (err) => {
+        this.assigningOrderId = null;
+        this.assigning = false;
+        this.showToast('Failed to assign delivery person');
+      }
+    );
   }
 
   filterOrders() {
@@ -114,6 +146,7 @@ export class OrdersPage implements OnInit {
   getStatusColor(status: string): string {
     switch (status) {
       case 'pending': return 'warning';
+      case 'assigned': return 'secondary'; // Added assigned
       case 'preparing': return 'primary';
       case 'ready': return 'success';
       case 'delivered': return 'success';
@@ -125,6 +158,7 @@ export class OrdersPage implements OnInit {
   getStatusText(status: string): string {
     switch (status) {
       case 'pending': return 'Pending';
+      case 'assigned': return 'Assigned'; // Added assigned
       case 'preparing': return 'Preparing';
       case 'ready': return 'Ready';
       case 'delivered': return 'Delivered';
@@ -152,6 +186,7 @@ export class OrdersPage implements OnInit {
     return {
       total: this.orders.length,
       pending: this.orders.filter(o => o.status === 'pending').length,
+      assigned: this.orders.filter(o => o.status === 'assigned').length, // Added assigned
       preparing: this.orders.filter(o => o.status === 'preparing').length,
       ready: this.orders.filter(o => o.status === 'ready').length,
       delivered: this.orders.filter(o => o.status === 'delivered').length,
