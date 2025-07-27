@@ -102,7 +102,7 @@ export interface DeliveryPerson {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://localhost:3000';
+  private baseUrl = 'http://192.168.1.7:3000'; // WiFi IP for mobile app access
 
   constructor(private http: HttpClient) {}
 
