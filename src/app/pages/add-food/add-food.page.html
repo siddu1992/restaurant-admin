@@ -1,46 +1,204 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Add Food Item</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="warning">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">
+      <ion-icon name="add-circle" class="header-icon"></ion-icon>
+      Add New Food Item
+    </ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <form [formGroup]="foodForm" (ngSubmit)="addFood()" class="swiggy-form">
-    <ion-item>
-      <ion-label position="floating">Name</ion-label>
-      <ion-input formControlName="name" required></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="floating">Description</ion-label>
-      <ion-textarea formControlName="description" required></ion-textarea>
-    </ion-item>
-    <ion-item>
-      <ion-label position="floating">Price (₹)</ion-label>
-      <ion-input type="number" formControlName="price" required></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="floating">Image URL</ion-label>
-      <ion-input formControlName="image"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label position="floating">Category</ion-label>
-      <ion-select formControlName="category" required>
-        <ion-select-option value="South Indian">South Indian</ion-select-option>
-        <ion-select-option value="North Indian">North Indian</ion-select-option>
-        <ion-select-option value="Chinese">Chinese</ion-select-option>
-        <ion-select-option value="Snacks">Snacks</ion-select-option>
-        <ion-select-option value="Dessert">Dessert</ion-select-option>
-        <!-- Add more as needed -->
-      </ion-select>
-    </ion-item>
-    <ion-item lines="none">
-      <ion-label>Available</ion-label>
-      <ion-toggle formControlName="available"></ion-toggle>
-    </ion-item>
-    <div class="form-actions">
-      <ion-button expand="block" type="submit" [disabled]="foodForm.invalid || isLoading">
-        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-        <span *ngIf="!isLoading">Add Food</span>
-      </ion-button>
-    </div>
-  </form>
+
+<ion-content class="add-food-content">
+  <div class="form-container">
+    <ion-card class="form-card">
+      <ion-card-header class="form-header">
+        <ion-card-title>
+          <ion-icon name="restaurant" class="title-icon"></ion-icon>
+          Create New Menu Item
+        </ion-card-title>
+        <ion-card-subtitle>Add delicious food to your restaurant menu</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="foodForm" (ngSubmit)="addFood()" class="food-form">
+          
+          <!-- Image Upload Section -->
+          <div class="image-upload-section">
+            <div class="image-preview" [class.has-image]="imagePreview">
+              <img *ngIf="imagePreview" [src]="imagePreview" alt="Food preview" class="preview-image" />
+              <div *ngIf="!imagePreview" class="upload-placeholder">
+                <ion-icon name="camera" class="upload-icon"></ion-icon>
+                <p>Add Food Image</p>
+                <span>Click to upload or drag & drop</span>
+              </div>
+              <div class="image-overlay" (click)="triggerFileInput()">
+                <ion-icon name="camera" class="overlay-icon"></ion-icon>
+              </div>
+            </div>
+            <input 
+              #fileInput 
+              type="file" 
+              accept="image/*" 
+              (change)="onImageSelected($event)" 
+              style="display: none;"
+            />
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              (click)="triggerFileInput()"
+              class="upload-btn">
+              <ion-icon name="cloud-upload" slot="start"></ion-icon>
+              Choose Image
+            </ion-button>
+          </div>
+
+          <!-- Form Fields -->
+          <div class="form-fields">
+            
+            <!-- Name Field -->
+            <ion-item class="form-item" [class.error]="isFieldInvalid('name')">
+              <ion-label position="stacked" class="form-label">
+                <ion-icon name="fast-food" class="field-icon"></ion-icon>
+                Food Name *
+              </ion-label>
+              <ion-input 
+                formControlName="name" 
+                placeholder="Enter food name"
+                class="custom-input">
+              </ion-input>
+              <ion-note slot="error" *ngIf="isFieldInvalid('name')">
+                <ion-icon name="alert-circle"></ion-icon>
+                {{ getFieldError('name') }}
+              </ion-note>
+            </ion-item>
+
+            <!-- Description Field -->
+            <ion-item class="form-item" [class.error]="isFieldInvalid('description')">
+              <ion-label position="stacked" class="form-label">
+                <ion-icon name="document-text" class="field-icon"></ion-icon>
+                Description *
+              </ion-label>
+              <ion-textarea 
+                formControlName="description" 
+                placeholder="Describe your delicious food..."
+                rows="3"
+                class="custom-textarea">
+              </ion-textarea>
+              <ion-note slot="error" *ngIf="isFieldInvalid('description')">
+                <ion-icon name="alert-circle"></ion-icon>
+                {{ getFieldError('description') }}
+              </ion-note>
+            </ion-item>
+
+            <!-- Price and Category Row -->
+            <div class="form-row">
+              <ion-item class="form-item price-item" [class.error]="isFieldInvalid('price')">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="pricetag" class="field-icon"></ion-icon>
+                  Price (₹) *
+                </ion-label>
+                <ion-input 
+                  type="number" 
+                  formControlName="price" 
+                  placeholder="0.00"
+                  class="custom-input">
+                </ion-input>
+                <ion-note slot="error" *ngIf="isFieldInvalid('price')">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  {{ getFieldError('price') }}
+                </ion-note>
+              </ion-item>
+
+              <ion-item class="form-item category-item" [class.error]="isFieldInvalid('category')">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="list" class="field-icon"></ion-icon>
+                  Category *
+                </ion-label>
+                <ion-select 
+                  formControlName="category" 
+                  placeholder="Select category"
+                  class="custom-select">
+                  <ion-select-option value="main-course">Main Course</ion-select-option>
+                  <ion-select-option value="appetizer">Appetizer</ion-select-option>
+                  <ion-select-option value="dessert">Dessert</ion-select-option>
+                  <ion-select-option value="beverage">Beverage</ion-select-option>
+                  <ion-select-option value="south-indian">South Indian</ion-select-option>
+                  <ion-select-option value="north-indian">North Indian</ion-select-option>
+                  <ion-select-option value="chinese">Chinese</ion-select-option>
+                  <ion-select-option value="snacks">Snacks</ion-select-option>
+                </ion-select>
+                <ion-note slot="error" *ngIf="isFieldInvalid('category')">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  {{ getFieldError('category') }}
+                </ion-note>
+              </ion-item>
+            </div>
+
+            <!-- Availability Toggle -->
+            <ion-item class="form-item availability-item">
+              <ion-label class="form-label">
+                <ion-icon name="checkmark-circle" class="field-icon"></ion-icon>
+                Available for Order
+              </ion-label>
+              <ion-toggle 
+                formControlName="available" 
+                color="success"
+                class="availability-toggle">
+              </ion-toggle>
+            </ion-item>
+
+            <!-- Image URL Field (Optional) -->
+            <ion-item class="form-item">
+              <ion-label position="stacked" class="form-label">
+                <ion-icon name="link" class="field-icon"></ion-icon>
+                Image URL (Optional)
+              </ion-label>
+              <ion-input 
+                formControlName="image" 
+                placeholder="https://example.com/food-image.jpg"
+                class="custom-input">
+              </ion-input>
+              <ion-note slot="helper">
+                Provide a direct image URL if you prefer not to upload
+              </ion-note>
+            </ion-item>
+
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              [disabled]="foodForm.invalid || isLoading"
+              class="submit-btn">
+              <ion-spinner *ngIf="isLoading" name="crescent" slot="start"></ion-spinner>
+              <ion-icon *ngIf="!isLoading" name="add-circle" slot="start"></ion-icon>
+              {{ isLoading ? 'Adding Food...' : 'Add to Menu' }}
+            </ion-button>
+            
+            <ion-button 
+              expand="block" 
+              fill="outline" 
+              (click)="goBack()"
+              class="cancel-btn">
+              <ion-icon name="close" slot="start"></ion-icon>
+              Cancel
+            </ion-button>
+          </div>
+
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <ion-spinner name="crescent" color="warning"></ion-spinner>
+    <p>Adding your delicious food...</p>
+  </div>
 </ion-content> 

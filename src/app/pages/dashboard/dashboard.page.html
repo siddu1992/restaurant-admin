@@ -1,71 +1,297 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Dashboard</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="dashboard-header">
+    <ion-title class="dashboard-title">
+      <ion-icon name="restaurant" class="title-icon"></ion-icon>
+      Restaurant Dashboard
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refreshData()">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div *ngIf="isLoading">
-    <ion-spinner></ion-spinner>
-    <p>Loading...</p>
-  </div>
-  <div class="swiggy-card" *ngIf="!isLoading && restaurant">
-    <h2>{{ restaurant.name }}</h2>
-    <p class="address">{{ restaurant.address }}</p>
-    <p class="cuisine">{{ restaurant.cuisine }}</p>
-    <p class="desc">{{ restaurant.description }}</p>
-    <div class="meta">
-      <span>⏱ {{ restaurant.deliveryTime }}</span>
-      <span>₹{{ restaurant.minOrder }} min order</span>
-    </div>
-    <div class="dashboard-actions">
-      <ion-card (click)="navigateToFoodManagement()">
-        <ion-card-content>
-          <ion-icon name="restaurant-outline"></ion-icon>
-          <h3>Manage Food</h3>
-        </ion-card-content>
-      </ion-card>
-      <ion-card (click)="navigateToOrders()">
-        <ion-card-content>
-          <ion-icon name="list-outline"></ion-icon>
-          <h3>Orders</h3>
-        </ion-card-content>
-      </ion-card>
-      <ion-card (click)="navigateToAnalytics()">
-        <ion-card-content>
-          <ion-icon name="analytics-outline"></ion-icon>
-          <h3>Analytics</h3>
-        </ion-card-content>
-      </ion-card>
+
+<ion-content class="dashboard-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-card">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <h3>Loading your restaurant data...</h3>
+      <p>Please wait while we fetch the latest information</p>
     </div>
   </div>
-  <ion-button expand="block" color="primary" (click)="toggleDeliveryForm()">
-    {{ showDeliveryForm ? 'Cancel' : 'Add Delivery Person' }}
-  </ion-button>
-  <form *ngIf="showDeliveryForm" (ngSubmit)="registerDeliveryPerson()" style="margin-top: 16px;">
-    <ion-list>
-      <ion-item>
-        <ion-label position="floating">Name</ion-label>
-        <ion-input [(ngModel)]="deliveryForm.name" name="name" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Email</ion-label>
-        <ion-input [(ngModel)]="deliveryForm.email" name="email" type="email" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Password</ion-label>
-        <ion-input [(ngModel)]="deliveryForm.password" name="password" type="password" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">Phone</ion-label>
-        <ion-input [(ngModel)]="deliveryForm.phone" name="phone" type="tel"></ion-input>
-      </ion-item>
-    </ion-list>
-    <ion-button expand="block" type="submit" [disabled]="registeringDelivery">
-      <ion-spinner *ngIf="registeringDelivery" name="crescent"></ion-spinner>
-      <span *ngIf="!registeringDelivery">Register Delivery Person</span>
-    </ion-button>
-  </form>
-  <div *ngIf="!isLoading && !restaurant">
-    <p>No restaurant found. Please add your restaurant.</p>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading && restaurant" class="dashboard-main">
+    <!-- Restaurant Info Card -->
+    <ion-card class="restaurant-info-card">
+      <div class="restaurant-header">
+        <div class="restaurant-avatar">
+          <ion-icon name="restaurant" class="avatar-icon"></ion-icon>
+        </div>
+        <div class="restaurant-details">
+          <h2 class="restaurant-name">{{ restaurant.name }}</h2>
+          <p class="restaurant-cuisine">{{ restaurant.cuisine }}</p>
+          <div class="restaurant-meta">
+            <span class="meta-item">
+              <ion-icon name="location" class="meta-icon"></ion-icon>
+              {{ restaurant.address }}
+            </span>
+            <span class="meta-item">
+              <ion-icon name="time" class="meta-icon"></ion-icon>
+              {{ restaurant.deliveryTime }}
+            </span>
+            <span class="meta-item">
+              <ion-icon name="card" class="meta-icon"></ion-icon>
+              ₹{{ restaurant.minOrder }} min order
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="restaurant-description" *ngIf="restaurant.description">
+        <p>{{ restaurant.description }}</p>
+      </div>
+    </ion-card>
+
+    <!-- Quick Stats Cards -->
+    <div class="stats-grid">
+      <ion-card class="stat-card orders-card" (click)="navigateToOrders()">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="list-circle" class="stat-icon-svg"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ orderStats?.total || 0 }}</h3>
+            <p class="stat-label">Total Orders</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card pending-card" (click)="navigateToOrders()">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="time" class="stat-icon-svg"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ orderStats?.pending || 0 }}</h3>
+            <p class="stat-label">Pending</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card revenue-card" (click)="navigateToAnalytics()">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="trending-up" class="stat-icon-svg"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">₹{{ orderStats?.revenue || 0 }}</h3>
+            <p class="stat-label">Revenue</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="stat-card delivery-card" (click)="navigateToDeliveryManagement()">
+        <ion-card-content>
+          <div class="stat-icon">
+            <ion-icon name="bicycle" class="stat-icon-svg"></ion-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ deliveryStats?.active || 0 }}</h3>
+            <p class="stat-label">Active Delivery</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="actions-section">
+      <h3 class="section-title">
+        <ion-icon name="settings" class="section-icon"></ion-icon>
+        Quick Actions
+      </h3>
+      
+      <div class="actions-grid">
+        <ion-card class="action-card food-management" (click)="navigateToFoodManagement()">
+          <ion-card-content>
+            <div class="action-icon">
+              <ion-icon name="restaurant-outline" class="action-icon-svg"></ion-icon>
+            </div>
+            <h3>Manage Menu</h3>
+            <p>Add, edit, or remove food items from your menu</p>
+            <ion-button fill="clear" class="action-button">
+              Manage
+              <ion-icon name="arrow-forward" slot="end"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="action-card orders-management" (click)="navigateToOrders()">
+          <ion-card-content>
+            <div class="action-icon">
+              <ion-icon name="list-outline" class="action-icon-svg"></ion-icon>
+            </div>
+            <h3>View Orders</h3>
+            <p>Check and manage incoming orders</p>
+            <ion-button fill="clear" class="action-button">
+              View
+              <ion-icon name="arrow-forward" slot="end"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="action-card analytics" (click)="navigateToAnalytics()">
+          <ion-card-content>
+            <div class="action-icon">
+              <ion-icon name="analytics-outline" class="action-icon-svg"></ion-icon>
+            </div>
+            <h3>Analytics</h3>
+            <p>View sales reports and performance metrics</p>
+            <ion-button fill="clear" class="action-button">
+              View
+              <ion-icon name="arrow-forward" slot="end"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="action-card delivery-management" (click)="navigateToDeliveryManagement()">
+          <ion-card-content>
+            <div class="action-icon">
+              <ion-icon name="bicycle-outline" class="action-icon-svg"></ion-icon>
+            </div>
+            <h3>Delivery Team</h3>
+            <p>Manage your delivery personnel</p>
+            <ion-button fill="clear" class="action-button">
+              Manage
+              <ion-icon name="arrow-forward" slot="end"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Add Delivery Person Section -->
+    <div class="delivery-section">
+      <ion-card class="delivery-form-card">
+        <ion-card-header>
+          <ion-card-title class="form-title">
+            <ion-icon name="person-add" class="form-icon"></ion-icon>
+            Add Delivery Person
+          </ion-card-title>
+          <ion-card-subtitle>Register new delivery personnel for your restaurant</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <form [formGroup]="deliveryForm" (ngSubmit)="registerDeliveryPerson()" class="delivery-form">
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="person" class="label-icon"></ion-icon>
+                  Full Name
+                </ion-label>
+                <ion-input 
+                  formControlName="name" 
+                  placeholder="Enter full name"
+                  class="form-input"
+                  [class.error]="deliveryForm.get('name')?.invalid && deliveryForm.get('name')?.touched">
+                </ion-input>
+                <div *ngIf="deliveryForm.get('name')?.invalid && deliveryForm.get('name')?.touched" class="error-message">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  Name is required
+                </div>
+              </ion-item>
+
+              <ion-item class="form-item">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="mail" class="label-icon"></ion-icon>
+                  Email Address
+                </ion-label>
+                <ion-input 
+                  formControlName="email" 
+                  type="email" 
+                  placeholder="Enter email address"
+                  class="form-input"
+                  [class.error]="deliveryForm.get('email')?.invalid && deliveryForm.get('email')?.touched">
+                </ion-input>
+                <div *ngIf="deliveryForm.get('email')?.invalid && deliveryForm.get('email')?.touched" class="error-message">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  Please enter a valid email address
+                </div>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="lock-closed" class="label-icon"></ion-icon>
+                  Password
+                </ion-label>
+                <ion-input 
+                  formControlName="password" 
+                  type="password" 
+                  placeholder="Enter password"
+                  class="form-input"
+                  [class.error]="deliveryForm.get('password')?.invalid && deliveryForm.get('password')?.touched">
+                </ion-input>
+                <div *ngIf="deliveryForm.get('password')?.invalid && deliveryForm.get('password')?.touched" class="error-message">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  Password must be at least 6 characters
+                </div>
+              </ion-item>
+
+              <ion-item class="form-item">
+                <ion-label position="stacked" class="form-label">
+                  <ion-icon name="call" class="label-icon"></ion-icon>
+                  Phone Number
+                </ion-label>
+                <ion-input 
+                  formControlName="phone" 
+                  type="tel" 
+                  placeholder="Enter phone number"
+                  class="form-input"
+                  [class.error]="deliveryForm.get('phone')?.invalid && deliveryForm.get('phone')?.touched">
+                </ion-input>
+                <div *ngIf="deliveryForm.get('phone')?.invalid && deliveryForm.get('phone')?.touched" class="error-message">
+                  <ion-icon name="alert-circle"></ion-icon>
+                  Please enter a valid phone number
+                </div>
+              </ion-item>
+            </div>
+
+            <div class="form-actions">
+              <ion-button 
+                type="submit" 
+                expand="block" 
+                class="submit-button"
+                [disabled]="deliveryForm.invalid || registeringDelivery">
+                <ion-spinner *ngIf="registeringDelivery" name="crescent" class="button-spinner"></ion-spinner>
+                <span *ngIf="!registeringDelivery">
+                  <ion-icon name="person-add" slot="start"></ion-icon>
+                  Register Delivery Person
+                </span>
+              </ion-button>
+            </div>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- No Restaurant State -->
+  <div *ngIf="!isLoading && !restaurant" class="no-restaurant">
+    <ion-card class="no-restaurant-card">
+      <ion-card-content>
+        <div class="no-restaurant-icon">
+          <ion-icon name="restaurant-outline" class="no-restaurant-svg"></ion-icon>
+        </div>
+        <h3>No Restaurant Found</h3>
+        <p>Please add your restaurant information to get started</p>
+        <ion-button expand="block" color="primary" class="add-restaurant-btn">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Add Restaurant
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
   </div>
 </ion-content> 
