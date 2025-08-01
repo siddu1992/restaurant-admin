@@ -50,4 +50,8 @@ export const routes: Routes = [
     path: 'edit-food/:id',
     loadComponent: () => import('./pages/edit-food/edit-food.page').then(m => m.EditFoodPage)
   },
+  {
+    path: 'add-delivery-person',
+    loadComponent: () => import('./pages/add-delivery-person/add-delivery-person.page').then(m => m.AddDeliveryPersonPage)
+  },
 ];

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Restaurant {
@@ -102,7 +102,7 @@ export interface DeliveryPerson {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://192.168.1.7:3000'; // WiFi IP for mobile app access
+  private baseUrl = 'http://192.168.1.10:3000'; // WiFi IP for mobile app access
 
   constructor(private http: HttpClient) {}
 
@@ -111,6 +111,12 @@ export class ApiService {
     console.log('[ApiService] POST', `${this.baseUrl}/auth/login`);
     return this.http.post(`${this.baseUrl}/auth/login`, loginData);
   }
+
+  googleLogin(googleData: { email: string; name: string; picture: string; googleId: string }): Observable<any> {
+    console.log('[ApiService] POST', `${this.baseUrl}/auth/google-login`);
+    return this.http.post(`${this.baseUrl}/auth/google-login`, googleData);
+  }
+
 
   restaurantOwnerSignup(signupData: any): Observable<any> {
     console.log('[ApiService] POST', `${this.baseUrl}/auth/restaurant-owner/signup`);
@@ -190,9 +196,19 @@ export class ApiService {
     return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}`);
   }
 
+  getRejectedOrders(restaurantId: string): Observable<Order[]> {
+    console.log('[ApiService] GET', `${this.baseUrl}/orders/restaurant/${restaurantId}/rejected`);
+    return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}/rejected`);
+  }
+
   updateOrderStatus(orderId: string, status: string): Observable<Order> {
     console.log('[ApiService] PUT', `${this.baseUrl}/orders/${orderId}/status`);
     return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/status`, { status });
+  }
+
+  reassignDelivery(orderId: string, deliveryPersonId: string): Observable<Order> {
+    console.log('[ApiService] PUT', `${this.baseUrl}/orders/${orderId}/reassign-delivery`);
+    return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/reassign-delivery`, { deliveryPersonId });
   }
 
   // Dashboard Analytics

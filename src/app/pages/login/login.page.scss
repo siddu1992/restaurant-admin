@@ -1,58 +1,341 @@
-ion-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+// Login Header Styles
+.login-header {
+  --background: #f8f9fa !important;
+  --color: #2c3e50;
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #e9ecef;
+  
+  .login-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.2rem;
+    
+    .title-icon {
+      margin-right: 8px;
+      color: #667eea;
+    }
+  }
+}
+
+.login-content {
+  --background: #ffffff;
+  background: #ffffff;
   min-height: 100vh;
-  --background: var(--swiggy-bg, #f5f5f5);
 }
 
-form {
-  width: 100%;
-  max-width: 350px;
-  margin: 0 auto;
-  --background: var(--swiggy-card-bg, #fff);
-  border-radius: var(--swiggy-radius, 16px);
-  box-shadow: var(--swiggy-shadow, 0 2px 12px rgba(0,0,0,0.08));
-  padding: 2rem 1.5rem;
-}
-
-ion-title {
-  color: #fff;
-}
-
-ion-button {
-  margin-top: 1.5rem;
-  --background: linear-gradient(90deg, #fc8019 0%, #f9532d 100%);
-  --border-radius: 8px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-ion-item {
-  --background: transparent;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+// Loading Container
+.loading-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  ion-label {
-    margin-bottom: 0.4rem;
-    font-size: 1rem;
-    color: #111;
-    font-weight: 700;
-    background: #fff;
-    padding: 0 0.25rem;
-    border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    color: #667eea;
   }
-} 
+  
+  .loading-text {
+    margin-top: 16px;
+    color: #7f8c8d;
+    font-size: 16px;
+  }
+}
 
-ion-input, ion-textarea, ion-label {
-    --background: #f9f9f9;
-    --border-radius: 8px;
-    --padding-start: 1rem;
-    --padding-end: 1rem;
-    font-size: 1rem;
-    color: #111;
+// Main Login Content
+.login-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+// Welcome Section
+.welcome-section {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 32px 0;
+  
+  .welcome-icon {
+    margin-bottom: 24px;
+    
+    .welcome-icon-svg {
+      font-size: 64px;
+      color: #667eea;
+    }
   }
+  
+  .welcome-title {
+    margin: 0 0 8px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+  
+  .welcome-subtitle {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+// Login Form Section
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.login-form-card {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.login-form {
+  padding: 0;
+}
+
+// Form Items
+.form-item {
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  --border-width: 0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --inner-padding-end: 0;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  
+  &:focus-within {
+    --background: #ffffff;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px #667eea;
+  }
+  
+  &.error {
+    --background: #fff5f5;
+    background: #fff5f5;
+    box-shadow: 0 0 0 2px #e74c3c;
+  }
+}
+
+.form-item ion-input {
+  --color: #2c3e50;
+  --placeholder-color: #7f8c8d;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+// Error Messages
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #e74c3c;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-left: 16px;
+  
+  ion-icon {
+    font-size: 14px;
+  }
+}
+
+// Login Button
+.login-button {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: #ffffff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  height: 56px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    --background: #bdc3c7;
+    --box-shadow: none;
+    transform: none;
+  }
+  
+  .button-spinner {
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+  }
+}
+
+// Divider
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e9ecef;
+  }
+  
+  .divider-text {
+    background: #ffffff;
+    padding: 0 16px;
+    color: #7f8c8d;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Google Login Button
+.google-login-button {
+  --border-color: #4285f4;
+  --color: #4285f4;
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  height: 56px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: #4285f4;
+    --color: #ffffff;
+    --box-shadow: 0 4px 20px rgba(66, 133, 244, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    --background: #bdc3c7;
+    --color: #7f8c8d;
+    --box-shadow: none;
+    transform: none;
+  }
+  
+  .button-spinner {
+    width: 20px;
+    height: 20px;
+    color: #4285f4;
+  }
+  
+  &:hover .button-spinner {
+    color: #ffffff;
+  }
+}
+
+// Sign Up Section
+.signup-section {
+  text-align: center;
+  margin-top: auto;
+  
+  .signup-text {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 14px;
+    
+    .signup-link {
+      --color: #667eea;
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+      height: auto;
+      
+      &:hover {
+        --color: #764ba2;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .login-main {
+    padding: 16px 12px;
+  }
+  
+  .welcome-section {
+    padding: 24px 0;
+    
+    .welcome-icon {
+      .welcome-icon-svg {
+        font-size: 48px;
+      }
+    }
+    
+    .welcome-title {
+      font-size: 1.75rem;
+    }
+  }
+  
+  .login-form-card {
+    max-width: 100%;
+  }
+  
+  .form-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+  
+  .login-button,
+  .google-login-button {
+    height: 52px;
+    font-size: 15px;
+  }
+}
+
+// Animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-section,
+.login-form-card,
+.signup-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.welcome-section {
+  animation-delay: 0.1s;
+}
+
+.login-form-card {
+  animation-delay: 0.2s;
+}
+
+.signup-section {
+  animation-delay: 0.3s;
+}

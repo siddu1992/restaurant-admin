@@ -1,32 +1,127 @@
-<ion-header>
+<ion-header [translucent]="true" class="admin-header">
   <ion-toolbar>
-    <ion-title>All Restaurants</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="admin-title">My Restaurants</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="refreshRestaurants()">
+        <ion-icon name="refresh-outline" color="light"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" (click)="addNewRestaurant()">
+        <ion-icon name="add-outline" color="light"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div *ngIf="isLoading">
-    <ion-spinner></ion-spinner>
-    <p>Loading...</p>
+
+<ion-content [fullscreen]="true" class="admin-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="loading-text">Loading restaurants...</p>
   </div>
-  <div *ngIf="!isLoading && restaurants && restaurants.length">
-    <ion-card *ngFor="let restaurant of restaurants" class="restaurant-card">
-      <!-- Existing restaurant display code -->
-      <ion-card-header>
-        <ion-card-title>{{ restaurant.name }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>{{ restaurant.address }}</p>
-        <p>{{ restaurant.cuisine }}</p>
-        <ion-button color="primary" size="small" (click)="editRestaurant(restaurant)">
-          <ion-icon name="create-outline"></ion-icon> Edit
-        </ion-button>
-        <ion-button color="secondary" size="small" (click)="goToDashboard(restaurant)">
-          <ion-icon name="analytics-outline"></ion-icon> Dashboard
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
-  </div>
-  <div *ngIf="!isLoading && !restaurants.length">
-    <p>No restaurants found.</p>
+
+  <!-- Restaurants Content -->
+  <div *ngIf="!isLoading" class="restaurants-container">
+    
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="welcome-text">
+        <h2>Welcome back!</h2>
+        <p>Manage your restaurant portfolio</p>
+      </div>
+      <div class="stats-card">
+        <ion-icon name="restaurant-outline" color="primary"></ion-icon>
+        <div class="stats-content">
+          <h3>{{ restaurants.length }}</h3>
+          <p>Restaurants</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Restaurants Grid -->
+    <div class="restaurants-grid">
+      <div *ngFor="let restaurant of restaurants" class="restaurant-card">
+        <!-- Restaurant Image -->
+        <div class="restaurant-image-container">
+          <img 
+            [src]="restaurant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MEMxNzYuNTY5IDYwIDE5MCA3My40MzEgMTkwIDkwQzE5MCAxMDYuNTY5IDE3Ni41NjkgMTIwIDE2MCAxMjBDMTQzLjQzMSAxMjAgMTMwIDEzMy40MzEgMTMwIDE1MEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MFoiIGZpbGw9IiNEN0Q3RDciLz4KPHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDhDMTkuMTYzIDggOCAxOS4xNjMgOCAzMkM4IDQ0LjgzNyAxOS4xNjMgNTYgMzIgNTZDNDQuODM3IDU2IDU2IDQ0LjgzNyA1NiAzMkM1NiAxOS4xNjMgMzIgOCAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+'"
+            [alt]="restaurant.name"
+            class="restaurant-image"
+            (error)="onImageError($event)"
+          />
+          <div class="image-overlay">
+            <div class="cuisine-badge">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <span>{{ restaurant.cuisine }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restaurant Info -->
+        <div class="restaurant-info">
+          <div class="restaurant-header">
+            <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+            <div class="rating-badge">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>{{ restaurant.rating || '4.5' }}</span>
+            </div>
+          </div>
+          
+          <div class="restaurant-details">
+            <div class="detail-item">
+              <ion-icon name="location-outline" color="medium"></ion-icon>
+              <span>{{ restaurant.address }}</span>
+            </div>
+            <div class="detail-item">
+              <ion-icon name="time-outline" color="medium"></ion-icon>
+              <span>{{ restaurant.deliveryTime || '30-45 min' }}</span>
+            </div>
+            <div class="detail-item">
+              <ion-icon name="cash-outline" color="medium"></ion-icon>
+              <span>Min. ₹{{ restaurant.minOrder || '100' }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <ion-button 
+              fill="solid" 
+              color="primary" 
+              size="small" 
+              class="dashboard-btn"
+              (click)="goToDashboard(restaurant)"
+            >
+              <ion-icon name="analytics-outline" slot="start"></ion-icon>
+              Dashboard
+            </ion-button>
+            <ion-button 
+              fill="outline" 
+              color="medium" 
+              size="small" 
+              class="edit-btn"
+              (click)="editRestaurant(restaurant)"
+            >
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Edit
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && restaurants.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="restaurant-outline" color="medium" size="large"></ion-icon>
+      </div>
+      <h3>No Restaurants Found</h3>
+      <p>You haven't added any restaurants yet. Start by adding your first restaurant!</p>
+      <ion-button fill="solid" color="primary" (click)="addNewRestaurant()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add Restaurant
+      </ion-button>
+    </div>
   </div>
 </ion-content> 

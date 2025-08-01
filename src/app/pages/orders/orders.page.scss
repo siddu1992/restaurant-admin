@@ -1,27 +1,28 @@
 // Orders Management Page Styles
 .admin-header {
-  --background: #181c24 !important;
-  --color: #fff;
-  background: #181c24 !important;
+  --background: #f8f9fa !important;
+  --color: #2c3e50;
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .admin-header ion-toolbar {
-  --background: #181c24 !important;
-  --color: #fff;
+  --background: #f8f9fa !important;
+  --color: #2c3e50;
   --border-width: 0;
-  background: #181c24 !important;
+  background: #f8f9fa !important;
 }
 
 .admin-title {
   font-weight: 700;
   font-size: 20px;
-  color: #fff;
+  color: #2c3e50;
   text-align: center;
 }
 
 .admin-content {
-  --background: linear-gradient(135deg, #232526 0%, #414345 100%);
-  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  --background: #ffffff;
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -37,7 +38,7 @@
 
 .loading-text {
   margin-top: 16px;
-  color: #bbb;
+  color: #7f8c8d;
   font-size: 16px;
 }
 
@@ -48,18 +49,19 @@
 
 // Stats Section
 .stats-section {
-  background: #23272f;
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
 }
 
 .stats-section h3 {
   margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .stats-grid {
@@ -73,40 +75,41 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #23272f;
+  background: #f8f9fa;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
 }
 
 .stat-card ion-icon {
   font-size: 24px;
   flex-shrink: 0;
-  color: #fc8019;
+  color: #667eea;
 }
 
 .stat-content h4 {
   margin: 0 0 4px 0;
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .stat-content p {
   margin: 0;
   font-size: 12px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 .revenue-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #fc8019, #ff6b35);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   padding: 16px;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(252,128,25,0.15);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
 }
 
 .revenue-card ion-icon {
@@ -132,17 +135,18 @@
 
 // Filter Section
 .filter-section {
-  background: #23272f;
+  background: #ffffff;
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
 }
 
 ion-segment {
-  --background: #23272f;
+  --background: #f8f9fa;
   --background-checked: #fc8019;
-  --color: #bbb;
+  --color: #2c3e50;
   --color-checked: #fff;
   border-radius: 8px;
 }
@@ -152,15 +156,27 @@ ion-segment-button {
   --border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
+  --color: #2c3e50;
+  --color-checked: #fff;
+}
+
+ion-segment-button.segment-button-checked {
+  --background: #fc8019 !important;
+  --color: #fc8019 !important;
+}
+
+ion-segment-button.segment-button-checked ion-label {
+  color: #fc8019 !important;
 }
 
 // Orders Section
 .orders-section {
-  background: #23272f;
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
 }
 
 .section-header {
@@ -171,7 +187,7 @@ ion-segment-button {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: #2c3e50;
 }
 
 // Orders List
@@ -182,11 +198,12 @@ ion-segment-button {
 }
 
 .order-card {
-  background: #181c24;
+  background: #ffffff;
   border-radius: 12px;
   padding: 16px;
-  border-left: 4px solid #fc8019;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  border-left: 4px solid #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
 }
 
 .order-header {
@@ -200,22 +217,23 @@ ion-segment-button {
   margin: 0 0 4px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .order-time {
   margin: 0;
   font-size: 12px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 .order-status ion-badge {
   font-size: 10px;
   font-weight: 600;
-  background: #23272f;
-  color: #fc8019;
+  background: #f8f9fa;
+  color: #667eea;
   border-radius: 8px;
   padding: 4px 8px;
+  border: 1px solid #e9ecef;
 }
 
 // Customer Info
@@ -229,13 +247,13 @@ ion-segment-button {
   gap: 8px;
   margin-bottom: 4px;
   font-size: 14px;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .customer-details ion-icon {
   font-size: 16px;
   flex-shrink: 0;
-  color: #fc8019;
+  color: #667eea;
 }
 
 // Order Items
@@ -247,7 +265,7 @@ ion-segment-button {
   margin: 0 0 8px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .item-list {
@@ -261,24 +279,24 @@ ion-segment-button {
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 .item-quantity {
   font-weight: 600;
-  color: #fc8019;
+  color: #667eea;
   min-width: 30px;
 }
 
 .item-name {
   flex: 1;
   margin: 0 8px;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .item-price {
   font-weight: 600;
-  color: #fc8019;
+  color: #667eea;
 }
 
 // Order Footer
@@ -287,7 +305,7 @@ ion-segment-button {
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid #23272f;
+  border-top: 1px solid #e9ecef;
 }
 
 .order-total {
@@ -298,13 +316,13 @@ ion-segment-button {
 
 .total-label {
   font-size: 14px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 .total-amount {
   font-size: 18px;
   font-weight: 700;
-  color: #fc8019;
+  color: #667eea;
 }
 
 .order-actions {
@@ -313,37 +331,37 @@ ion-segment-button {
 }
 
 ion-button[color="success"] {
-  --background: #fc8019;
+  --background: #667eea;
   --color: #fff;
   --border-radius: 8px;
-  --box-shadow: 0 2px 8px rgba(252,128,25,0.10);
+  --box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 ion-button[color="danger"] {
-  --background: #ff4d4f;
+  --background: #e74c3c;
   --color: #fff;
   --border-radius: 8px;
-  --box-shadow: 0 2px 8px rgba(255,77,79,0.10);
+  --box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
 }
 
 // Empty State
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 .empty-state h3 {
   margin: 16px 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #fff;
+  color: #2c3e50;
 }
 
 .empty-state p {
   margin: 0;
   font-size: 14px;
-  color: #bbb;
+  color: #7f8c8d;
 }
 
 // Responsive design

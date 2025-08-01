@@ -1,48 +1,217 @@
-<ion-header>
+<ion-header class="profile-header">
   <ion-toolbar>
-    <ion-title>Edit Restaurant</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/restaurants-list"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Restaurant Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveRestaurant()" [disabled]="restaurantForm.invalid || isSaving">
+        <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
-  <div *ngIf="isLoading">
-    <ion-spinner></ion-spinner>
-    <p>Loading...</p>
+
+<ion-content class="profile-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="loading-text">Loading restaurant details...</p>
   </div>
-  <form *ngIf="!isLoading" [formGroup]="restaurantForm" (ngSubmit)="saveRestaurant()">
-    <ion-list>
-      <ion-item>
-        <ion-label position="stacked">Name</ion-label>
-        <ion-input formControlName="name" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Address</ion-label>
-        <ion-input formControlName="address" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Cuisine</ion-label>
-        <ion-input formControlName="cuisine"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Image URL</ion-label>
-        <ion-input formControlName="image"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Minimum Order</ion-label>
-        <ion-input type="number" formControlName="minOrder"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Delivery Time</ion-label>
-        <ion-input formControlName="deliveryTime"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Description</ion-label>
-        <ion-textarea formControlName="description"></ion-textarea>
-      </ion-item>
-      <ion-item>
-        <ion-label>Available</ion-label>
-        <ion-toggle formControlName="available"></ion-toggle>
-      </ion-item>
-    </ion-list>
-    <ion-button expand="block" type="submit" [disabled]="restaurantForm.invalid">Save</ion-button>
-  </form>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="profile-container">
+    <!-- Restaurant Image Section -->
+    <div class="image-section">
+      <div class="image-container">
+        <img 
+          [src]="restaurantForm.get('image')?.value || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQxIDE0My40MzEgNjAgMTYwIDYwQzE3Ni41NjkgNjAgMTkwIDczLjQzMSAxOTAgOTBDMTkwIDEwNi41NjkgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTMzLjQzMSAxMzAgMTUwQzEzMCAxNjYuNTY5IDE0My40MzEgMTgwIDE2MCAxODBDMTc2LjU2OSAxODAgMTkwIDE2Ni41NjkgMTkwIDE1MEMxOTAgMTMzLjQzMSAxNzYuNTY5IDEyMCAxNjAgMTIwQzE0My40MzEgMTIwIDEzMCAxMDYuNTY5IDEzMCA5MEMxMzAgNzMuNDMxIDE0My40MzEgNjAgMTYwIDYwWiIgZmlsbD0iI0Q3RDdENyIvPgo8c3ZnIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMzIgOEMxOS4xNjMgOC4wMDAwMiA4LjAwMDAyIDE5LjE2MyA4IDMyQzguMDAwMDIgNDQuODM3MiAxOS4xNjMgNTYgMzIgNTZDNDQuODM3MiA1NiA1NiA0NC44MzcgNTYgMzJDNTYgMTkuMTYzIDQ0LjgzNzIgOC4wMDAwMiAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+'" 
+          [alt]="restaurantForm.get('name')?.value || 'Restaurant'"
+          class="restaurant-image"
+          (error)="onImageError($event)"
+        />
+        <div class="image-overlay">
+          <ion-button fill="clear" color="light" size="small" (click)="updateImage()">
+            <ion-icon name="camera-outline" slot="start"></ion-icon>
+            Change Image
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Sections -->
+    <form [formGroup]="restaurantForm" class="form-sections">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+          <h3>Basic Information</h3>
+        </div>
+        
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-input 
+              label="Restaurant Name *"
+              labelPlacement="stacked"
+              formControlName="name" 
+              placeholder="Enter restaurant name"
+              [clearOnEdit]="true"
+              required
+            ></ion-input>
+          </ion-item>
+          <div *ngIf="restaurantForm.get('name')?.invalid && restaurantForm.get('name')?.touched" class="error-message">
+            Restaurant name is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-input 
+              label="Address *"
+              labelPlacement="stacked"
+              formControlName="address" 
+              placeholder="Enter restaurant address"
+              [clearOnEdit]="true"
+              required
+            ></ion-input>
+          </ion-item>
+          <div *ngIf="restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched" class="error-message">
+            Address is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-input 
+              label="Cuisine Type"
+              labelPlacement="stacked"
+              formControlName="cuisine" 
+              placeholder="e.g., Italian, Chinese, Indian"
+              [clearOnEdit]="true"
+            ></ion-input>
+          </ion-item>
+        </div>
+      </div>
+
+      <!-- Image & Media Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <ion-icon name="image-outline" color="primary"></ion-icon>
+          <h3>Image & Media</h3>
+        </div>
+        
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-input 
+              label="Image URL *"
+              labelPlacement="stacked"
+              formControlName="image" 
+              placeholder="Enter image URL"
+              [clearOnEdit]="true"
+              required
+            ></ion-input>
+          </ion-item>
+          <div *ngIf="restaurantForm.get('image')?.invalid && restaurantForm.get('image')?.touched" class="error-message">
+            Image URL is required
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Details Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <ion-icon name="business-outline" color="primary"></ion-icon>
+          <h3>Business Details</h3>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <ion-item class="form-item">
+              <ion-input 
+                label="Minimum Order (₹)"
+                labelPlacement="stacked"
+                type="number" 
+                formControlName="minOrder"
+                placeholder="0"
+                [clearOnEdit]="true"
+              ></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="form-group">
+            <ion-item class="form-item">
+              <ion-input 
+                label="Delivery Time *"
+                labelPlacement="stacked"
+                formControlName="deliveryTime" 
+                placeholder="e.g., 30-45 min"
+                [clearOnEdit]="true"
+                required
+              ></ion-input>
+            </ion-item>
+            <div *ngIf="restaurantForm.get('deliveryTime')?.invalid && restaurantForm.get('deliveryTime')?.touched" class="error-message">
+              Delivery time is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <ion-item class="form-item">
+            <ion-textarea 
+              label="Description *"
+              labelPlacement="stacked"
+              formControlName="description" 
+              placeholder="Describe your restaurant, specialties, and what makes it unique..."
+              rows="4"
+              required
+            ></ion-textarea>
+          </ion-item>
+          <div *ngIf="restaurantForm.get('description')?.invalid && restaurantForm.get('description')?.touched" class="error-message">
+            Description is required
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <ion-icon name="settings-outline" color="primary"></ion-icon>
+          <h3>Status & Availability</h3>
+        </div>
+        
+        <div class="form-group">
+          <ion-item class="form-item toggle-item">
+            <ion-label class="toggle-label">
+              <ion-icon name="checkmark-circle-outline" color="medium"></ion-icon>
+              Restaurant Available
+            </ion-label>
+            <ion-toggle 
+              formControlName="available"
+              color="success"
+            ></ion-toggle>
+          </ion-item>
+          <p class="toggle-description">
+            Toggle to make your restaurant available or unavailable for orders
+          </p>
+        </div>
+      </div>
+        <ion-button 
+          expand="block" 
+          color="primary" 
+          size="large"
+          (click)="saveRestaurant()" 
+          [disabled]="restaurantForm.invalid || isSaving"
+          class="save-button"
+        >
+          <ion-spinner *ngIf="isSaving" name="crescent" color="light"></ion-spinner>
+          <ion-icon *ngIf="!isSaving" name="checkmark-outline" slot="start"></ion-icon>
+          <span *ngIf="!isSaving">Save Changes</span>
+          <span *ngIf="isSaving">Saving...</span>
+        </ion-button>
+      
+    </form>
+
+    <!-- Save Button -->
+   
+  </div>
 </ion-content> 

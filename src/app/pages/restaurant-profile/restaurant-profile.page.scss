@@ -1,6 +1,286 @@
-ion-content {
+// Restaurant Profile Page Styles
+.profile-header {
+  --background: #f8f9fa !important;
+  --color: #2c3e50;
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.profile-header ion-toolbar {
+  --background: #f8f9fa !important;
+  --color: #2c3e50;
+  --border-width: 0;
+  background: #f8f9fa !important;
+}
+
+.profile-content {
+  --background: #ffffff;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+// Loading State
+.loading-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+// Main Container
+.profile-container {
+  padding: 0;
+}
+
+// Image Section
+.image-section {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.restaurant-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-container:hover .restaurant-image {
+  transform: scale(1.05);
+}
+
+// Form Sections
+.form-sections {
+  padding: 0 16px 24px 16px;
+}
+
+.form-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.section-header ion-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: #667eea;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+// Form Groups
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-item {
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  --border-width: 0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --inner-padding-end: 0;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.form-item:focus-within {
+  --background: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px #667eea;
+}
+
+.form-item ion-input,
+.form-item ion-textarea {
+  --color: #2c3e50;
+  --placeholder-color: #7f8c8d;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.form-item ion-textarea {
+  min-height: 100px;
+}
+
+// Error Messages
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-message::before {
+  content: "⚠";
+  font-size: 14px;
+}
+
+// Toggle Item
+.toggle-item {
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  border-radius: 12px;
+  background: #f8f9fa;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.toggle-label ion-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  color: #667eea;
+}
+
+.toggle-description {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: #7f8c8d;
+  line-height: 1.4;
+  padding-left: 16px;
+}
+
+// Save Section
+.save-section {
+  padding: 0 16px 24px 16px;
+  background: #ffffff;
+  margin-top: 24px;
+}
+
+.save-button {
+  color: #ffffff;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  height: 56px;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin: 0;
+  margin-bottom: 30px;
+}
+
+.save-button:hover {
+  --box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.save-button:disabled {
+  --background: #bdc3c7;
+  --box-shadow: none;
+  transform: none;
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .form-sections {
+    padding: 0 12px 20px 12px;
+  }
+  
+  .form-section {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .section-header {
+    margin-bottom: 16px;
+  }
+  
+  .section-header h3 {
+    font-size: 16px;
+  }
+  
+  .form-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+  
+  .save-section {
+    padding: 0 12px 20px 12px;
+  }
+  
+  .save-button {
+    height: 52px;
+    font-size: 15px;
+  }
 } 

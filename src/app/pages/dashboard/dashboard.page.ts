@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -12,14 +11,13 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule],
+  imports: [IonicModule, CommonModule],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss']
 })
 export class DashboardPage implements OnInit, OnDestroy {
   restaurant: Restaurant | null = null;
   isLoading = true;
-  registeringDelivery = false;
   
   // Stats data
   orderStats: any = {
@@ -41,23 +39,12 @@ export class DashboardPage implements OnInit, OnDestroy {
   // Auto-refresh subscription
   private refreshSubscription: Subscription | null = null;
   private restaurantId: string = '';
-  
-  // Reactive Form
-  deliveryForm: FormGroup;
 
   constructor(
     private router: Router,
-    private formBuilder: FormBuilder,
     private toastController: ToastController,
     private apiService: ApiService
-  ) {
-    this.deliveryForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]]
-    });
-  }
+  ) {}
 
   ngOnInit() {
     this.loadDashboardData();
@@ -250,70 +237,11 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.router.navigate(['/delivery-management']);
   }
 
-  // Form submission
-  async registerDeliveryPerson() {
-    if (this.deliveryForm.invalid) {
-      await this.showToast('Please fill all required fields correctly', 'warning');
-      this.markFormGroupTouched();
-      return;
-    }
-
-    try {
-      this.registeringDelivery = true;
-      
-      const formData = this.deliveryForm.value;
-      console.log('Registering delivery person:', formData);
-      
-      await this.apiService.registerDeliveryPerson(formData).toPromise();
-      
-      // Reset form
-      this.deliveryForm.reset();
-      
-      // Refresh delivery people list
-      await this.loadDeliveryPeople();
-      
-      await this.showToast('Delivery person registered successfully!', 'success');
-      
-    } catch (error) {
-      console.error('Error registering delivery person:', error);
-      await this.showToast('Error registering delivery person', 'danger');
-    } finally {
-      this.registeringDelivery = false;
-    }
+  navigateToAddDeliveryPerson() {
+    this.router.navigate(['/add-delivery-person']);
   }
 
-  // Form validation helpers
-  markFormGroupTouched() {
-    Object.keys(this.deliveryForm.controls).forEach(key => {
-      const control = this.deliveryForm.get(key);
-      control?.markAsTouched();
-    });
-  }
 
-  // Form field validation helpers
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.deliveryForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
-  }
-
-  getFieldError(fieldName: string): string {
-    const field = this.deliveryForm.get(fieldName);
-    if (field && field.errors) {
-      if (field.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (field.errors['email']) {
-        return 'Please enter a valid email address';
-      }
-      if (field.errors['minlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      }
-      if (field.errors['pattern']) {
-        return 'Please enter a valid phone number';
-      }
-    }
-    return '';
-  }
 
   // Utility methods
   private async showToast(message: string, color: string = 'primary') {
@@ -332,22 +260,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  // Form field getters for template
-  get nameField() {
-    return this.deliveryForm.get('name');
-  }
 
-  get emailField() {
-    return this.deliveryForm.get('email');
-  }
-
-  get passwordField() {
-    return this.deliveryForm.get('password');
-  }
-
-  get phoneField() {
-    return this.deliveryForm.get('phone');
-  }
 
   // Helper methods for template
   getAverageOrderValue(): number {
@@ -358,9 +271,11 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   getRevenuePercentage(): number {
-    if (this.dashboardStats && this.dashboardStats.totalRevenue > 0) {
-      return (this.dashboardStats.todayRevenue / this.dashboardStats.totalRevenue) * 100;
-    }
-    return 0;
+    if (!this.orderStats?.revenue || !this.orderStats?.total) return 0;
+    return Math.round((this.orderStats.revenue / this.orderStats.total) * 100);
+  }
+
+  onImageError(event: any) {
+    event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MEMxNzYuNTY5IDYwIDE5MCA3My40MzEgMTkwIDkwQzE5MCAxMDYuNTY5IDE3Ni41NjkgMTIwIDE2MCAxMjBDMTQzLjQzMSAxMjAgMTMwIDEzMy40MzEgMTMwIDE1MEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MFoiIGZpbGw9IiNEN0Q3RDciLz4KPHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDhDMTkuMTYzIDggOCAxOS4xNjMgOCAzMkM4IDQ0LjgzNyAxOS4xNjMgNTYgMzIgNTZDNDQuODM3IDU2IDU2IDQ0LjgzNyA1NiAzMkM1NiAxOS4xNjMgMzIgOCAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+';
   }
 } 

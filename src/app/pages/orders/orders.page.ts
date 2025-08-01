@@ -31,7 +31,8 @@ export class OrdersPage implements OnInit {
     { value: 'preparing', label: 'Preparing' },
     { value: 'ready', label: 'Ready' },
     { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' }
+    { value: 'cancelled', label: 'Cancelled' },
+    { value: 'rejected', label: 'Rejected' } // Added rejected
   ];
 
   constructor(
@@ -72,9 +73,27 @@ export class OrdersPage implements OnInit {
     }
   }
 
+  async loadRejectedOrders() {
+    try {
+      const selectedRestaurantStr = localStorage.getItem('selectedRestaurant');
+      let selectedRestaurant!: Restaurant;
+      if (selectedRestaurantStr) {
+        selectedRestaurant = JSON.parse(selectedRestaurantStr);
+      }
+
+      this.apiService.getRejectedOrders(selectedRestaurant._id).subscribe((res) => {
+        this.orders = res;
+        this.filterOrders();
+      });
+    } catch (error) {
+      console.error('Error loading rejected orders:', error);
+      await this.showToast('Error loading rejected orders');
+    }
+  }
+
   loadDeliveryPeople() {
     // Example: fetch all users with role 'delivery'
-    this.apiService.getAllDeliveryPeople?.().subscribe(
+    this.apiService.getAllDeliveryPeople().subscribe(
       (people) => this.deliveryPeople = people,
       (err) => this.deliveryPeople = []
     );
@@ -99,9 +118,32 @@ export class OrdersPage implements OnInit {
     );
   }
 
+  reassignDelivery(order: Order, deliveryPersonId: string) {
+    if (!order || !deliveryPersonId) return;
+    this.assigningOrderId = order._id;
+    this.assigning = true;
+    this.apiService.reassignDelivery(order._id, deliveryPersonId).subscribe(
+      () => {
+        this.assigningOrderId = null;
+        this.assigning = false;
+        this.showToast('Delivery person reassigned!');
+        this.loadOrders();
+      },
+      (err) => {
+        this.assigningOrderId = null;
+        this.assigning = false;
+        this.showToast('Failed to reassign delivery person');
+      }
+    );
+  }
+
   filterOrders() {
     if (this.selectedStatus === 'all') {
       this.filteredOrders = this.orders;
+    } else if (this.selectedStatus === 'rejected') {
+      // Load rejected orders specifically
+      this.loadRejectedOrders();
+      return;
     } else {
       this.filteredOrders = this.orders.filter(order => order.status === this.selectedStatus);
     }
@@ -151,6 +193,7 @@ export class OrdersPage implements OnInit {
       case 'ready': return 'success';
       case 'delivered': return 'success';
       case 'cancelled': return 'danger';
+      case 'rejected': return 'danger'; // Added rejected
       default: return 'medium';
     }
   }
@@ -163,6 +206,7 @@ export class OrdersPage implements OnInit {
       case 'ready': return 'Ready';
       case 'delivered': return 'Delivered';
       case 'cancelled': return 'Cancelled';
+      case 'rejected': return 'Rejected'; // Added rejected
       default: return status;
     }
   }
@@ -190,7 +234,8 @@ export class OrdersPage implements OnInit {
       preparing: this.orders.filter(o => o.status === 'preparing').length,
       ready: this.orders.filter(o => o.status === 'ready').length,
       delivered: this.orders.filter(o => o.status === 'delivered').length,
-      cancelled: this.orders.filter(o => o.status === 'cancelled').length
+      cancelled: this.orders.filter(o => o.status === 'cancelled').length,
+      rejected: this.orders.filter(o => o.status === 'assigned').length // Rejected orders are those with 'assigned' status
     };
   }
 
