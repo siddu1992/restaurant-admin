@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AlertController, LoadingController, ToastController, IonicModule } from '@ionic/angular';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AlertController, IonButton, IonContent, IonHeader, IonInput, IonSegment, IonSegmentButton, IonSelect, IonSpinner, IonTitle, IonToolbar, LoadingController, ToastController } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { ApiService, Order, Restaurant } from '../../services/api.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -12,8 +12,24 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./orders.page.scss'],
   standalone: true,
   providers:[ApiService],
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule]
-})
+ imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonButton, 
+    IonSpinner, 
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+    IonSegmentButton,
+    IonSelect,
+    IonSegment,
+   IonContent, ],
+      schemas:[CUSTOM_ELEMENTS_SCHEMA]})
+
 export class OrdersPage implements OnInit {
   orders: Order[] = [];
   filteredOrders: Order[] = [];

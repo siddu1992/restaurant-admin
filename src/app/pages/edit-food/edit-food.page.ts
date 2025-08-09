@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import { IonIcon, ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar, IonCard, IonCardContent, IonToggle, IonSelect } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -12,8 +12,24 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./edit-food.page.scss'],
   standalone: true,
   providers: [ApiService],
-  imports: [IonicModule, CommonModule, HttpClientModule, FormsModule, ReactiveFormsModule]
-})
+   imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonInput, 
+    IonButton,  
+    IonToggle,
+    CommonModule,
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+    RouterModule,
+     IonContent
+   ],
+    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
+
 export class EditFoodPage implements OnInit {
   foodForm!: FormGroup;
   isLoading = true;

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface Restaurant {
   _id: string;
@@ -102,7 +103,7 @@ export interface DeliveryPerson {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://192.168.1.10:3000'; // WiFi IP for mobile app access
+  private baseUrl = environment.baseUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -112,11 +113,22 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/auth/login`, loginData);
   }
 
-  googleLogin(googleData: { email: string; name: string; picture: string; googleId: string }): Observable<any> {
+  signup(data: { name: string; email: string; password: string; phone?: string; role?: string }): Observable<any> {
+    console.log('[ApiService] POST', `${this.baseUrl}/auth/signup`);
+    return this.http.post(`${this.baseUrl}/auth/signup`, data);
+  }
+
+  googleLogin(googleData: { 
+    email: string; 
+    name: string; 
+    picture: string; 
+    googleId: string;
+    accessToken?: string;
+    idToken?: string;
+  }): Observable<any> {
     console.log('[ApiService] POST', `${this.baseUrl}/auth/google-login`);
     return this.http.post(`${this.baseUrl}/auth/google-login`, googleData);
   }
-
 
   restaurantOwnerSignup(signupData: any): Observable<any> {
     console.log('[ApiService] POST', `${this.baseUrl}/auth/restaurant-owner/signup`);

@@ -1,19 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar ,IonIcon} from '@ionic/angular/standalone';
 import { ApiService } from '../../services/api.service';
-import { LoadingController, ToastController } from '@ionic/angular';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators, FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-add-restaurant',
   templateUrl: './add-restaurant.page.html',
   styleUrls: ['./add-restaurant.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule],
-  providers: [ApiService]
+ imports: [
+    IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonInput, 
+    IonButton, 
+    IonIcon,
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+    IonContent, ],  providers: [ApiService],
+    schemas:[CUSTOM_ELEMENTS_SCHEMA]
+
 })
 export class AddRestaurantPage {
   restaurantForm: FormGroup;

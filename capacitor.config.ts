@@ -4,6 +4,15 @@ const config: CapacitorConfig = {
   appId: 'com.delivery.restaurant',
   appName: 'Restaurant Admin',
   webDir: 'www',
+  server: {
+    allowNavigation: [
+      'http://192.168.1.7:3000',
+      'http://192.168.1.3:3000'
+    ],
+    cleartext: true,
+    androidScheme: 'http',
+    iosScheme: 'http'
+  },
   plugins: {
     SocialLogin: {
       google: {

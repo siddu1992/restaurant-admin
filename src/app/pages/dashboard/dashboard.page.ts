@@ -62,7 +62,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       // Get restaurant ID from localStorage or user profile
       const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
       const selectedRestaurant = JSON.parse(localStorage.getItem('selectedRestaurant') || '{}');
-      
+      console.log(userProfile)
       if (selectedRestaurant._id) {
         this.restaurantId = selectedRestaurant._id;
         this.restaurant = selectedRestaurant;
@@ -71,7 +71,7 @@ export class DashboardPage implements OnInit, OnDestroy {
         await this.loadRestaurantDetails();
       } else {
         // Get restaurant by owner
-        const restaurants = await this.apiService.getRestaurantByOwner(userProfile._id).toPromise();
+        const restaurants = await this.apiService.getRestaurantByOwner(userProfile.id).toPromise();
         if (restaurants && restaurants.length > 0) {
           this.restaurantId = restaurants[0]._id;
           this.restaurant = restaurants[0];
@@ -277,5 +277,8 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   onImageError(event: any) {
     event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MEMxNzYuNTY5IDYwIDE5MCA3My40MzEgMTkwIDkwQzE5MCAxMDYuNTY5IDE3Ni41NjkgMTIwIDE2MCAxMjBDMTQzLjQzMSAxMjAgMTMwIDEzMy40MzEgMTMwIDE1MEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MFoiIGZpbGw9IiNEN0Q3RDciLz4KPHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDhDMTkuMTYzIDggOCAxOS4xNjMgOCAzMkM4IDQ0LjgzNyAxOS4xNjMgNTYgMzIgNTZDNDQuODM3IDU2IDU2IDQ0LjgzNyA1NiAzMkM1NiAxOS4xNjMgMzIgOCAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+';
+  }
+  addRestaurant(){
+    this.router.navigateByUrl('/add-restaurant')
   }
 } 

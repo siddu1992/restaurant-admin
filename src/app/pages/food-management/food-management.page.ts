@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ApiService, Restaurant } from '../../services/api.service';
-import { IonicModule, ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar ,IonIcon, AlertController, IonFabButton, IonFab, IonLabel, IonCardContent, IonCardSubtitle, IonCardTitle, IonCardHeader} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -13,8 +13,28 @@ import { interval, Subscription } from 'rxjs';
   styleUrls: ['./food-management.page.scss'],
   standalone: true,
   providers: [ApiService],
-  imports: [IonicModule, CommonModule, HttpClientModule, RouterModule, FormsModule]
-})
+ imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonButton, 
+    IonSpinner, 
+    IonIcon,
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    IonLabel,
+    IonCardContent,
+    IonCardSubtitle,
+    IonCardTitle,
+    IonCardHeader,
+    RouterModule,
+    HttpClientModule, 
+    IonFabButton,
+    IonFab,
+   IonContent, ],
+   schemas:[CUSTOM_ELEMENTS_SCHEMA]})
 export class FoodManagementPage implements OnInit, OnDestroy {
   foods: any[] = [];
   filteredFoods: any[] = [];

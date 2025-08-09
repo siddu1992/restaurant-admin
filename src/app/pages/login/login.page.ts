@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Router, RouterLink, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import { ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar ,IonIcon} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { SocialLogin } from '@capgo/capacitor-social-login';
@@ -21,9 +21,23 @@ import {
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  providers: [ApiService],
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, HttpClientModule]
-})
+ imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonInput, 
+    IonButton, 
+    IonSpinner, 
+    IonIcon,
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+   IonContent, ],
+    providers:[ApiService],
+    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
 export class LoginPage {
   loginForm: FormGroup;
   isLoading = false;
@@ -83,137 +97,70 @@ export class LoginPage {
       
       // Try real Google Sign-In first
       console.log('Attempting real Google Sign-In...');
-      if (Capacitor.isNativePlatform()) {
-        await this.performNativeGoogleSignIn();
-      } else {
-        await this.performWebGoogleSignIn();
-      }
+      await this.performNativeGoogleSignIn();
       
     } catch (error) {
       console.error('Google Sign-In failed, falling back to demo:', error);
       // Fallback to demo login
-      await this.simulateGoogleLogin();
+     // await this.simulateGoogleLogin();
     } finally {
       this.isGoogleLoggingIn = false;
     }
   }
 
-  private async performNativeGoogleSignIn() {
-    try {
-      console.log('Initializing Google Auth for native platform...');
-      await SocialLogin.initialize({
-        google: {
-          webClientId: '165799531253-rfm5v23nv4i8igk97cno4s33bp2qrivp.apps.googleusercontent.com',
-          iOSServerClientId: '165799531253-rfm5v23nv4i8igk97cno4s33bp2qrivp.apps.googleusercontent.com'
-        }
-      });
-      
-      console.log('Performing Google Sign-In...');
-      const response = await SocialLogin.login({
-        provider: 'google',
-        options: {
-          scopes: ['email', 'profile']
-        }
-      });
-      
-      if (response && response.result) {
-        console.log('Google Sign-In successful:', response.result);
-        
-        // Send to backend for verification
-        const googleLoginData = {
-          email: (response.result as any).email,
-          name: (response.result as any).displayName || (response.result as any).name || 'Google User',
-          picture: (response.result as any).photoUrl || (response.result as any).picture || '',
-          googleId: (response.result as any).id || (response.result as any).sub || ''
-        };
-
-        console.log('Sending Google login data to backend:', googleLoginData);
-
-        // Call your backend API
-        this.apiService.googleLogin(googleLoginData).subscribe({
-          next: async (apiResponse) => {
-            await this.showToast('Google login successful!', 'success');
-            localStorage.setItem('authUser', JSON.stringify(apiResponse.user));
-            localStorage.setItem('restaurant', JSON.stringify(apiResponse.restaurant));
-            localStorage.setItem('authToken', apiResponse.token || 'demo-token');
-            this.router.navigate(['/dashboard']);
-          },
-          error: async (error) => {
-            console.error('Backend Google login error:', error);
-            await this.showToast('Google login failed. Please try again.', 'danger');
-          }
-        });
+private async performNativeGoogleSignIn() {
+  try {
+    console.log('Initializing Google Auth for native platform...');
+    await SocialLogin.initialize({
+      google: {
+        webClientId: '165799531253-rfm5v23nv4i8igk97cno4s33bp2qrivp.apps.googleusercontent.com',
+        iOSServerClientId: '165799531253-rfm5v23nv4i8igk97cno4s33bp2qrivp.apps.googleusercontent.com'
       }
-    } catch (error) {
-      console.error('Native Google Sign-In error:', error);
-      throw error; // Re-throw to trigger fallback
-    }
-  }
+    });
 
-  private async performWebGoogleSignIn() {
-    // For web platform, fallback to demo for now
-    console.log('Web platform detected, using demo login');
-    await this.simulateGoogleLogin();
+    console.log('Performing Google Sign-In...');
+    const response = await SocialLogin.login({
+      provider: 'google',
+      options: {
+      scopes: ['profile', 'email']
   }
+    });
 
-  private async simulateGoogleLogin() {
-    try {
-      console.log('Starting demo login simulation...');
-      
-      // Simulate Google login for demo purposes
-      console.log('Waiting 1.5 seconds...');
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Creating mock user data...');
-      const mockGoogleUser = {
-        email: 'demo@restaurant.com',
-        name: 'Demo Restaurant Owner',
-        picture: 'https://via.placeholder.com/150',
-        googleId: 'demo_google_id'
+    if (response && response.result) {
+      const result = response.result as any;
+
+      const googleLoginData = {
+        email: result.profile.email || '',
+        name: result.profile.displayName || result.profile.name || 'Google User',
+        picture: result.profile.photoUrl || result.picture || '',
+        googleId: result.profile.id || result.profile.sub || '',
       };
 
-      console.log('Setting localStorage data...');
-      localStorage.setItem('authUser', JSON.stringify(mockGoogleUser));
-      localStorage.setItem('authToken', 'demo-google-token');
-      localStorage.setItem('restaurant', JSON.stringify({
-        _id: 'demo-restaurant-id',
-        name: 'Demo Restaurant',
-        address: '123 Demo Street',
-        cuisine: 'International',
-        image: 'https://via.placeholder.com/300x200',
-        rating: 4.5,
-        deliveryTime: '30-45 min',
-        minOrder: 15,
-        owner: mockGoogleUser.email
-      }));
+      console.log('Sending Google login data to backend:', googleLoginData);
 
-      console.log('Skipping toast for now...');
-      // await this.showToast('Demo login successful! Welcome to Restaurant Admin.', 'success');
-      
-      console.log('Navigating to dashboard...');
-      try {
-        await this.router.navigate(['/dashboard']);
-        console.log('Navigation to dashboard successful');
-      } catch (navError) {
-        console.error('Navigation error:', navError);
-        // Fallback to restaurants-list if dashboard fails
-        console.log('Trying fallback navigation to restaurants-list...');
-        try {
-          await this.router.navigate(['/restaurants-list']);
-          console.log('Fallback navigation successful');
-        } catch (fallbackError) {
-          console.error('Fallback navigation also failed:', fallbackError);
-          // Last resort - try to show a simple alert
-          alert('Demo login successful! Navigation failed.');
+      this.apiService.googleLogin(googleLoginData).subscribe({
+        next: async (apiResponse) => {
+          await this.showToast('Google login successful!', 'success');
+          localStorage.setItem('authUser', JSON.stringify(apiResponse.user));
+          localStorage.setItem('restaurant', JSON.stringify(apiResponse.restaurant));
+          localStorage.setItem('authToken', apiResponse.token || 'demo-token');
+          this.router.navigate(['/restaurants-list']);
+        },
+        error: async (error) => {
+          console.error('Backend Google login error:', error);
+          await this.showToast('Google login failed. Please try again.', 'danger');
         }
-      }
-      
-      console.log('Demo login completed successfully!');
-    } catch (error) {
-      console.error('Error in simulateGoogleLogin:', error);
-      throw error;
+      });
+    } else {
+      throw new Error('No login result from Google Sign-In');
     }
+  } catch (error) {
+    console.error('Native Google Sign-In error:', error);
+    throw error;
   }
+}
+
+
 
   // Form validation helpers
   markFormGroupTouched() {

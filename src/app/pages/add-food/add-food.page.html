@@ -60,15 +60,14 @@
           <div class="form-fields">
             
             <!-- Name Field -->
-            <ion-item class="form-item" [class.error]="isFieldInvalid('name')">
-              <ion-label position="stacked" class="form-label">
-                <ion-icon name="fast-food" class="field-icon"></ion-icon>
-                Food Name *
-              </ion-label>
+            <ion-item class="form-item custom-input" [class.error]="isFieldInvalid('name')">
               <ion-input 
+                label="Food Name *"
+                label-placement="floating"
+                fill="solid"
                 formControlName="name" 
-                placeholder="Enter food name"
-                class="custom-input">
+                placeholder="Enter food name">
+                <ion-icon name="fast-food" slot="start" class="field-icon"></ion-icon>
               </ion-input>
               <ion-note slot="error" *ngIf="isFieldInvalid('name')">
                 <ion-icon name="alert-circle"></ion-icon>
@@ -77,16 +76,15 @@
             </ion-item>
 
             <!-- Description Field -->
-            <ion-item class="form-item" [class.error]="isFieldInvalid('description')">
-              <ion-label position="stacked" class="form-label">
-                <ion-icon name="document-text" class="field-icon"></ion-icon>
-                Description *
-              </ion-label>
+            <ion-item class="form-item custom-input" [class.error]="isFieldInvalid('description')">
               <ion-textarea 
+                label="Description *"
+                label-placement="floating"
+                fill="solid"
                 formControlName="description" 
                 placeholder="Describe your delicious food..."
-                rows="3"
-                class="custom-textarea">
+                rows="3">
+                <ion-icon name="document-text" slot="start" class="field-icon"></ion-icon>
               </ion-textarea>
               <ion-note slot="error" *ngIf="isFieldInvalid('description')">
                 <ion-icon name="alert-circle"></ion-icon>
@@ -96,16 +94,15 @@
 
             <!-- Price and Category Row -->
             <div class="form-row">
-              <ion-item class="form-item price-item" [class.error]="isFieldInvalid('price')">
-                <ion-label position="stacked" class="form-label">
-                  <ion-icon name="pricetag" class="field-icon"></ion-icon>
-                  Price (₹) *
-                </ion-label>
+              <ion-item class="form-item price-item custom-input" [class.error]="isFieldInvalid('price')">
                 <ion-input 
+                  label="Price (₹) *"
+                  label-placement="floating"
+                  fill="solid"
                   type="number" 
                   formControlName="price" 
-                  placeholder="0.00"
-                  class="custom-input">
+                  placeholder="0.00">
+                  <ion-icon name="pricetag" slot="start" class="field-icon"></ion-icon>
                 </ion-input>
                 <ion-note slot="error" *ngIf="isFieldInvalid('price')">
                   <ion-icon name="alert-circle"></ion-icon>
@@ -113,15 +110,14 @@
                 </ion-note>
               </ion-item>
 
-              <ion-item class="form-item category-item" [class.error]="isFieldInvalid('category')">
-                <ion-label position="stacked" class="form-label">
-                  <ion-icon name="list" class="field-icon"></ion-icon>
-                  Category *
-                </ion-label>
+              <ion-item class="form-item category-item custom-input" [class.error]="isFieldInvalid('category')">
                 <ion-select 
+                  label="Category *"
+                  label-placement="floating"
+                  fill="solid"
                   formControlName="category" 
-                  placeholder="Select category"
-                  class="custom-select">
+                  placeholder="Select category">
+                  <ion-icon name="list" slot="start" class="field-icon"></ion-icon>
                   <ion-select-option value="main-course">Main Course</ion-select-option>
                   <ion-select-option value="appetizer">Appetizer</ion-select-option>
                   <ion-select-option value="dessert">Dessert</ion-select-option>
@@ -152,15 +148,14 @@
             </ion-item>
 
             <!-- Image URL Field (Optional) -->
-            <ion-item class="form-item">
-              <ion-label position="stacked" class="form-label">
-                <ion-icon name="link" class="field-icon"></ion-icon>
-                Image URL (Optional)
-              </ion-label>
+            <ion-item class="form-item custom-input">
               <ion-input 
+                label="Image URL (Optional)"
+                label-placement="floating"
+                fill="solid"
                 formControlName="image" 
-                placeholder="https://example.com/food-image.jpg"
-                class="custom-input">
+                placeholder="https://example.com/food-image.jpg">
+                <ion-icon name="link" slot="start" class="field-icon"></ion-icon>
               </ion-input>
               <ion-note slot="helper">
                 Provide a direct image URL if you prefer not to upload
@@ -201,4 +196,4 @@
     <ion-spinner name="crescent" color="warning"></ion-spinner>
     <p>Adding your delicious food...</p>
   </div>
-</ion-content> 
+</ion-content>

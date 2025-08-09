@@ -14,4 +14,25 @@ form {
 
 ion-button {
   margin-top: 24px;
-} 
+}
+
+.custom-input {
+  --background: transparent;
+  --border-radius: 8px;
+  --highlight-color: #fc8019;
+  margin-bottom: 16px;
+  
+  ion-input, ion-textarea {
+    --background: #fff;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --border-radius: 8px;
+    --highlight-color-focused: #fc8019;
+    --color: #333;
+    --placeholder-color: #999;
+  }
+  
+  &.ion-invalid.ion-touched ion-input, &.ion-invalid.ion-touched ion-textarea {
+    --border-color: #d32f2f;
+  }
+}

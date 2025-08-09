@@ -1,19 +1,36 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { ApiService, Restaurant } from '../../services/api.service';
-import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { ToastController, IonButton, IonContent, IonHeader, IonInput, IonTitle, IonToolbar ,IonIcon, IonToggle, IonTextarea} from '@ionic/angular/standalone';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-restaurant-profile',
   templateUrl: './restaurant-profile.page.html',
   styleUrls: ['./restaurant-profile.page.scss'],
   standalone: true,
-  providers: [ApiService],
-  imports: [IonicModule, CommonModule, HttpClientModule, FormsModule, ReactiveFormsModule]
-})
+ imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonInput, 
+    IonButton,  
+    IonIcon,
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+    RouterModule,
+     IonContent,
+     IonToggle,
+     IonTextarea
+   ],
+    providers:[ApiService],
+    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
 export class RestaurantProfilePage implements OnInit {
   restaurantForm!: FormGroup;
   isLoading = true;

@@ -11,39 +11,78 @@
       <p>Enter your restaurant details to get started</p>
     </div>
     <form [formGroup]="restaurantForm">
-      <ion-item>
-        <ion-label position="stacked">Name</ion-label>
-        <ion-input formControlName="name" placeholder="Restaurant name"></ion-input>
+      <ion-item class="custom-input">
+        <ion-input 
+          formControlName="name" 
+          label="Name" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="Restaurant name">
+        </ion-input>
       </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Address</ion-label>
-        <ion-input formControlName="address" placeholder="Restaurant address"></ion-input>
+      <ion-item class="custom-input">
+        <ion-input 
+          formControlName="address" 
+          label="Address" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="Restaurant address">
+        </ion-input>
       </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Cuisine</ion-label>
-        <ion-input formControlName="cuisine" placeholder="Cuisine type"></ion-input>
+      <ion-item class="custom-input">
+        <ion-input 
+          formControlName="cuisine" 
+          label="Cuisine" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="Cuisine type">
+        </ion-input>
       </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Description</ion-label>
-        <ion-textarea formControlName="description" placeholder="Describe your restaurant"></ion-textarea>
+      <ion-item class="custom-input">
+        <ion-textarea 
+          formControlName="description" 
+          label="Description" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="Describe your restaurant">
+        </ion-textarea>
       </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Delivery Time</ion-label>
-        <ion-input formControlName="deliveryTime" placeholder="e.g., 25-35 min"></ion-input>
+      <ion-item class="custom-input">
+        <ion-input 
+          formControlName="deliveryTime" 
+          label="Delivery Time" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="e.g., 25-35 min">
+        </ion-input>
       </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Min Order</ion-label>
-        <ion-input formControlName="minOrder" type="number" placeholder="Minimum order amount"></ion-input>
+      <ion-item class="custom-input">
+        <ion-input 
+          formControlName="minOrder" 
+          type="number" 
+          label="Min Order" 
+          label-placement="floating" 
+          fill="solid" 
+          placeholder="Minimum order amount">
+        </ion-input>
       </ion-item>
       <ion-item style="display:none;">
-        <ion-label position="stacked">Latitude</ion-label>
-        <ion-input formControlName="latitude" readonly></ion-input>
+        <ion-input 
+          formControlName="latitude" 
+          label="Latitude" 
+          label-placement="floating" 
+          readonly>
+        </ion-input>
       </ion-item>
       <ion-item style="display:none;">
-        <ion-label position="stacked">Longitude</ion-label>
-        <ion-input formControlName="longitude" readonly></ion-input>
+        <ion-input 
+          formControlName="longitude" 
+          label="Longitude" 
+          label-placement="floating" 
+          readonly>
+        </ion-input>
       </ion-item>
       <ion-button expand="block" (click)="addRestaurant()">Add Restaurant</ion-button>
     </form>
   </div>
-</ion-content> 
+</ion-content>

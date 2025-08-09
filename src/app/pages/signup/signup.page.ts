@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
+import { IonIcon, ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar, IonCard, IonCardContent } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -11,9 +11,24 @@ import { HttpClientModule } from '@angular/common/http';
   templateUrl: './signup.page.html',
   styleUrls: ['./signup.page.scss'],
   standalone: true,
-  providers: [ApiService],
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, HttpClientModule]
-})
+ imports: [
+  IonContent, 
+    IonHeader, 
+    IonTitle, 
+    IonToolbar, 
+    IonInput, 
+    IonButton,  
+    IonIcon,
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    RouterModule,
+    HttpClientModule, 
+    RouterModule,
+     IonContent
+   ],
+    providers:[ApiService],
+    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
 export class SignupPage {
   signupForm: FormGroup;
   isLoading = false;

@@ -33,5 +33,326 @@
  */
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import "@import "@ionic/angular/css/palettes/dark.class.css"; */
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+/**
+ * Android-specific fixes
+ * -----------------------------------------------------
+ * These styles fix common issues with Android rendering
+ */
+
+/* Fix for ion-app background on Android */
+.md ion-app {
+  background-color: transparent !important;
+}
+
+/* Fix for ion-content background on Android WebView */
+.md ion-content {
+  --background: var(--ion-background-color, #fff) !important;
+}
+
+/* Fix for input styling on Android */
+.md ion-item.custom-input {
+  --background: transparent;
+  --border-color: transparent;
+  --highlight-height: 0;
+  margin-bottom: 16px;
+  --inner-padding-end: 0;
+  --inner-padding-start: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.md ion-item.custom-input ion-input,
+.md ion-item.custom-input ion-textarea,
+.md ion-item.custom-input ion-select {
+  --background: #fff;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-radius: 8px;
+  --highlight-color-focused: #fc8019;
+  --color: #333;
+  --placeholder-color: #999;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.md ion-item.custom-input.ion-invalid.ion-touched ion-input,
+.md ion-item.custom-input.ion-invalid.ion-touched ion-textarea,
+.md ion-item.custom-input.ion-invalid.ion-touched ion-select {
+  border-color: #d32f2f;
+}
+
+/* Fix for label positioning on Android */
+.md ion-item.custom-input ion-label {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+/* Fix for floating labels on Android */
+.md ion-input[label-placement="floating"],
+.md ion-textarea[label-placement="floating"],
+.md ion-select[label-placement="floating"] {
+  --border-width: 1px;
+  --border-color: #ddd;
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --highlight-height: 2px;
+  --highlight-color-focused: #fc8019;
+  --highlight-color-valid: #4caf50;
+  --highlight-color-invalid: #d32f2f;
+}
+
+/* Fix for floating label positioning on Android */
+.md ion-input[label-placement="floating"] label,
+.md ion-textarea[label-placement="floating"] label,
+.md ion-select[label-placement="floating"] label {
+  color: #666;
+  font-size: 14px;
+  transform-origin: left top;
+  max-width: calc(100% - 24px);
+}
+
+/* Fix for floating label when focused on Android */
+.md ion-input.has-focus[label-placement="floating"] label,
+.md ion-textarea.has-focus[label-placement="floating"] label,
+.md ion-select.has-focus[label-placement="floating"] label {
+  color: var(--highlight-color-focused);
+  transform: translateY(-12px) scale(0.8);
+}
+
+/* Fix for floating label when filled on Android */
+.md ion-input.has-value[label-placement="floating"] label,
+.md ion-textarea.has-value[label-placement="floating"] label,
+.md ion-select.has-value[label-placement="floating"] label {
+  transform: translateY(-12px) scale(0.8);
+}
+
+/* Fix for form validation error messages on Android */
+.md .error-message,
+.md ion-note.error-message {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.md .error-message ion-icon,
+.md ion-note.error-message ion-icon {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+/* Fix for form validation visual indicators on Android */
+.md ion-item.ion-invalid.ion-touched {
+  --border-color: #d32f2f;
+}
+
+.md ion-item.ion-valid.ion-touched {
+  --border-color: #4caf50;
+}
+
+/* Fix for buttons on Android */
+.md ion-button {
+  --border-radius: 8px;
+  --box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* Fix for cards on Android */
+.md ion-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.md ion-card-header {
+  padding-bottom: 8px;
+}
+
+.md ion-card-content {
+  padding-top: 8px;
+}
+
+/* Fix for lists on Android */
+.md ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+/* Fix for item dividers on Android */
+.md ion-item-divider {
+  --background: #f5f5f5;
+  --color: #666;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+/* Fix for toolbar on Android */
+.md ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+  --border-color: transparent;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+/* Fix for segment buttons on Android */
+.md ion-segment {
+  --background: transparent;
+}
+
+.md ion-segment-button {
+  --background-checked: var(--ion-color-primary);
+  --color-checked: var(--ion-color-primary-contrast);
+  --indicator-color: var(--ion-color-primary);
+  --border-radius: 8px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* Fix for checkboxes and toggles on Android */
+.md ion-checkbox,
+.md ion-toggle {
+  --background-checked: var(--ion-color-primary);
+  --border-color-checked: var(--ion-color-primary);
+}
+
+/* Fix for alerts on Android */
+.md ion-alert {
+  --backdrop-opacity: 0.6;
+  --background: #fff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Fix for toasts on Android */
+.md ion-toast {
+  --background: #333;
+  --color: #fff;
+  --border-radius: 8px;
+  --box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+/* Fix for general ion-item styling on Android */
+.md ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 8px;
+  --background: transparent;
+  --background-activated: rgba(0, 0, 0, 0.05);
+  --background-focused: rgba(0, 0, 0, 0.05);
+  --background-hover: rgba(0, 0, 0, 0.03);
+  --border-color: #ddd;
+  --ripple-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Fix for ion-item lines on Android */
+.md ion-item.item-lines-full {
+  --border-width: 0 0 1px 0;
+}
+
+.md ion-item.item-lines-none {
+  --border-width: 0;
+}
+
+/* Fix for ion-item with slots on Android */
+.md ion-item [slot="start"] {
+  margin-right: 16px;
+}
+
+.md ion-item [slot="end"] {
+  margin-left: 16px;
+}
+
+/* Fix for ion-label on Android */
+.md ion-label {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  font-weight: 400;
+}
+
+/* Fix for ion-label color on Android */
+.md ion-label.ion-color {
+  color: var(--ion-color-base) !important;
+}
+
+/* Fix for ion-note on Android */
+.md ion-note {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Fix for ion-badge on Android */
+.md ion-badge {
+  --padding-top: 3px;
+  --padding-bottom: 3px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Fix for ion-chip on Android */
+.md ion-chip {
+  --background: #f0f0f0;
+  --color: #333;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 4px 12px;
+}
+
+/* Fix for ion-chip with icon on Android */
+.md ion-chip ion-icon {
+  font-size: 16px;
+  margin-right: 4px;
+  margin-left: -4px;
+}
+
+/* Fix for ion-chip with avatar on Android */
+.md ion-chip ion-avatar {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+  margin-left: -4px;
+}
+
+/* Fix for ion-avatar on Android */
+.md ion-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* Fix for ion-thumbnail on Android */
+.md ion-thumbnail {
+  --size: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+}
