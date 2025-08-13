@@ -63,7 +63,8 @@ export class RestaurantProfilePage implements OnInit {
       description: ['',Validators.required],
       available: [true],
       latitude: [null],
-      longitude: [null]
+      longitude: [null],
+      pincode:['',Validators.required]
     });
     this.loadRestaurant();
   }

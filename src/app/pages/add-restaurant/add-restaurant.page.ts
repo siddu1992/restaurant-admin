@@ -50,7 +50,8 @@ export class AddRestaurantPage {
       deliveryTime: ['25-35 min', Validators.required],
       minOrder: [15, [Validators.required, Validators.min(0)]],
       latitude: ['', Validators.required],
-      longitude: ['', Validators.required]
+      longitude: ['', Validators.required],
+      pincode: ['', Validators.required],
     });
 
     this.restaurantForm.get('address')?.valueChanges.subscribe(address => {

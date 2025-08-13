@@ -79,7 +79,21 @@
             Address is required
           </div>
         </div>
-
+        <div class="form-group">
+       <ion-item class="custom-input">
+        <ion-input 
+          formControlName="pincode" 
+          label="pin code" 
+          label-placement="floating" 
+          fill="solid" 
+          type="number"
+          placeholder="pin">
+        </ion-input>
+      </ion-item>
+       <div *ngIf="restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched" class="error-message">
+            Address is required
+          </div>
+      </div>
         <div class="form-group">
           <ion-item class="form-item">
             <ion-input 

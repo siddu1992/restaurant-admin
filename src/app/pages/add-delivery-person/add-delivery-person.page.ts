@@ -33,7 +33,8 @@ export class AddDeliveryPersonPage implements OnInit {
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       vehicleNumber: [''],
       vehicleType: ['bicycle'],
-      address: ['']
+      address: [''],
+      pincode: ['',Validators.required]
     });
   }
 
