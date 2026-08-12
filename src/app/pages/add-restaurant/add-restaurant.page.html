@@ -1,98 +1,100 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Add Restaurant</ion-title>
-  </ion-toolbar>
-</ion-header>
-<ion-content>
-  <div class="swiggy-add-restaurant-card">
-    <div class="swiggy-add-restaurant-header">
-      <ion-icon name="storefront-outline" size="large"></ion-icon>
-      <h1>Add Your Restaurant</h1>
-      <p>Enter your restaurant details to get started</p>
+<div class="admin-form-page">
+  <div class="page-toolbar">
+    <div>
+      <p class="eyebrow">Restaurants</p>
+      <h2>Add restaurant</h2>
+      <p class="subtitle">Create a new location for your KitchenHub account</p>
     </div>
-    <form [formGroup]="restaurantForm">
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="name" 
-          label="Name" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="Restaurant name">
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="address" 
-          label="Address" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="Restaurant address">
-        </ion-input>
-      </ion-item>
-       <ion-item class="custom-input">
-        <ion-input 
-          formControlName="pincode" 
-          label="pin code" 
-          label-placement="floating" 
-          fill="solid" 
-          type="number"
-          placeholder="pin">
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="cuisine" 
-          label="Cuisine" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="Cuisine type">
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-textarea 
-          formControlName="description" 
-          label="Description" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="Describe your restaurant">
-        </ion-textarea>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="deliveryTime" 
-          label="Delivery Time" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="e.g., 25-35 min">
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="minOrder" 
-          type="number" 
-          label="Min Order" 
-          label-placement="floating" 
-          fill="solid" 
-          placeholder="Minimum order amount">
-        </ion-input>
-      </ion-item>
-      <ion-item style="display:none;">
-        <ion-input 
-          formControlName="latitude" 
-          label="Latitude" 
-          label-placement="floating" 
-          readonly>
-        </ion-input>
-      </ion-item>
-      <ion-item style="display:none;">
-        <ion-input 
-          formControlName="longitude" 
-          label="Longitude" 
-          label-placement="floating" 
-          readonly>
-        </ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="addRestaurant()">Add Restaurant</ion-button>
-    </form>
+    <a routerLink="/restaurants" class="ghost-btn">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Back
+    </a>
   </div>
-</ion-content>
+
+  <form class="form-card" [formGroup]="restaurantForm" (ngSubmit)="submit()">
+    <section class="form-section">
+      <h3>
+        <ion-icon name="storefront-outline"></ion-icon>
+        Basic details
+      </h3>
+      <div class="grid-2">
+        <label [class.invalid]="isInvalid('name')">
+          <span>Restaurant name *</span>
+          <input formControlName="name" type="text" placeholder="e.g. Spice Route Kitchen" />
+          <small *ngIf="isInvalid('name')">{{ fieldError('name') }}</small>
+        </label>
+        <label [class.invalid]="isInvalid('cuisine')">
+          <span>Cuisine *</span>
+          <input formControlName="cuisine" type="text" placeholder="e.g. North Indian" />
+          <small *ngIf="isInvalid('cuisine')">{{ fieldError('cuisine') }}</small>
+        </label>
+      </div>
+      <label [class.invalid]="isInvalid('description')">
+        <span>Description</span>
+        <textarea formControlName="description" rows="3" placeholder="Short description for customers"></textarea>
+      </label>
+    </section>
+
+    <section class="form-section">
+      <h3>
+        <ion-icon name="location-outline"></ion-icon>
+        Address & delivery
+      </h3>
+      <label [class.invalid]="isInvalid('address')">
+        <span>Full address *</span>
+        <input formControlName="address" type="text" placeholder="Street, area, city" />
+        <small *ngIf="isInvalid('address')">{{ fieldError('address') }}</small>
+      </label>
+      <div class="grid-3">
+        <label [class.invalid]="isInvalid('pincode')">
+          <span>Pincode *</span>
+          <input formControlName="pincode" type="text" maxlength="6" placeholder="500001" />
+          <small *ngIf="isInvalid('pincode')">{{ fieldError('pincode') }}</small>
+        </label>
+        <label [class.invalid]="isInvalid('deliveryTime')">
+          <span>Delivery time *</span>
+          <input formControlName="deliveryTime" type="text" placeholder="25-35 min" />
+          <small *ngIf="isInvalid('deliveryTime')">{{ fieldError('deliveryTime') }}</small>
+        </label>
+        <label [class.invalid]="isInvalid('minOrder')">
+          <span>Min order (₹) *</span>
+          <input formControlName="minOrder" type="number" min="0" step="1" />
+          <small *ngIf="isInvalid('minOrder')">{{ fieldError('minOrder') }}</small>
+        </label>
+      </div>
+
+      <div class="geo-box">
+        <div class="geo-status" [attr.data-status]="geoStatus">
+          <ng-container [ngSwitch]="geoStatus">
+            <span *ngSwitchCase="'idle'">Enter an address to auto-fill coordinates, or type them manually.</span>
+            <span *ngSwitchCase="'loading'">Looking up coordinates…</span>
+            <span *ngSwitchCase="'success'">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              Coordinates updated from address
+            </span>
+            <span *ngSwitchCase="'failed'">Auto-geocode unavailable. Enter latitude/longitude manually.</span>
+          </ng-container>
+        </div>
+        <div class="grid-2">
+          <label [class.invalid]="isInvalid('latitude')">
+            <span>Latitude *</span>
+            <input formControlName="latitude" type="number" step="any" placeholder="17.3850" />
+            <small *ngIf="isInvalid('latitude')">{{ fieldError('latitude') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('longitude')">
+            <span>Longitude *</span>
+            <input formControlName="longitude" type="number" step="any" placeholder="78.4867" />
+            <small *ngIf="isInvalid('longitude')">{{ fieldError('longitude') }}</small>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <a routerLink="/restaurants" class="ghost-btn">Cancel</a>
+      <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Saving…' : 'Create restaurant' }}
+      </button>
+    </div>
+  </form>
+</div>

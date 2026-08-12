@@ -1,4 +1,5 @@
 :root {
+  /* Ionic brand */
   --ion-color-primary: #0f766e;
   --ion-color-primary-rgb: 15, 118, 110;
   --ion-color-primary-contrast: #ffffff;
@@ -21,10 +22,31 @@
   --ion-text-color: #134e4a;
   --ion-font-family: 'Sora', 'Segoe UI', system-ui, sans-serif;
 
+  /* Admin design system */
   --admin-brand: #0f766e;
-  --admin-surface: #ffffff;
+  --admin-brand-strong: #0b5f59;
+  --admin-ink: #134e4a;
   --admin-muted: #64748b;
+  --admin-canvas: #f4faf9;
+  --admin-surface: #ffffff;
   --admin-border: #d8ebe8;
   --admin-radius: 16px;
+  --admin-radius-sm: 10px;
   --admin-shadow: 0 10px 30px rgba(15, 118, 110, 0.1);
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
 }

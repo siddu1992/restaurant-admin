@@ -42,9 +42,26 @@
  * These styles fix common issues with Android rendering
  */
 
-/* Fix for ion-app background on Android */
-.md ion-app {
-  background-color: transparent !important;
+/* Admin shell lives inside ion-router-outlet; force full-height page so inner panes can scroll */
+ion-app,
+ion-router-outlet {
+  height: 100%;
+}
+
+ion-router-outlet > .ion-page:has(app-admin-shell),
+ion-router-outlet > .ion-page:has(.admin-shell-host),
+.ion-page:has(.admin-shell) {
+  display: block !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  contain: none !important;
+}
+
+app-admin-shell,
+.admin-shell-host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Fix for ion-content background on Android WebView */

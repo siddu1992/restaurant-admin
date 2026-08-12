@@ -1,276 +1,389 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { AlertController, IonButton, IonContent, IonHeader, IonInput, IonSegment, IonSegmentButton, IonSelect, IonSpinner, IonTitle, IonToolbar, LoadingController, ToastController } from '@ionic/angular/standalone';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService, Order, Restaurant } from '../../services/api.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AlertController,
+  IonIcon,
+  IonSpinner,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  alertCircleOutline,
+  closeOutline,
+  refreshOutline,
+  searchOutline,
+} from 'ionicons/icons';
+import { Subject, Subscription, firstValueFrom } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { RestaurantContextService } from '../../core/restaurant-context.service';
+import {
+  Order,
+  OrderStatus,
+  PaymentFilter,
+  getNextOrderStatuses,
+  getOrderItemName,
+  getOrderItemUnitPrice,
+} from '../../models';
+import { ApiService } from '../../services/api.service';
+
+interface StatusOption {
+  value: string;
+  label: string;
+}
+
+interface SortOption {
+  value: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-orders',
+  standalone: true,
+  imports: [CommonModule, FormsModule, IonIcon, IonSpinner],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
-  standalone: true,
-  providers:[ApiService],
- imports: [
-  IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonButton, 
-    IonSpinner, 
-    CommonModule, 
-    FormsModule, 
-    ReactiveFormsModule,
-    RouterModule,
-    HttpClientModule, 
-    IonSegmentButton,
-    IonSelect,
-    IonSegment,
-   IonContent, ],
-      schemas:[CUSTOM_ELEMENTS_SCHEMA]})
-
-export class OrdersPage implements OnInit {
+})
+export class OrdersPage implements OnInit, OnDestroy {
   orders: Order[] = [];
-  filteredOrders: Order[] = [];
+  selectedOrder: Order | null = null;
   isLoading = true;
-  selectedStatus = 'all';
-  restaurantId = 'demo-restaurant-id';
-  deliveryPeople: any[] = [];
-  assigningOrderId: string | null = null;
-  assigning = false;
+  isUpdating = false;
+  loadError: string | null = null;
 
-  statusOptions = [
-    { value: 'all', label: 'All Orders' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'assigned', label: 'Assigned' }, // Added assigned
+  searchTerm = '';
+  statusFilter = 'all';
+  paymentFilter: PaymentFilter = 'all';
+  customerFilter = '';
+  dateFrom = '';
+  dateTo = '';
+  sortBy = 'createdAt';
+  sortOrder: 'asc' | 'desc' = 'desc';
+
+  page = 1;
+  limit = 10;
+  total = 0;
+  totalPages = 1;
+  statusCounts: Record<string, number> = {};
+
+  readonly statusOptions: StatusOption[] = [
+    { value: 'all', label: 'All' },
+    { value: 'pending', label: 'New' },
+    { value: 'confirmed', label: 'Confirmed' },
     { value: 'preparing', label: 'Preparing' },
-    { value: 'ready', label: 'Ready' },
-    { value: 'delivered', label: 'Delivered' },
+    { value: 'ready_for_pickup', label: 'Ready' },
+    { value: 'out_for_delivery', label: 'Out for delivery' },
+    { value: 'delivered', label: 'Completed' },
     { value: 'cancelled', label: 'Cancelled' },
-    { value: 'rejected', label: 'Rejected' } // Added rejected
+    { value: 'assigned', label: 'Assigned' },
   ];
 
-  constructor(
-    private router: Router,
-    private apiService: ApiService,
-    private alertController: AlertController,
-    private loadingController: LoadingController,
-    private toastController: ToastController
-  ) {}
+  readonly paymentOptions: StatusOption[] = [
+    { value: 'all', label: 'All payments' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'unpaid', label: 'Unpaid' },
+  ];
 
-  ngOnInit() {
-    this.loadOrders();
-    this.loadDeliveryPeople();
+  readonly sortOptions: SortOption[] = [
+    { value: 'createdAt', label: 'Created date' },
+    { value: 'totalAmount', label: 'Amount' },
+    { value: 'status', label: 'Status' },
+    { value: 'customerName', label: 'Customer' },
+  ];
+
+  private restaurantId = '';
+  private readonly searchSubject = new Subject<string>();
+  private subs = new Subscription();
+
+  constructor(
+    private readonly api: ApiService,
+    private readonly restaurantContext: RestaurantContextService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly toastController: ToastController,
+    private readonly alertController: AlertController,
+  ) {
+    addIcons({
+      alertCircleOutline,
+      closeOutline,
+      refreshOutline,
+      searchOutline,
+    });
   }
 
-  async loadOrders() {
+  ngOnInit(): void {
+    this.subs.add(
+      this.searchSubject
+        .pipe(debounceTime(350), distinctUntilChanged())
+        .subscribe(() => {
+          this.page = 1;
+          void this.loadOrders();
+        }),
+    );
+
+    this.subs.add(
+      this.route.queryParamMap.subscribe((params) => {
+        const q = params.get('q');
+        if (q) {
+          this.searchTerm = q;
+        }
+      }),
+    );
+
+    this.subs.add(
+      this.restaurantContext.restaurant$.subscribe((restaurant) => {
+        if (restaurant?._id) {
+          this.restaurantId = restaurant._id;
+          void this.loadOrders();
+        }
+      }),
+    );
+
+    const selected = this.restaurantContext.selectedRestaurant;
+    if (selected?._id) {
+      this.restaurantId = selected._id;
+      void this.loadOrders();
+    } else {
+      this.isLoading = false;
+      void this.router.navigate(['/restaurants']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  onSearchInput(): void {
+    this.searchSubject.next(this.searchTerm.trim());
+  }
+
+  onFiltersChanged(): void {
+    this.page = 1;
+    void this.loadOrders();
+  }
+
+  toggleSortOrder(): void {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    void this.loadOrders();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.page) {
+      return;
+    }
+    this.page = page;
+    void this.loadOrders();
+  }
+
+  async refresh(): Promise<void> {
+    await this.loadOrders();
+    await this.showToast('Orders refreshed', 'success');
+  }
+
+  openOrder(order: Order): void {
+    this.selectedOrder = order;
+  }
+
+  closeDetail(): void {
+    this.selectedOrder = null;
+  }
+
+  getNextActions(order: Order): OrderStatus[] {
+    return getNextOrderStatuses(order.status);
+  }
+
+  getPrimaryActions(order: Order): OrderStatus[] {
+    return this.getNextActions(order).filter(
+      (status: OrderStatus) => status !== 'cancelled',
+    );
+  }
+
+  canCancel(order: Order): boolean {
+    return this.getNextActions(order).includes('cancelled');
+  }
+
+  async applyStatus(order: Order, nextStatus: OrderStatus): Promise<void> {
+    if (!this.getNextActions(order).includes(nextStatus) && nextStatus !== 'cancelled') {
+      await this.showToast('Invalid status transition', 'danger');
+      return;
+    }
+
+    if (nextStatus === 'cancelled') {
+      await this.confirmCancel(order);
+      return;
+    }
+
+    await this.performStatusUpdate(order, nextStatus);
+  }
+
+  async confirmCancel(order: Order): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Cancel order',
+      message: `Cancel order #${this.orderNumber(order)}? This cannot be undone.`,
+      buttons: [
+        { text: 'Keep order', role: 'cancel' },
+        {
+          text: 'Cancel order',
+          role: 'destructive',
+          handler: () => {
+            void this.performStatusUpdate(order, 'cancelled');
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  orderNumber(order: Order): string {
+    return order._id.slice(-6).toUpperCase();
+  }
+
+  formatStatus(status: string): string {
+    const map: Record<string, string> = {
+      pending: 'New',
+      confirmed: 'Confirmed',
+      preparing: 'Preparing',
+      ready_for_pickup: 'Ready',
+      ready: 'Ready',
+      out_for_delivery: 'Out for delivery',
+      picked_up: 'Picked up',
+      delivered: 'Completed',
+      cancelled: 'Cancelled',
+      assigned: 'Assigned',
+    };
+    return map[status] || status.replace(/_/g, ' ');
+  }
+
+  statusClass(status: string): string {
+    const normalized = status === 'ready' ? 'ready_for_pickup' : status;
+    return `status-${normalized}`;
+  }
+
+  actionLabel(status: OrderStatus): string {
+    const map: Partial<Record<OrderStatus, string>> = {
+      confirmed: 'Confirm',
+      preparing: 'Start preparing',
+      ready_for_pickup: 'Mark ready',
+      out_for_delivery: 'Out for delivery',
+      delivered: 'Mark completed',
+      cancelled: 'Cancel',
+    };
+    return map[status] || this.formatStatus(status);
+  }
+
+  itemName(item: Order['items'][number]): string {
+    return getOrderItemName(item);
+  }
+
+  itemPrice(item: Order['items'][number]): number {
+    return getOrderItemUnitPrice(item);
+  }
+
+  itemLineTotal(item: Order['items'][number]): number {
+    return this.itemPrice(item) * (item.quantity || 0);
+  }
+
+  formatCurrency(value: number): string {
+    return `₹${(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  }
+
+  get countPending(): number {
+    return (this.statusCounts['pending'] || 0) + (this.statusCounts['confirmed'] || 0);
+  }
+
+  get countPreparing(): number {
+    return this.statusCounts['preparing'] || 0;
+  }
+
+  get countReady(): number {
+    return (
+      (this.statusCounts['ready_for_pickup'] || 0) + (this.statusCounts['ready'] || 0)
+    );
+  }
+
+  get countCompleted(): number {
+    return this.statusCounts['delivered'] || 0;
+  }
+
+  private async loadOrders(): Promise<void> {
+    if (!this.restaurantId) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.loadError = null;
+
     try {
-      this.isLoading = true;
-      const selectedRestaurantStr = localStorage.getItem('selectedRestaurant');
-      let selectedRestaurant!: Restaurant;
-      if (selectedRestaurantStr) {
-        selectedRestaurant = JSON.parse(selectedRestaurantStr);
+      const response = await firstValueFrom(
+        this.api.searchRestaurantOrders(this.restaurantId, {
+          status: this.statusFilter,
+          payment: this.paymentFilter,
+          q: this.searchTerm.trim() || undefined,
+          customer: this.customerFilter.trim() || undefined,
+          from: this.dateFrom || undefined,
+          to: this.dateTo || undefined,
+          page: this.page,
+          limit: this.limit,
+          sortBy: this.sortBy,
+          sortOrder: this.sortOrder,
+        }),
+      );
+
+      this.orders = response.data || [];
+      this.total = response.total || 0;
+      this.page = response.page || 1;
+      this.limit = response.limit || this.limit;
+      this.totalPages = response.totalPages || 1;
+      this.statusCounts = response.statusCounts || {};
+
+      if (this.selectedOrder) {
+        const updated = this.orders.find((o) => o._id === this.selectedOrder?._id);
+        this.selectedOrder = updated || this.selectedOrder;
       }
-  
-
-       this.apiService.getRestaurantOrders(selectedRestaurant._id).subscribe((res)=>{
-        this.orders = res
-       this.filterOrders();
-
-      }) || [];
-      
-      
     } catch (error) {
-      console.error('Error loading orders:', error);
-      await this.showToast('Error loading orders');
+      console.error('Failed to load orders', error);
+      this.loadError = 'Failed to load orders. Please retry.';
+      this.orders = [];
     } finally {
       this.isLoading = false;
     }
   }
 
-  async loadRejectedOrders() {
+  private async performStatusUpdate(order: Order, nextStatus: OrderStatus): Promise<void> {
+    this.isUpdating = true;
     try {
-      const selectedRestaurantStr = localStorage.getItem('selectedRestaurant');
-      let selectedRestaurant!: Restaurant;
-      if (selectedRestaurantStr) {
-        selectedRestaurant = JSON.parse(selectedRestaurantStr);
+      const updated = await firstValueFrom(
+        this.api.updateOrderStatus(order._id, nextStatus),
+      );
+      order.status = updated.status;
+      order.updatedAt = updated.updatedAt;
+      if (this.selectedOrder?._id === order._id) {
+        this.selectedOrder = { ...this.selectedOrder, ...updated };
       }
-
-      this.apiService.getRejectedOrders(selectedRestaurant._id).subscribe((res) => {
-        this.orders = res;
-        this.filterOrders();
-      });
-    } catch (error) {
-      console.error('Error loading rejected orders:', error);
-      await this.showToast('Error loading rejected orders');
-    }
-  }
-
-  loadDeliveryPeople() {
-    // Example: fetch all users with role 'delivery'
-    this.apiService.getAllDeliveryPeople().subscribe(
-      (people) => this.deliveryPeople = people,
-      (err) => this.deliveryPeople = []
-    );
-  }
-
-  assignDelivery(order: Order, deliveryPersonId: string) {
-    if (!order || !order.delivery || !deliveryPersonId) return;
-    this.assigningOrderId = order._id;
-    this.assigning = true;
-    this.apiService.assignDeliveryPerson(order.delivery._id, deliveryPersonId).subscribe(
-      () => {
-        this.assigningOrderId = null;
-        this.assigning = false;
-        this.showToast('Delivery person assigned!');
-        this.loadOrders();
-      },
-      (err) => {
-        this.assigningOrderId = null;
-        this.assigning = false;
-        this.showToast('Failed to assign delivery person');
-      }
-    );
-  }
-
-  reassignDelivery(order: Order, deliveryPersonId: string) {
-    if (!order || !deliveryPersonId) return;
-    this.assigningOrderId = order._id;
-    this.assigning = true;
-    this.apiService.reassignDelivery(order._id, deliveryPersonId).subscribe(
-      () => {
-        this.assigningOrderId = null;
-        this.assigning = false;
-        this.showToast('Delivery person reassigned!');
-        this.loadOrders();
-      },
-      (err) => {
-        this.assigningOrderId = null;
-        this.assigning = false;
-        this.showToast('Failed to reassign delivery person');
-      }
-    );
-  }
-
-  filterOrders() {
-    if (this.selectedStatus === 'all') {
-      this.filteredOrders = this.orders;
-    } else if (this.selectedStatus === 'rejected') {
-      // Load rejected orders specifically
-      this.loadRejectedOrders();
-      return;
-    } else {
-      this.filteredOrders = this.orders.filter(order => order.status === this.selectedStatus);
-    }
-  }
-
-  onStatusChange() {
-    this.filterOrders();
-  }
-
-  async updateOrderStatus(order: Order, newStatus: string) {
-    const loading = await this.loadingController.create({
-      message: 'Updating order status...'
-    });
-    await loading.present();
-
-    try {
-      await this.apiService.updateOrderStatus(order._id, newStatus).toPromise();
-      order.status = newStatus;
-      order.updatedAt = new Date().toISOString();
-      this.filterOrders();
-      await this.showToast(`Order status updated to ${this.getStatusText(newStatus)}`);
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      await this.showToast('Error updating order status');
+      await this.showToast(`Order marked as ${this.formatStatus(nextStatus)}`, 'success');
+      await this.loadOrders();
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' &&
+        error &&
+        'error' in error &&
+        typeof (error as { error?: { message?: string } }).error?.message === 'string'
+          ? (error as { error: { message: string } }).error.message
+          : 'Failed to update order status';
+      await this.showToast(message, 'danger');
     } finally {
-      await loading.dismiss();
+      this.isUpdating = false;
     }
   }
 
-  async cancelOrder(order: Order) {
-    const alert = await this.alertController.create({
-      header: 'Cancel Order',
-      message: 'Are you sure you want to cancel this order?',
-      buttons: [
-        { text: 'No', role: 'cancel' },
-        { text: 'Yes, Cancel', handler: () => this.updateOrderStatus(order, 'cancelled') }
-      ]
-    });
-    await alert.present();
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'pending': return 'warning';
-      case 'assigned': return 'secondary'; // Added assigned
-      case 'preparing': return 'primary';
-      case 'ready': return 'success';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      case 'rejected': return 'danger'; // Added rejected
-      default: return 'medium';
-    }
-  }
-
-  getStatusText(status: string): string {
-    switch (status) {
-      case 'pending': return 'Pending';
-      case 'assigned': return 'Assigned'; // Added assigned
-      case 'preparing': return 'Preparing';
-      case 'ready': return 'Ready';
-      case 'delivered': return 'Delivered';
-      case 'cancelled': return 'Cancelled';
-      case 'rejected': return 'Rejected'; // Added rejected
-      default: return status;
-    }
-  }
-
-  getTimeAgo(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
-  }
-
-  getOrderStats() {
-    return {
-      total: this.orders.length,
-      pending: this.orders.filter(o => o.status === 'pending').length,
-      assigned: this.orders.filter(o => o.status === 'assigned').length, // Added assigned
-      preparing: this.orders.filter(o => o.status === 'preparing').length,
-      ready: this.orders.filter(o => o.status === 'ready').length,
-      delivered: this.orders.filter(o => o.status === 'delivered').length,
-      cancelled: this.orders.filter(o => o.status === 'cancelled').length,
-      rejected: this.orders.filter(o => o.status === 'assigned').length // Rejected orders are those with 'assigned' status
-    };
-  }
-
-  getTotalRevenue(): number {
-    return this.orders
-      .filter(order => order.status === 'delivered')
-      .reduce((sum, order) => sum + order.totalAmount, 0);
-  }
-
-  async showToast(message: string) {
+  private async showToast(message: string, color: string = 'primary'): Promise<void> {
     const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      color: 'success'
+      message,
+      duration: 2500,
+      color,
+      position: 'top',
     });
     await toast.present();
   }
-
-  goBack() {
-    this.router.navigate(['/dashboard']);
-  }
-} 
+}

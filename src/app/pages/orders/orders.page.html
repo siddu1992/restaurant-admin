@@ -1,215 +1,274 @@
-<ion-header [translucent]="true" class="admin-header">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard" color="light"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="admin-title">Orders Management</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="loadOrders()">
-        <ion-icon name="refresh-outline" color="light"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true" class="admin-content">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p class="loading-text">Loading orders...</p>
+<div class="orders-page">
+  <div class="page-toolbar">
+    <div>
+      <p class="eyebrow">Order management</p>
+      <h2>Orders</h2>
+    </div>
+    <button type="button" class="ghost-btn" (click)="refresh()" [disabled]="isLoading">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Refresh
+    </button>
   </div>
 
-  <!-- Orders Management Content -->
-  <div *ngIf="!isLoading" class="orders-container">
-    
-    <!-- Order Statistics -->
-    <div class="stats-section">
-      <h3>Order Overview</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <ion-icon name="list-outline" color="primary"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().total }}</h4>
-            <p>Total Orders</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <ion-icon name="time-outline" color="warning"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().pending }}</h4>
-            <p>Pending</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <ion-icon name="restaurant-outline" color="primary"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().preparing }}</h4>
-            <p>Preparing</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().delivered }}</h4>
-            <p>Delivered</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <ion-icon name="person-add-outline" color="secondary"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().assigned }}</h4>
-            <p>Assigned</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <ion-icon name="close-circle-outline" color="danger"></ion-icon>
-          <div class="stat-content">
-            <h4>{{ getOrderStats().rejected }}</h4>
-            <p>Rejected</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="revenue-card">
-        <ion-icon name="cash-outline" color="medium"></ion-icon>
-        <div class="revenue-content">
-          <h4>Total Revenue</h4>
-          <p>₹{{ getTotalRevenue() | number:'1.2-2' }}</p>
-        </div>
-      </div>
+  <section class="summary-grid">
+    <article>
+      <span>Total</span>
+      <strong>{{ total }}</strong>
+    </article>
+    <article>
+      <span>New / Confirmed</span>
+      <strong>{{ countPending }}</strong>
+    </article>
+    <article>
+      <span>Preparing</span>
+      <strong>{{ countPreparing }}</strong>
+    </article>
+    <article>
+      <span>Ready</span>
+      <strong>{{ countReady }}</strong>
+    </article>
+    <article>
+      <span>Completed</span>
+      <strong>{{ countCompleted }}</strong>
+    </article>
+  </section>
+
+  <section class="filters-panel">
+    <div class="search-field">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="search"
+        placeholder="Search order #, phone, address…"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchInput()" />
     </div>
 
-    <!-- Status Filter -->
-    <div class="filter-section">
-      <ion-segment [(ngModel)]="selectedStatus" (ionChange)="onStatusChange()" scrollable="true">
-        <ion-segment-button *ngFor="let option of statusOptions" [value]="option.value">
-          <ion-label>{{ option.label }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
+    <label>
+      Status
+      <select [(ngModel)]="statusFilter" (ngModelChange)="onFiltersChanged()">
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </label>
 
-    <!-- Orders List -->
-    <div class="orders-section">
-      <div class="section-header">
-        <h3>{{ selectedStatus === 'all' ? 'All Orders' : getStatusText(selectedStatus) }} ({{ filteredOrders.length }})</h3>
-      </div>
-      
-      <div class="orders-list">
-        <div *ngFor="let order of filteredOrders" class="order-card">
-          <div class="order-header">
-            <div class="order-info">
-              <h4>Order #{{ order._id.slice(-6).toUpperCase() }}</h4>
-              <p class="order-time">{{ getTimeAgo(order.createdAt) }}</p>
-            </div>
-            <div class="order-status">
-              <ion-badge [color]="getStatusColor(order.status)">
-                {{ getStatusText(order.status) }}
-              </ion-badge>
-            </div>
-          </div>
-          
-          <div class="customer-info">
-            <div class="customer-details">
-              <ion-icon name="person-outline" color="primary"></ion-icon>
-              <span>{{ order.customerName }}</span>
-            </div>
-            <div class="customer-details">
-              <ion-icon name="call-outline" color="primary"></ion-icon>
-              <span>{{ order.customerPhone }}</span>
-            </div>
-            <div class="customer-details">
-              <ion-icon name="location-outline" color="primary"></ion-icon>
-              <span>{{ order.deliveryAddress }}</span>
-            </div>
-          </div>
-          
-          <div class="order-items">
-            <h5>Order Items:</h5>
-            <div class="item-list">
-              <div *ngFor="let item of order.items" class="order-item">
-                <span class="item-quantity">{{ item.quantity }}x</span>
-                <span class="item-name">{{ item.food.name }}</span>
-                <span class="item-price">₹{{ item.price | number:'1.2-2' }}</span>
-              
+    <label>
+      Payment
+      <select [(ngModel)]="paymentFilter" (ngModelChange)="onFiltersChanged()">
+        <option *ngFor="let option of paymentOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Customer
+      <input
+        type="text"
+        placeholder="Name or phone"
+        [(ngModel)]="customerFilter"
+        (change)="onFiltersChanged()" />
+    </label>
+
+    <label>
+      From
+      <input type="date" [(ngModel)]="dateFrom" (change)="onFiltersChanged()" />
+    </label>
+
+    <label>
+      To
+      <input type="date" [(ngModel)]="dateTo" (change)="onFiltersChanged()" />
+    </label>
+
+    <label>
+      Sort by
+      <select [(ngModel)]="sortBy" (ngModelChange)="onFiltersChanged()">
+        <option *ngFor="let option of sortOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </label>
+
+    <button type="button" class="ghost-btn" (click)="toggleSortOrder()">
+      {{ sortOrder === 'asc' ? 'Asc' : 'Desc' }}
+    </button>
+  </section>
+
+  <div class="state-card" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading orders…</p>
+  </div>
+
+  <div class="state-card error" *ngIf="!isLoading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <h3>Couldn’t load orders</h3>
+    <p>{{ loadError }}</p>
+    <button type="button" class="primary-btn" (click)="refresh()">Retry</button>
+  </div>
+
+  <section class="table-panel" *ngIf="!isLoading && !loadError">
+    <div class="table-wrap" *ngIf="orders.length; else emptyOrders">
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" (click)="openOrder(order)">
+            <td>
+              <strong>#{{ orderNumber(order) }}</strong>
+            </td>
+            <td>
+              <div class="cell-stack">
+                <strong>{{ order.customerName }}</strong>
+                <span>{{ order.customerPhone }}</span>
               </div>
-            </div>
-          </div>
-          
-          <div class="order-footer">
-            <div class="order-total">
-              <span class="total-label">Total:</span>
-              <span class="total-amount">₹{{ order.totalAmount | number:'1.2-2' }}</span>
-            </div>
-            
-            <div class="order-actions">
-              <ion-button 
-                *ngIf="order.status === 'pending'"
-                fill="outline" 
-                size="small" 
-                color="success"
-                (click)="updateOrderStatus(order, 'preparing')">
-                Accept Order
-              </ion-button>
-              
-              <ion-button 
-                *ngIf="order.status === 'preparing'"
-                fill="outline" 
-                size="small" 
-                color="success"
-                (click)="updateOrderStatus(order, 'ready')">
-                Mark Ready
-              </ion-button>
-              
-              <ion-button 
-                *ngIf="order.status === 'ready'"
-                fill="outline" 
-                size="small" 
-                color="success"
-                (click)="updateOrderStatus(order, 'delivered')">
-                Mark Delivered
-              </ion-button>
-              
-              <ion-button 
-                *ngIf="['pending', 'preparing'].includes(order.status)"
-                fill="outline" 
-                size="small" 
-                color="danger"
-                (click)="cancelOrder(order)">
-                Cancel
-              </ion-button>
-            </div>
-            <!-- <ng-container *ngIf="order.status === 'ready'">
-              <ion-item lines="none">
-                <ion-label>Assign Delivery</ion-label>
-                <ion-select [disabled]="assigningOrderId === order._id" placeholder="Select Delivery Person" (ionChange)="assignDelivery(order, $event.detail.value)">
-                  <ion-select-option *ngFor="let person of deliveryPeople" [value]="person._id">{{ person.name }}</ion-select-option>
-                </ion-select>
-              </ion-item>
-              <ion-spinner *ngIf="assigningOrderId === order._id && assigning" name="crescent" color="primary"></ion-spinner>
-            </ng-container>
-            <ng-container *ngIf="order.status === 'assigned'">
-              <ion-item lines="none">
-                <ion-label>Reassign Delivery</ion-label>
-                <ion-select [disabled]="assigningOrderId === order._id" placeholder="Select New Delivery Person" (ionChange)="reassignDelivery(order, $event.detail.value)">
-                  <ion-select-option *ngFor="let person of deliveryPeople" [value]="person._id">{{ person.name }}</ion-select-option>
-                </ion-select>
-              </ion-item>
-              <ion-spinner *ngIf="assigningOrderId === order._id && assigning" name="crescent" color="primary"></ion-spinner>
-            </ng-container> -->
-          </div>
-        </div>
-
-        <!-- Empty State -->
-        <div *ngIf="filteredOrders.length === 0" class="empty-state">
-          <ion-icon name="list-outline" color="medium" size="large"></ion-icon>
-          <h3>No Orders Found</h3>
-          <p *ngIf="selectedStatus === 'all'">No orders have been placed yet</p>
-          <p *ngIf="selectedStatus !== 'all'">No {{ getStatusText(selectedStatus).toLowerCase() }} orders</p>
-        </div>
-      </div>
+            </td>
+            <td>{{ order.items.length || 0 }}</td>
+            <td>{{ formatCurrency(order.totalAmount) }}</td>
+            <td>
+              <span class="pay-pill" [class.paid]="order.isPaid" [class.unpaid]="!order.isPaid">
+                {{ order.isPaid ? 'Paid' : 'Unpaid' }}
+              </span>
+              <small>{{ order.paymentMethod || '—' }}</small>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="statusClass(order.status)">
+                {{ formatStatus(order.status) }}
+              </span>
+            </td>
+            <td>{{ order.createdAt | date: 'short' }}</td>
+            <td>
+              <button type="button" class="link-btn" (click)="openOrder(order); $event.stopPropagation()">
+                Details
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
+    <ng-template #emptyOrders>
+      <div class="empty-inline">No orders match your filters.</div>
+    </ng-template>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button type="button" class="ghost-btn" [disabled]="page <= 1" (click)="goToPage(page - 1)">
+        Previous
+      </button>
+      <span>Page {{ page }} of {{ totalPages }}</span>
+      <button
+        type="button"
+        class="ghost-btn"
+        [disabled]="page >= totalPages"
+        (click)="goToPage(page + 1)">
+        Next
+      </button>
+    </div>
+  </section>
+</div>
+
+<aside class="detail-drawer" *ngIf="selectedOrder" (click)="closeDetail()">
+  <div class="detail-panel" (click)="$event.stopPropagation()">
+    <div class="detail-header">
+      <div>
+        <p class="eyebrow">Order details</p>
+        <h3>#{{ orderNumber(selectedOrder) }}</h3>
+      </div>
+      <button type="button" class="icon-btn" (click)="closeDetail()" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="detail-meta">
+      <span class="badge" [ngClass]="statusClass(selectedOrder.status)">
+        {{ formatStatus(selectedOrder.status) }}
+      </span>
+      <span>{{ selectedOrder.createdAt | date: 'medium' }}</span>
+    </div>
+
+    <section class="detail-section">
+      <h4>Customer</h4>
+      <p><strong>{{ selectedOrder.customerName }}</strong></p>
+      <p>{{ selectedOrder.customerPhone }}</p>
+      <p>{{ selectedOrder.deliveryAddress }}</p>
+    </section>
+
+    <section class="detail-section">
+      <h4>Items</h4>
+      <div class="item-row" *ngFor="let item of selectedOrder.items">
+        <div>
+          <strong>{{ itemName(item) }}</strong>
+          <small>Qty {{ item.quantity }} × {{ formatCurrency(itemPrice(item)) }}</small>
+        </div>
+        <em>{{ formatCurrency(itemLineTotal(item)) }}</em>
+      </div>
+    </section>
+
+    <section class="detail-section totals">
+      <div class="total-row">
+        <span>Subtotal (items)</span>
+        <strong>{{ formatCurrency(selectedOrder.totalAmount) }}</strong>
+      </div>
+      <div class="total-row muted">
+        <span>Discounts</span>
+        <span>—</span>
+      </div>
+      <div class="total-row muted">
+        <span>Tax</span>
+        <span>—</span>
+      </div>
+      <div class="total-row muted">
+        <span>Delivery charges</span>
+        <span>—</span>
+      </div>
+      <div class="total-row grand">
+        <span>Total</span>
+        <strong>{{ formatCurrency(selectedOrder.totalAmount) }}</strong>
+      </div>
+      <div class="total-row">
+        <span>Payment</span>
+        <strong>
+          {{ selectedOrder.isPaid ? 'Paid' : 'Unpaid' }}
+          · {{ selectedOrder.paymentMethod || 'unknown' }}
+        </strong>
+      </div>
+    </section>
+
+    <section class="detail-section" *ngIf="selectedOrder.specialInstructions">
+      <h4>Instructions</h4>
+      <p>{{ selectedOrder.specialInstructions }}</p>
+    </section>
+
+    <section class="detail-actions" *ngIf="getNextActions(selectedOrder).length">
+      <h4>Update status</h4>
+      <div class="action-row">
+        <button
+          type="button"
+          class="primary-btn"
+          *ngFor="let next of getPrimaryActions(selectedOrder)"
+          [disabled]="isUpdating"
+          (click)="applyStatus(selectedOrder, next)">
+          {{ actionLabel(next) }}
+        </button>
+        <button
+          type="button"
+          class="danger-btn"
+          *ngIf="canCancel(selectedOrder)"
+          [disabled]="isUpdating"
+          (click)="confirmCancel(selectedOrder)">
+          Cancel order
+        </button>
+      </div>
+      <p class="hint">Only valid next statuses are shown.</p>
+    </section>
   </div>
-</ion-content> 
+</aside>

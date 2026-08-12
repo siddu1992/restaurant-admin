@@ -1,226 +1,292 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="dashboard-header">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/restaurants-list" color="light"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="dashboard-title">
-      <ion-icon name="restaurant" class="title-icon"></ion-icon>
-      Restaurant Dashboard
-    </ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="refreshData()">
-        <ion-icon name="refresh" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="dashboard-content">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <div class="loading-card">
-      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
-      <h3>Loading your restaurant data...</h3>
-      <p>Please wait while we fetch the latest information</p>
+<div class="dashboard-page">
+  <div class="page-toolbar">
+    <div>
+      <p class="eyebrow">{{ restaurant?.name || 'Restaurant' }}</p>
+      <h2>Operations overview</h2>
     </div>
+    <button type="button" class="ghost-btn" (click)="refreshData()" [disabled]="isLoading">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Refresh
+    </button>
   </div>
 
-  <!-- Main Dashboard Content -->
-  <div *ngIf="!isLoading && restaurant" class="dashboard-main">
-    <!-- Restaurant Info Card -->
-    <ion-card class="restaurant-info-card">
-      <!-- Restaurant Image -->
-      <div class="restaurant-image-container">
-        <img 
-          [src]="restaurant.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MEMxNzYuNTY5IDYwIDE5MCA3My40MzEgMTkwIDkwQzE5MCAxMDYuNTY5IDE3Ni41NjkgMTIwIDE2MCAxMjBDMTQzLjQzMSAxMjAgMTMwIDEzMy40MzEgMTMwIDE1MEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQzMSAxNDMuNDMxIDYwIDE2MCA2MFoiIGZpbGw9IiNEN0Q3RDciLz4KPHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDhDMTkuMTYzIDggOCAxOS4xNjMgOCAzMkM4IDQ0LjgzNyAxOS4xNjMgNTYgMzIgNTZDNDQuODM3IDU2IDU2IDQ0LjgzNyA1NiAzMkM1NiAxOS4xNjMgMzIgOCAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+'" 
-          [alt]="restaurant.name"
-          class="restaurant-image"
-          (error)="onImageError($event)"
-        />
-        <div class="image-overlay">
-          <div class="cuisine-badge">
-            <ion-icon name="restaurant-outline"></ion-icon>
-            <span>{{ restaurant.cuisine }}</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="restaurant-header">
-        <div class="restaurant-avatar">
-          <ion-icon name="restaurant" class="avatar-icon"></ion-icon>
-        </div>
-        <div class="restaurant-details">
-          <h2 class="restaurant-name">{{ restaurant.name }}</h2>
-          <p class="restaurant-cuisine">{{ restaurant.cuisine }}</p>
-          <div class="restaurant-meta">
-            <span class="meta-item">
-              <ion-icon name="location" class="meta-icon"></ion-icon>
-              {{ restaurant.address }}
-            </span>
-            <span class="meta-item">
-              <ion-icon name="time" class="meta-icon"></ion-icon>
-              {{ restaurant.deliveryTime }}
-            </span>
-            <span class="meta-item">
-              <ion-icon name="card" class="meta-icon"></ion-icon>
-              ₹{{ restaurant.minOrder }} min order
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="restaurant-description" *ngIf="restaurant.description">
-        <p>{{ restaurant.description }}</p>
-      </div>
-    </ion-card>
-
-    <!-- Quick Stats Cards -->
-    <div class="stats-grid">
-      <ion-card class="stat-card orders-card" (click)="navigateToOrders()">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="list-circle" class="stat-icon-svg"></ion-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ orderStats?.total || 0 }}</h3>
-            <p class="stat-label">Total Orders</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card pending-card" (click)="navigateToOrders()">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="time" class="stat-icon-svg"></ion-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ orderStats?.pending || 0 }}</h3>
-            <p class="stat-label">Pending</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card revenue-card" (click)="navigateToAnalytics()">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="trending-up" class="stat-icon-svg"></ion-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">₹{{ orderStats?.revenue || 0 }}</h3>
-            <p class="stat-label">Revenue</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card class="stat-card delivery-card" (click)="navigateToDeliveryManagement()">
-        <ion-card-content>
-          <div class="stat-icon">
-            <ion-icon name="bicycle" class="stat-icon-svg"></ion-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ deliveryStats?.active || 0 }}</h3>
-            <p class="stat-label">Active Delivery</p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </div>
-
-    <!-- Action Cards -->
-    <div class="actions-section">
-      <h3 class="section-title">
-        <ion-icon name="settings" class="section-icon"></ion-icon>
-        Quick Actions
-      </h3>
-      
-      <div class="actions-grid">
-        <ion-card class="action-card food-management" (click)="navigateToFoodManagement()">
-          <ion-card-content>
-            <div class="action-icon">
-              <ion-icon name="restaurant-outline" class="action-icon-svg"></ion-icon>
-            </div>
-            <h3>Manage Menu</h3>
-            <p>Add, edit, or remove food items from your menu</p>
-            <ion-button fill="clear" class="action-button">
-              Manage
-              <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card class="action-card orders-management" (click)="navigateToOrders()">
-          <ion-card-content>
-            <div class="action-icon">
-              <ion-icon name="list-outline" class="action-icon-svg"></ion-icon>
-            </div>
-            <h3>View Orders</h3>
-            <p>Check and manage incoming orders</p>
-            <ion-button fill="clear" class="action-button">
-              View
-              <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card class="action-card analytics" (click)="navigateToAnalytics()">
-          <ion-card-content>
-            <div class="action-icon">
-              <ion-icon name="analytics-outline" class="action-icon-svg"></ion-icon>
-            </div>
-            <h3>Analytics</h3>
-            <p>View sales reports and performance metrics</p>
-            <ion-button fill="clear" class="action-button">
-              View
-              <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card class="action-card delivery-management" (click)="navigateToDeliveryManagement()">
-          <ion-card-content>
-            <div class="action-icon">
-              <ion-icon name="bicycle-outline" class="action-icon-svg"></ion-icon>
-            </div>
-            <h3>Delivery Team</h3>
-            <p>Manage your delivery personnel</p>
-            <ion-button fill="clear" class="action-button">
-              Manage
-              <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card class="action-card add-delivery" (click)="navigateToAddDeliveryPerson()">
-          <ion-card-content>
-            <div class="action-icon">
-              <ion-icon name="person-add-outline" class="action-icon-svg"></ion-icon>
-            </div>
-            <h3>Add Delivery Person</h3>
-            <p>Register new delivery personnel</p>
-            <ion-button fill="clear" class="action-button">
-              Add New
-              <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </div>
-    </div>
-
-
+  <div class="state-card" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading dashboard…</p>
   </div>
 
-  <!-- No Restaurant State -->
-  <div *ngIf="!isLoading && !restaurant" class="no-restaurant">
-    <ion-card class="no-restaurant-card">
-      <ion-card-content>
-        <div class="no-restaurant-icon">
-          <ion-icon name="restaurant-outline" class="no-restaurant-svg"></ion-icon>
-        </div>
-        <h3>No Restaurant Found</h3>
-        <p>Please add your restaurant information to get started</p>
-        <ion-button (click)="addRestaurant() "expand="block" color="primary" class="add-restaurant-btn">
-          <ion-icon name="add" slot="start"></ion-icon>
-          Add Restaurant
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
+  <div class="state-card error" *ngIf="!isLoading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <h3>Couldn’t load dashboard</h3>
+    <p>{{ loadError }}</p>
+    <button type="button" class="primary-btn" (click)="refreshData()">Retry</button>
   </div>
-</ion-content> 
+
+  <div class="state-card" *ngIf="!isLoading && !loadError && !restaurant">
+    <ion-icon name="restaurant-outline"></ion-icon>
+    <h3>No restaurant selected</h3>
+    <p>Add a restaurant to start tracking revenue and orders.</p>
+    <button type="button" class="primary-btn" (click)="addRestaurant()">Add restaurant</button>
+  </div>
+
+  <ng-container *ngIf="!isLoading && !loadError && restaurant && kpis">
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <div class="kpi-icon revenue"><ion-icon name="cash-outline"></ion-icon></div>
+        <div>
+          <span>Today’s Revenue</span>
+          <strong>{{ formatCurrency(kpis.todayRevenue) }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-icon orders"><ion-icon name="cart-outline"></ion-icon></div>
+        <div>
+          <span>Today’s Orders</span>
+          <strong>{{ kpis.todayOrders }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-icon aov"><ion-icon name="trending-up-outline"></ion-icon></div>
+        <div>
+          <span>Avg Order Value</span>
+          <strong>{{ formatCurrency(kpis.averageOrderValue) }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card clickable" (click)="navigateToOrders()">
+        <div class="kpi-icon pending"><ion-icon name="time-outline"></ion-icon></div>
+        <div>
+          <span>Pending Orders</span>
+          <strong>{{ kpis.pendingOrders }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-icon done"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+        <div>
+          <span>Completed</span>
+          <strong>{{ kpis.completedOrders }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-icon cancel"><ion-icon name="close-circle-outline"></ion-icon></div>
+        <div>
+          <span>Cancelled</span>
+          <strong>{{ kpis.cancelledOrders }}</strong>
+        </div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-icon stock"><ion-icon name="alert-circle-outline"></ion-icon></div>
+        <div>
+          <span>Low Stock Items</span>
+          <strong>{{ kpis.lowStockItems }}</strong>
+          <small>Inventory module coming soon</small>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel sales-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Sales analytics</h3>
+          <p *ngIf="sales">{{ formatCurrency(sales.totalRevenue) }} · {{ sales.totalOrders }} orders</p>
+        </div>
+        <div class="period-tabs">
+          <button
+            type="button"
+            *ngFor="let option of periodOptions"
+            class="period-btn"
+            [class.active]="selectedPeriod === option.value"
+            (click)="onPeriodChange(option.value)">
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="custom-range" *ngIf="selectedPeriod === 'custom'">
+        <label>
+          From
+          <input type="date" [(ngModel)]="customFrom" />
+        </label>
+        <label>
+          To
+          <input type="date" [(ngModel)]="customTo" />
+        </label>
+        <button type="button" class="primary-btn" (click)="applyCustomRange()">Apply</button>
+      </div>
+
+      <div class="sales-loading" *ngIf="isSalesLoading">
+        <ion-spinner name="dots"></ion-spinner>
+      </div>
+
+      <div class="chart-wrap" *ngIf="!isSalesLoading && sales">
+        <div class="bar-chart" *ngIf="sales.revenueByDay.length; else noSales">
+          <div class="bar-col" *ngFor="let day of sales.revenueByDay">
+            <div class="bar-value">{{ formatCurrency(day.revenue) }}</div>
+            <div
+              class="bar"
+              [style.height.%]="(day.revenue / maxRevenue) * 100"
+              [title]="day.orders + ' orders'">
+            </div>
+            <div class="bar-label">{{ day.date | date: 'MMM d' }}</div>
+          </div>
+        </div>
+        <ng-template #noSales>
+          <div class="empty-inline">No sales in this period.</div>
+        </ng-template>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Recent orders</h3>
+          <button type="button" class="link-btn" (click)="navigateToOrders()">View all</button>
+        </div>
+        <div class="table-wrap" *ngIf="recentOrders.length; else noOrders">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of recentOrders">
+                <td>#{{ order._id.slice(-6).toUpperCase() }}</td>
+                <td>
+                  <div class="cell-stack">
+                    <strong>{{ order.customerName }}</strong>
+                    <span>{{ order.createdAt | date: 'short' }}</span>
+                  </div>
+                </td>
+                <td>{{ formatCurrency(order.totalAmount) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="statusClass(order.status)">
+                    {{ formatStatus(order.status) }}
+                  </span>
+                </td>
+                <td>{{ order.isPaid ? 'Paid' : 'Unpaid' }} · {{ order.paymentMethod }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noOrders>
+          <div class="empty-inline">No recent orders yet.</div>
+        </ng-template>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Order status</h3>
+        </div>
+        <div class="status-list" *ngIf="statusSlices.length; else noStatus">
+          <div class="status-row" *ngFor="let slice of statusSlices">
+            <div class="status-meta">
+              <span class="dot" [style.background]="slice.color"></span>
+              <span>{{ slice.label }}</span>
+            </div>
+            <div class="status-track">
+              <div
+                class="status-fill"
+                [style.width.%]="(slice.count / statusTotal) * 100"
+                [style.background]="slice.color">
+              </div>
+            </div>
+            <strong>{{ slice.count }}</strong>
+          </div>
+        </div>
+        <ng-template #noStatus>
+          <div class="empty-inline">No status data for this period.</div>
+        </ng-template>
+      </article>
+    </section>
+
+    <section class="content-grid three">
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Top selling items</h3>
+          <button type="button" class="link-btn" (click)="navigateToMenu()">Menu</button>
+        </div>
+        <ul class="rank-list" *ngIf="topItems.length; else noItems">
+          <li *ngFor="let item of topItems; let i = index">
+            <span class="rank">{{ i + 1 }}</span>
+            <div>
+              <strong>{{ item.foodName }}</strong>
+              <small>{{ item.quantity }} sold</small>
+            </div>
+            <em>{{ formatCurrency(item.revenue) }}</em>
+          </li>
+        </ul>
+        <ng-template #noItems>
+          <div class="empty-inline">No item sales yet.</div>
+        </ng-template>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Top categories</h3>
+        </div>
+        <div class="category-list" *ngIf="topCategories.length; else noCategories">
+          <div class="category-row" *ngFor="let category of topCategories">
+            <div class="category-meta">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              <div>
+                <strong>{{ category.category }}</strong>
+                <small>{{ category.quantity }} items</small>
+              </div>
+            </div>
+            <div class="category-bar">
+              <span [style.width.%]="getCategoryWidth(category.revenue)"></span>
+            </div>
+            <em>{{ formatCurrency(category.revenue) }}</em>
+          </div>
+        </div>
+        <ng-template #noCategories>
+          <div class="empty-inline">No category data yet.</div>
+        </ng-template>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Payment summary</h3>
+        </div>
+        <div *ngIf="paymentSummary; else noPayments">
+          <div class="payment-kpis">
+            <div>
+              <span>Paid</span>
+              <strong>{{ formatCurrency(paymentSummary.paidAmount) }}</strong>
+              <small>{{ paymentSummary.paidCount }} orders</small>
+            </div>
+            <div>
+              <span>Unpaid</span>
+              <strong>{{ formatCurrency(paymentSummary.unpaidAmount) }}</strong>
+              <small>{{ paymentSummary.unpaidCount }} orders</small>
+            </div>
+          </div>
+          <ul class="method-list" *ngIf="paymentSummary.byMethod.length">
+            <li *ngFor="let method of paymentSummary.byMethod">
+              <ion-icon name="wallet-outline"></ion-icon>
+              <span>{{ method.method }}</span>
+              <em>{{ formatCurrency(method.amount) }}</em>
+              <small>{{ method.count }}</small>
+            </li>
+          </ul>
+        </div>
+        <ng-template #noPayments>
+          <div class="empty-inline">No payment data yet.</div>
+        </ng-template>
+      </article>
+    </section>
+
+    <section class="panel low-stock-panel">
+      <div class="panel-header">
+        <h3>Low stock items</h3>
+      </div>
+      <div class="empty-inline">
+        Inventory tracking is not enabled yet. Low-stock alerts will appear here once stock is connected.
+      </div>
+    </section>
+  </ng-container>
+</div>

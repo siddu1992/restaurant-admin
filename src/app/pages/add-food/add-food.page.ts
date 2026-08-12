@@ -1,103 +1,103 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
-import { IonicModule, ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { IonicModule, ToastController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { RestaurantContextService } from '../../core/restaurant-context.service';
+import { CreateFoodRequest } from '../../models';
 
 @Component({
   selector: 'app-add-food',
   templateUrl: './add-food.page.html',
   styleUrls: ['./add-food.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, HttpClientModule, ReactiveFormsModule],
-  providers: [ApiService]
+  imports: [IonicModule, CommonModule, ReactiveFormsModule],
 })
 export class AddFoodPage {
-  @ViewChild('fileInput') fileInput!: ElementRef;
-  
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   foodForm: FormGroup;
   isLoading = false;
   imagePreview: string | null = null;
   selectedFile: File | null = null;
 
   constructor(
-    private fb: FormBuilder,
-    private apiService: ApiService,
-    private router: Router,
-    private toastController: ToastController,
-    private loadingController: LoadingController,
-    private alertController: AlertController
+    private readonly fb: FormBuilder,
+    private readonly apiService: ApiService,
+    private readonly restaurantContext: RestaurantContextService,
+    private readonly router: Router,
+    private readonly toastController: ToastController,
+    private readonly alertController: AlertController,
   ) {
     this.foodForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(200)]],
+      description: [
+        '',
+        [Validators.required, Validators.minLength(10), Validators.maxLength(200)],
+      ],
       price: ['', [Validators.required, Validators.min(1), Validators.max(10000)]],
       image: [''],
       available: [true],
-      category: ['', Validators.required]
+      category: ['', Validators.required],
     });
   }
 
-  goBack() {
+  goBack(): void {
     if (this.foodForm.dirty) {
-      this.showDiscardConfirmation();
+      void this.showDiscardConfirmation();
     } else {
-      this.router.navigate(['/food-management']);
+      void this.router.navigate(['/food-management']);
     }
   }
 
-  async showDiscardConfirmation() {
+  async showDiscardConfirmation(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Discard Changes?',
       message: 'You have unsaved changes. Are you sure you want to leave?',
       buttons: [
-        {
-          text: 'Stay',
-          role: 'cancel'
-        },
+        { text: 'Stay', role: 'cancel' },
         {
           text: 'Discard',
           role: 'destructive',
           handler: () => {
-            this.router.navigate(['/food-management']);
-          }
-        }
-      ]
+            void this.router.navigate(['/food-management']);
+          },
+        },
+      ],
     });
     await alert.present();
   }
 
-  triggerFileInput() {
+  triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
 
-  onImageSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        this.showToast('Please select a valid image file', 'danger');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        this.showToast('Image size should be less than 5MB', 'danger');
-        return;
-      }
-
-      this.selectedFile = file;
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
-        this.foodForm.patchValue({ image: e.target.result });
-      };
-      reader.readAsDataURL(file);
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
     }
+
+    if (!file.type.startsWith('image/')) {
+      void this.showToast('Please select a valid image file', 'danger');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      void this.showToast('Image size should be less than 5MB', 'danger');
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = typeof reader.result === 'string' ? reader.result : null;
+      this.foodForm.patchValue({ image: this.imagePreview });
+    };
+    reader.readAsDataURL(file);
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -107,7 +107,7 @@ export class AddFoodPage {
 
   getFieldError(fieldName: string): string {
     const field = this.foodForm.get(fieldName);
-    if (field && field.errors) {
+    if (field?.errors) {
       if (field.errors['required']) {
         return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
       }
@@ -127,73 +127,54 @@ export class AddFoodPage {
     return '';
   }
 
-  async addFood() {
+  async addFood(): Promise<void> {
     if (this.foodForm.invalid) {
       this.markFormGroupTouched();
       return;
     }
 
     this.isLoading = true;
-    const restaurant = JSON.parse(localStorage.getItem('selectedRestaurant') || '{}');
-    
-    if (!restaurant._id) {
-      this.showToast('No restaurant selected', 'danger');
+    const restaurant = this.restaurantContext.selectedRestaurant;
+
+    if (!restaurant?._id) {
+      await this.showToast('No restaurant selected', 'danger');
       this.isLoading = false;
       return;
     }
 
-    const foodData = { 
-      ...this.foodForm.value, 
-      restaurant: restaurant._id 
+    const foodData: CreateFoodRequest = {
+      ...this.foodForm.value,
+      restaurant: restaurant._id,
+      image: this.imagePreview || this.foodForm.value.image,
     };
-
-    // If we have a selected file, upload it first
-    if (this.selectedFile) {
-      try {
-        // For now, we'll use the base64 data URL
-        // In a real app, you'd upload to a cloud service
-        foodData.image = this.imagePreview;
-      } catch (error) {
-        this.showToast('Failed to process image', 'danger');
-        this.isLoading = false;
-        return;
-      }
-    }
 
     this.apiService.addFood(foodData).subscribe({
       next: async () => {
         this.isLoading = false;
-        await this.showToast('Food item added successfully! 🎉', 'success');
-        this.router.navigate(['/food-management']);
+        await this.showToast('Food item added successfully!', 'success');
+        void this.router.navigate(['/food-management']);
       },
-      error: async (error) => {
+      error: async () => {
         this.isLoading = false;
-        console.error('Error adding food:', error);
         await this.showToast('Failed to add food item. Please try again.', 'danger');
-      }
+      },
     });
   }
 
-  private markFormGroupTouched() {
-    Object.keys(this.foodForm.controls).forEach(key => {
-      const control = this.foodForm.get(key);
-      control?.markAsTouched();
+  private markFormGroupTouched(): void {
+    Object.keys(this.foodForm.controls).forEach((key) => {
+      this.foodForm.get(key)?.markAsTouched();
     });
   }
 
-  async showToast(message: string, color: string = 'success') {
+  async showToast(message: string, color: string = 'success'): Promise<void> {
     const toast = await this.toastController.create({
       message,
       duration: 3000,
       color,
       position: 'top',
-      buttons: [
-        {
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ icon: 'close', role: 'cancel' }],
     });
     await toast.present();
   }
-} 
+}

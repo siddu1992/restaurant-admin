@@ -1,0 +1,391 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.admin-shell {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 76px;
+  --topbar-height: 72px;
+  display: flex;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  background: var(--admin-canvas, #f4faf9);
+  color: var(--admin-ink, #134e4a);
+}
+
+.shell-backdrop {
+  display: none;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #0f766e 0%, #0b5f59 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0.85rem;
+  height: 100%;
+  overflow-y: auto;
+  z-index: 30;
+  transition: width 0.2s ease;
+}
+
+.sidebar-collapsed .sidebar {
+  width: var(--sidebar-collapsed-width);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 1.25rem;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-text strong {
+  font-size: 1rem;
+}
+
+.brand-text span {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.nav-item ion-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.collapse-btn {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+}
+
+.shell-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  flex-shrink: 0;
+  min-height: var(--topbar-height);
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(180px, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 1.5rem;
+  background: var(--admin-surface, #fff);
+  border-bottom: 1px solid var(--admin-border, #d8ebe8);
+  z-index: 20;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.topbar-right {
+  justify-content: flex-end;
+}
+
+.title-block h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--admin-ink, #134e4a);
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--admin-muted, #64748b);
+}
+
+.breadcrumbs a {
+  color: var(--admin-brand, #0f766e);
+  text-decoration: none;
+}
+
+.breadcrumbs ion-icon {
+  font-size: 0.75rem;
+}
+
+.shell-search {
+  --background: #f3faf8;
+  --border-radius: 12px;
+  --box-shadow: none;
+  padding: 0;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.icon-btn,
+.switcher-btn,
+.profile-btn {
+  border: 1px solid var(--admin-border, #d8ebe8);
+  background: #fff;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  color: var(--admin-ink, #134e4a);
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+}
+
+.switcher-btn,
+.profile-btn {
+  padding: 0.55rem 0.8rem;
+  max-width: 240px;
+}
+
+.switcher-btn span,
+.profile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restaurant-switcher,
+.profile-menu {
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 12px;
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.1));
+  padding: 0.4rem;
+  z-index: 40;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.7rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+}
+
+.dropdown-item:hover,
+.dropdown-item.link:hover {
+  background: #f3faf8;
+}
+
+.dropdown-item.danger {
+  color: #dc2626;
+}
+
+.dropdown-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--admin-border, #d8ebe8);
+  margin-bottom: 0.25rem;
+}
+
+.dropdown-meta span {
+  color: var(--admin-muted, #64748b);
+  font-size: 0.8rem;
+}
+
+.shell-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 1.25rem 1.5rem 2rem;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .topbar-center {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-shell {
+    --sidebar-width: 280px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+  }
+
+  .mobile-nav-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .shell-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    z-index: 25;
+  }
+
+  .collapse-btn {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
+
+  .profile-name {
+    display: none;
+  }
+
+  .shell-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .switcher-btn span {
+    max-width: 110px;
+  }
+
+  .topbar {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Ionic pages nested in desktop shell must not use absolute full-viewport layout */
+:host ::ng-deep .shell-content > router-outlet + * {
+  display: block;
+  width: 100%;
+  min-height: min-content;
+}
+
+:host ::ng-deep .shell-content ion-header {
+  display: none !important;
+}
+
+:host ::ng-deep .shell-content .ion-page {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  contain: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+:host ::ng-deep .shell-content ion-content {
+  --background: transparent;
+  --overflow: visible;
+  position: relative !important;
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  contain: none !important;
+  flex: none !important;
+}
+
+:host ::ng-deep .shell-content ion-content::part(scroll) {
+  position: relative !important;
+  inset: auto !important;
+  contain: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  padding-bottom: 1.5rem;
+}
