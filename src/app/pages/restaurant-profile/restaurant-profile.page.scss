@@ -1,286 +1,364 @@
-// Restaurant Profile Page Styles
-.profile-header {
-  --background: #f8f9fa !important;
-  --color: #2c3e50;
-  background: #f8f9fa !important;
-  border-bottom: 1px solid #e9ecef;
+:host {
+  display: block;
 }
 
-.profile-header ion-toolbar {
-  --background: #f8f9fa !important;
-  --color: #2c3e50;
-  --border-width: 0;
-  background: #f8f9fa !important;
-}
-
-.profile-content {
-  --background: #ffffff;
-  background: #ffffff;
-  min-height: 100vh;
-}
-
-// Loading State
-.loading-container {
+.admin-form-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 50vh;
+  gap: 1.1rem;
+  color: var(--admin-ink, #134e4a);
+  max-width: 960px;
+}
+
+.page-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.85rem;
+}
+
+.page-toolbar h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--admin-muted, #64748b);
+}
+
+.state-card {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  gap: 0.65rem;
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 14px;
   text-align: center;
+  padding: 2rem 1rem;
 }
 
-.loading-text {
-  margin-top: 16px;
-  color: #7f8c8d;
-  font-size: 16px;
+.state-card p {
+  margin: 0;
+  color: var(--admin-muted, #64748b);
 }
 
-// Main Container
-.profile-container {
-  padding: 0;
+.state-card.error ion-icon {
+  color: #dc2626;
+  font-size: 1.8rem;
 }
 
-// Image Section
-.image-section {
-  position: relative;
-  margin-bottom: 24px;
-}
-
-.image-container {
-  position: relative;
-  width: 100%;
-  height: 200px;
+.preview-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.06));
 }
 
-.restaurant-image {
+.preview-media {
+  min-height: 160px;
+  background: #eef7f5;
+}
+
+.preview-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  display: block;
 }
 
-.image-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+.media-fallback {
+  height: 100%;
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  color: var(--admin-muted, #64748b);
+}
+
+.media-fallback ion-icon {
+  font-size: 1.6rem;
+}
+
+.preview-body {
+  padding: 1rem 1rem 1rem 0;
   display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.preview-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.preview-top h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.preview-top p,
+.preview-address {
+  margin: 0.2rem 0 0;
+  color: var(--admin-muted, #64748b);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-pill.off {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.preview-meta span {
+  background: #f3faf8;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+  color: var(--admin-brand-strong, #0b5f59);
+  font-weight: 600;
+}
+
+.form-card {
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.06));
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.form-section h3 {
+  margin: 0 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1rem;
+}
+
+.grid-2,
+.grid-3 {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--admin-muted, #64748b);
+}
+
+label span {
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  color: var(--admin-ink, #134e4a);
+  background: #fff;
+  outline: none;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--admin-brand, #0f766e);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+label.invalid input,
+label.invalid textarea {
+  border-color: #dc2626;
+}
+
+label small {
+  color: #dc2626;
+  font-size: 0.75rem;
+}
+
+.geo-box {
+  margin-top: 0.25rem;
+  padding: 0.9rem;
+  border-radius: 12px;
+  background: #f3faf8;
+  border: 1px dashed var(--admin-border, #d8ebe8);
+}
+
+.geo-status {
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--admin-muted, #64748b);
+}
+
+.geo-status[data-status='success'] {
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.geo-status[data-status='failed'] {
+  color: #9a3412;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 12px;
+  background: #f8fcfb;
+}
+
+.toggle-row strong {
+  display: block;
+  color: var(--admin-ink, #134e4a);
+  margin-bottom: 0.2rem;
+}
+
+.toggle-row p {
+  margin: 0;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.8rem;
+}
+
+.toggle-input {
+  appearance: none;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.toggle-input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  transition: transform 0.15s ease;
+}
+
+.toggle-input:checked {
+  background: var(--admin-brand, #0f766e);
+}
+
+.toggle-input:checked::after {
+  transform: translateX(20px);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.ghost-btn,
+.primary-btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  gap: 0.35rem;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
 }
 
-.image-container:hover .image-overlay {
-  opacity: 1;
+.ghost-btn {
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  color: var(--admin-ink, #134e4a);
 }
 
-.image-container:hover .restaurant-image {
-  transform: scale(1.05);
+.primary-btn {
+  background: var(--admin-brand, #0f766e);
+  color: #fff;
 }
 
-// Form Sections
-.form-sections {
-  padding: 0 16px 24px 16px;
+.primary-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
-.form-section {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e9ecef;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #f8f9fa;
-}
-
-.section-header ion-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-  color: #667eea;
-}
-
-.section-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-// Form Groups
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.form-item {
-  --background: #f8f9fa;
-  --border-radius: 12px;
-  --border-width: 0;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  --inner-padding-end: 0;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  background: #f8f9fa;
-  transition: all 0.3s ease;
-}
-
-.form-item:focus-within {
-  --background: #ffffff;
-  background: #ffffff;
-  box-shadow: 0 0 0 2px #667eea;
-}
-
-.form-item ion-input,
-.form-item ion-textarea {
-  --color: #2c3e50;
-  --placeholder-color: #7f8c8d;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.form-item ion-textarea {
-  min-height: 100px;
-}
-
-// Error Messages
-.error-message {
-  color: #e74c3c;
-  font-size: 12px;
-  font-weight: 500;
-  margin-top: 4px;
-  margin-left: 16px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.error-message::before {
-  content: "⚠";
-  font-size: 14px;
-}
-
-// Toggle Item
-.toggle-item {
-  --background: #f8f9fa;
-  --border-radius: 12px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  border-radius: 12px;
-  background: #f8f9fa;
-}
-
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.toggle-label ion-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  color: #667eea;
-}
-
-.toggle-description {
-  margin: 8px 0 0 0;
-  font-size: 14px;
-  color: #7f8c8d;
-  line-height: 1.4;
-  padding-left: 16px;
-}
-
-// Save Section
-.save-section {
-  padding: 0 16px 24px 16px;
-  background: #ffffff;
-  margin-top: 24px;
-}
-
-.save-button {
-  color: #ffffff;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  height: 56px;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin: 0;
-  margin-bottom: 30px;
-}
-
-.save-button:hover {
-  --box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
-  transform: translateY(-2px);
-}
-
-.save-button:disabled {
-  --background: #bdc3c7;
-  --box-shadow: none;
-  transform: none;
-}
-
-// Responsive Design
-@media (max-width: 480px) {
-  .form-sections {
-    padding: 0 12px 20px 12px;
-  }
-  
-  .form-section {
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  
-  .form-row {
+@media (max-width: 800px) {
+  .preview-card,
+  .grid-2,
+  .grid-3 {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
-  
-  .section-header {
-    margin-bottom: 16px;
+
+  .preview-body {
+    padding: 0 1rem 1rem;
   }
-  
-  .section-header h3 {
-    font-size: 16px;
+
+  .page-toolbar,
+  .form-actions,
+  .toggle-row {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .form-item {
-    --padding-start: 12px;
-    --padding-end: 12px;
-  }
-  
-  .save-section {
-    padding: 0 12px 20px 12px;
-  }
-  
-  .save-button {
-    height: 52px;
-    font-size: 15px;
-  }
-} 
+}

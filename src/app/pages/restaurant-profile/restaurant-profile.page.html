@@ -1,231 +1,174 @@
-<ion-header class="profile-header">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/restaurants-list"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Restaurant Profile</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="saveRestaurant()" [disabled]="restaurantForm.invalid || isSaving">
-        <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="profile-content">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p class="loading-text">Loading restaurant details...</p>
-  </div>
-
-  <!-- Main Content -->
-  <div *ngIf="!isLoading" class="profile-container">
-    <!-- Restaurant Image Section -->
-    <div class="image-section">
-      <div class="image-container">
-        <img 
-          [src]="restaurantForm.get('image')?.value || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMyMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0xNjAgODBDMTQzLjQzMSA4MCAxMzAgOTMuNDMxIDgzIDEzMEMxMzAgMTY2LjU2OSAxNDMuNDMxIDE4MCAxNjAgMTgwQzE3Ni41NjkgMTgwIDE5MCAxNjYuNTY5IDE5MCAxNTBDMTkwIDEzMy40MzEgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTA2LjU2OSAxMzAgOTBDMTMwIDczLjQxIDE0My40MzEgNjAgMTYwIDYwQzE3Ni41NjkgNjAgMTkwIDczLjQzMSAxOTAgOTBDMTkwIDEwNi41NjkgMTc2LjU2OSAxMjAgMTYwIDEyMEMxNDMuNDMxIDEyMCAxMzAgMTMzLjQzMSAxMzAgMTUwQzEzMCAxNjYuNTY5IDE0My40MzEgMTgwIDE2MCAxODBDMTc2LjU2OSAxODAgMTkwIDE2Ni41NjkgMTkwIDE1MEMxOTAgMTMzLjQzMSAxNzYuNTY5IDEyMCAxNjAgMTIwQzE0My40MzEgMTIwIDEzMCAxMDYuNTY5IDEzMCA5MEMxMzAgNzMuNDMxIDE0My40MzEgNjAgMTYwIDYwWiIgZmlsbD0iI0Q3RDdENyIvPgo8c3ZnIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMzIgOEMxOS4xNjMgOC4wMDAwMiA4LjAwMDAyIDE5LjE2MyA4IDMyQzguMDAwMDIgNDQuODM3MiAxOS4xNjMgNTYgMzIgNTZDNDQuODM3MiA1NiA1NiA0NC44MzcgNTYgMzJDNTYgMTkuMTYzIDQ0LjgzNzIgOC4wMDAwMiAzMiA4Wk0zMiA0OEMyNC4yNjggNDggMTggNDEuNzMyIDE4IDM0QzE4IDI2LjI2OCAyNC4yNjggMjAgMzIgMjBDMzkuNzMyIDIwIDQ2IDI2LjI2OCA0NiAzNEM0NiA0MS43MzIgMzkuNzMyIDQ4IDMyIDQ4WiIgZmlsbD0iI0M3QzdDNyIvPgo8L3N2Zz4KPC9zdmc+'" 
-          [alt]="restaurantForm.get('name')?.value || 'Restaurant'"
-          class="restaurant-image"
-          (error)="onImageError($event)"
-        />
-        <div class="image-overlay">
-          <ion-button fill="clear" color="light" size="small" (click)="updateImage()">
-            <ion-icon name="camera-outline" slot="start"></ion-icon>
-            Change Image
-          </ion-button>
-        </div>
-      </div>
+<div class="admin-form-page">
+  <div class="page-toolbar">
+    <div>
+      <p class="eyebrow">Settings</p>
+      <h2>Restaurant profile</h2>
+      <p class="subtitle">Update store details, delivery settings, and availability</p>
     </div>
-
-    <!-- Form Sections -->
-    <form [formGroup]="restaurantForm" class="form-sections">
-      <!-- Basic Information Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <ion-icon name="information-circle-outline" color="primary"></ion-icon>
-          <h3>Basic Information</h3>
-        </div>
-        
-        <div class="form-group">
-          <ion-item class="form-item">
-            <ion-input 
-              label="Restaurant Name *"
-              labelPlacement="stacked"
-              formControlName="name" 
-              placeholder="Enter restaurant name"
-              [clearOnEdit]="true"
-              required
-            ></ion-input>
-          </ion-item>
-          <div *ngIf="restaurantForm.get('name')?.invalid && restaurantForm.get('name')?.touched" class="error-message">
-            Restaurant name is required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <ion-item class="form-item">
-            <ion-input 
-              label="Address *"
-              labelPlacement="stacked"
-              formControlName="address" 
-              placeholder="Enter restaurant address"
-              [clearOnEdit]="true"
-              required
-            ></ion-input>
-          </ion-item>
-          <div *ngIf="restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched" class="error-message">
-            Address is required
-          </div>
-        </div>
-        <div class="form-group">
-       <ion-item class="custom-input">
-        <ion-input 
-          formControlName="pincode" 
-          label="pin code" 
-          label-placement="floating" 
-          fill="solid" 
-          type="number"
-          placeholder="pin">
-        </ion-input>
-      </ion-item>
-       <div *ngIf="restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched" class="error-message">
-            Address is required
-          </div>
-      </div>
-        <div class="form-group">
-          <ion-item class="form-item">
-            <ion-input 
-              label="Cuisine Type"
-              labelPlacement="stacked"
-              formControlName="cuisine" 
-              placeholder="e.g., Italian, Chinese, Indian"
-              [clearOnEdit]="true"
-            ></ion-input>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- Image & Media Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <ion-icon name="image-outline" color="primary"></ion-icon>
-          <h3>Image & Media</h3>
-        </div>
-        
-        <div class="form-group">
-          <ion-item class="form-item">
-            <ion-input 
-              label="Image URL *"
-              labelPlacement="stacked"
-              formControlName="image" 
-              placeholder="Enter image URL"
-              [clearOnEdit]="true"
-              required
-            ></ion-input>
-          </ion-item>
-          <div *ngIf="restaurantForm.get('image')?.invalid && restaurantForm.get('image')?.touched" class="error-message">
-            Image URL is required
-          </div>
-        </div>
-      </div>
-
-      <!-- Business Details Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <ion-icon name="business-outline" color="primary"></ion-icon>
-          <h3>Business Details</h3>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-input 
-                label="Minimum Order (₹)"
-                labelPlacement="stacked"
-                type="number" 
-                formControlName="minOrder"
-                placeholder="0"
-                [clearOnEdit]="true"
-              ></ion-input>
-            </ion-item>
-          </div>
-
-          <div class="form-group">
-            <ion-item class="form-item">
-              <ion-input 
-                label="Delivery Time *"
-                labelPlacement="stacked"
-                formControlName="deliveryTime" 
-                placeholder="e.g., 30-45 min"
-                [clearOnEdit]="true"
-                required
-              ></ion-input>
-            </ion-item>
-            <div *ngIf="restaurantForm.get('deliveryTime')?.invalid && restaurantForm.get('deliveryTime')?.touched" class="error-message">
-              Delivery time is required
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <ion-item class="form-item">
-            <ion-textarea 
-              label="Description *"
-              labelPlacement="stacked"
-              formControlName="description" 
-              placeholder="Describe your restaurant, specialties, and what makes it unique..."
-              rows="4"
-              required
-            ></ion-textarea>
-          </ion-item>
-          <div *ngIf="restaurantForm.get('description')?.invalid && restaurantForm.get('description')?.touched" class="error-message">
-            Description is required
-          </div>
-        </div>
-      </div>
-
-      <!-- Status Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <ion-icon name="settings-outline" color="primary"></ion-icon>
-          <h3>Status & Availability</h3>
-        </div>
-        
-        <div class="form-group">
-          <ion-item class="form-item toggle-item">
-            <ion-label class="toggle-label">
-              <ion-icon name="checkmark-circle-outline" color="medium"></ion-icon>
-              Restaurant Available
-            </ion-label>
-            <ion-toggle 
-              formControlName="available"
-              color="success"
-            ></ion-toggle>
-          </ion-item>
-          <p class="toggle-description">
-            Toggle to make your restaurant available or unavailable for orders
-          </p>
-        </div>
-      </div>
-        <ion-button 
-          expand="block" 
-          color="primary" 
-          size="large"
-          (click)="saveRestaurant()" 
-          [disabled]="restaurantForm.invalid || isSaving"
-          class="save-button"
-        >
-          <ion-spinner *ngIf="isSaving" name="crescent" color="light"></ion-spinner>
-          <ion-icon *ngIf="!isSaving" name="checkmark-outline" slot="start"></ion-icon>
-          <span *ngIf="!isSaving">Save Changes</span>
-          <span *ngIf="isSaving">Saving...</span>
-        </ion-button>
-      
-    </form>
-
-    <!-- Save Button -->
-   
+    <a routerLink="/dashboard" class="ghost-btn">Back to dashboard</a>
   </div>
-</ion-content> 
+
+  <div class="state-card" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading restaurant…</p>
+  </div>
+
+  <div class="state-card error" *ngIf="!isLoading && loadError">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>{{ loadError }}</p>
+    <button type="button" class="ghost-btn" (click)="refresh()" *ngIf="hasRestaurant">
+      Try again
+    </button>
+    <a routerLink="/restaurants" class="primary-btn" *ngIf="!hasRestaurant">Choose restaurant</a>
+  </div>
+
+  <ng-container *ngIf="!isLoading && !loadError && restaurantForm">
+    <section class="preview-card">
+      <div class="preview-media">
+        <img
+          *ngIf="previewImage && !imageBroken"
+          [src]="previewImage"
+          [alt]="restaurantForm.get('name')?.value || 'Restaurant'"
+          (error)="onImageError()" />
+        <div class="media-fallback" *ngIf="!previewImage || imageBroken">
+          <ion-icon name="image-outline"></ion-icon>
+          <span>No image</span>
+        </div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-top">
+          <div>
+            <h3>{{ restaurantForm.get('name')?.value || 'Untitled restaurant' }}</h3>
+            <p>{{ restaurantForm.get('cuisine')?.value || 'Cuisine not set' }}</p>
+          </div>
+          <span class="status-pill" [class.off]="!isOpen">
+            {{ isOpen ? 'Open for orders' : 'Temporarily closed' }}
+          </span>
+        </div>
+        <p class="preview-address">{{ restaurantForm.get('address')?.value || 'Address not set' }}</p>
+        <div class="preview-meta" *ngIf="restaurant">
+          <span *ngIf="restaurant.rating != null">Rating {{ restaurant.rating | number:'1.1-1' }}</span>
+          <span>Min ₹{{ restaurantForm.get('minOrder')?.value || 0 }}</span>
+          <span>{{ restaurantForm.get('deliveryTime')?.value || '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <form class="form-card" [formGroup]="restaurantForm" (ngSubmit)="saveRestaurant()">
+      <section class="form-section">
+        <h3>
+          <ion-icon name="storefront-outline"></ion-icon>
+          Basic details
+        </h3>
+        <div class="grid-2">
+          <label [class.invalid]="isInvalid('name')">
+            <span>Restaurant name *</span>
+            <input formControlName="name" type="text" placeholder="e.g. Spice Route Kitchen" />
+            <small *ngIf="isInvalid('name')">{{ fieldError('name') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('cuisine')">
+            <span>Cuisine *</span>
+            <input formControlName="cuisine" type="text" placeholder="e.g. North Indian" />
+            <small *ngIf="isInvalid('cuisine')">{{ fieldError('cuisine') }}</small>
+          </label>
+        </div>
+        <label [class.invalid]="isInvalid('description')">
+          <span>Description</span>
+          <textarea
+            formControlName="description"
+            rows="3"
+            placeholder="Short description for customers"></textarea>
+        </label>
+      </section>
+
+      <section class="form-section">
+        <h3>
+          <ion-icon name="image-outline"></ion-icon>
+          Branding
+        </h3>
+        <label [class.invalid]="isInvalid('image')">
+          <span>Cover image URL</span>
+          <input formControlName="image" type="url" placeholder="https://…" />
+          <small *ngIf="isInvalid('image')">{{ fieldError('image') }}</small>
+        </label>
+      </section>
+
+      <section class="form-section">
+        <h3>
+          <ion-icon name="location-outline"></ion-icon>
+          Address & delivery
+        </h3>
+        <label [class.invalid]="isInvalid('address')">
+          <span>Full address *</span>
+          <input formControlName="address" type="text" placeholder="Street, area, city" />
+          <small *ngIf="isInvalid('address')">{{ fieldError('address') }}</small>
+        </label>
+        <div class="grid-3">
+          <label [class.invalid]="isInvalid('pincode')">
+            <span>Pincode *</span>
+            <input formControlName="pincode" type="text" maxlength="6" placeholder="500001" />
+            <small *ngIf="isInvalid('pincode')">{{ fieldError('pincode') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('deliveryTime')">
+            <span>Delivery time *</span>
+            <input formControlName="deliveryTime" type="text" placeholder="25-35 min" />
+            <small *ngIf="isInvalid('deliveryTime')">{{ fieldError('deliveryTime') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('minOrder')">
+            <span>Min order (₹) *</span>
+            <input formControlName="minOrder" type="number" min="0" step="1" />
+            <small *ngIf="isInvalid('minOrder')">{{ fieldError('minOrder') }}</small>
+          </label>
+        </div>
+
+        <div class="geo-box">
+          <div class="geo-status" [attr.data-status]="geoStatus">
+            <ng-container [ngSwitch]="geoStatus">
+              <span *ngSwitchCase="'idle'">Update the address to refresh coordinates, or edit them manually.</span>
+              <span *ngSwitchCase="'loading'">Looking up coordinates…</span>
+              <span *ngSwitchCase="'success'">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                Coordinates ready
+              </span>
+              <span *ngSwitchCase="'failed'">Auto-geocode unavailable. Enter latitude/longitude manually.</span>
+            </ng-container>
+          </div>
+          <div class="grid-2">
+            <label [class.invalid]="isInvalid('latitude')">
+              <span>Latitude *</span>
+              <input formControlName="latitude" type="number" step="any" placeholder="17.3850" />
+              <small *ngIf="isInvalid('latitude')">{{ fieldError('latitude') }}</small>
+            </label>
+            <label [class.invalid]="isInvalid('longitude')">
+              <span>Longitude *</span>
+              <input formControlName="longitude" type="number" step="any" placeholder="78.4867" />
+              <small *ngIf="isInvalid('longitude')">{{ fieldError('longitude') }}</small>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h3>
+          <ion-icon name="business-outline"></ion-icon>
+          Availability
+        </h3>
+        <label class="toggle-row">
+          <div>
+            <strong>Accepting orders</strong>
+            <p>Turn off to temporarily hide this restaurant from customers.</p>
+          </div>
+          <input type="checkbox" formControlName="available" class="toggle-input" />
+        </label>
+      </section>
+
+      <div class="form-actions">
+        <a routerLink="/dashboard" class="ghost-btn">Cancel</a>
+        <button type="submit" class="primary-btn" [disabled]="isSaving">
+          <ion-icon name="save-outline" *ngIf="!isSaving"></ion-icon>
+          {{ isSaving ? 'Saving…' : 'Save changes' }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</div>
