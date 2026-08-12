@@ -1,115 +1,72 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="login-header">
-    <ion-title class="login-title">
-      <ion-icon name="restaurant" class="title-icon"></ion-icon>
-      Restaurant Admin
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="login-content">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
-    <p class="loading-text">Logging you in...</p>
-  </div>
-
-  <!-- Main Login Content -->
-  <div *ngIf="!isLoading" class="login-main">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="welcome-icon">
-        <ion-icon name="restaurant" class="welcome-icon-svg"></ion-icon>
-      </div>
-      <h1 class="welcome-title">Welcome Back</h1>
-      <p class="welcome-subtitle">Sign in to manage your restaurant</p>
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-shell">
+    <div class="brand-panel">
+      <div class="brand-mark">KH</div>
+      <h1 class="brand-name">KitchenHub</h1>
+      <p class="brand-tagline">Manage menus, orders, and delivery from one place</p>
     </div>
 
-    <!-- Login Form -->
-    <div class="login-form-section">
-      <ion-card class="login-form-card">
-        <ion-card-content>
-          <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
-            
-            <!-- Email Field -->
-            <ion-item class="form-item">
-              <ion-input 
-                label="Email Address"
-                labelPlacement="stacked"
-                formControlName="email" 
-                type="email" 
-                placeholder="Enter your email address"
-                [clearOnEdit]="true"
-                [class.error]="isFieldInvalid('email')">
-              </ion-input>
-              <div *ngIf="isFieldInvalid('email')" class="error-message">
-                <ion-icon name="alert-circle"></ion-icon>
-                {{ getFieldError('email') }}
-              </div>
-            </ion-item>
+    <div class="form-panel" *ngIf="!isLoading">
+      <form [formGroup]="loginForm" (ngSubmit)="login()" class="auth-form">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in with your restaurant owner account</p>
 
-            <!-- Password Field -->
-            <ion-item class="form-item">
-              <ion-input 
-                label="Password"
-                labelPlacement="stacked"
-                formControlName="password" 
-                type="password" 
-                placeholder="Enter your password"
-                [clearOnEdit]="true"
-                [class.error]="isFieldInvalid('password')">
-              </ion-input>
-              <div *ngIf="isFieldInvalid('password')" class="error-message">
-                <ion-icon name="alert-circle"></ion-icon>
-                {{ getFieldError('password') }}
-              </div>
-            </ion-item>
+        <div class="field">
+          <label>Email</label>
+          <ion-input
+            formControlName="email"
+            type="email"
+            placeholder="owner@restaurant.com"
+            [class.error]="isFieldInvalid('email')">
+          </ion-input>
+          <div *ngIf="isFieldInvalid('email')" class="error-message">{{ getFieldError('email') }}</div>
+        </div>
 
-            <!-- Login Button -->
-            <ion-button 
-              type="submit" 
-              expand="block" 
-              class="login-button"
-              [disabled]="loginForm.invalid || isLoggingIn">
-              <ion-spinner *ngIf="isLoggingIn" name="crescent" class="button-spinner"></ion-spinner>
-              <span *ngIf="!isLoggingIn">
-                <ion-icon name="log-in" slot="start"></ion-icon>
-                Sign In
-              </span>
-            </ion-button>
-          </form>
+        <div class="field">
+          <label>Password</label>
+          <ion-input
+            formControlName="password"
+            type="password"
+            placeholder="Enter password"
+            [class.error]="isFieldInvalid('password')">
+          </ion-input>
+          <div *ngIf="isFieldInvalid('password')" class="error-message">{{ getFieldError('password') }}</div>
+        </div>
 
-          <!-- Divider -->
-          <div class="divider">
-            <span class="divider-text">or</span>
-          </div>
-
-          <!-- Google Login Button -->
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            class="google-login-button"
-            (click)="googleLogin()"
-            [disabled]="isGoogleLoggingIn">
-            <ion-spinner *ngIf="isGoogleLoggingIn" name="crescent" class="button-spinner"></ion-spinner>
-            <span *ngIf="!isGoogleLoggingIn">
-              <ion-icon name="logo-google" slot="start"></ion-icon>
-              Continue with Google
-            </span>
-          </ion-button>
-        </ion-card-content>
-            <div class="signup-section">
-      <p class="signup-text">
-        Don't have an account? 
-        <ion-button fill="clear" class="signup-link" (click)="goToSignup()">
-          Sign Up
+        <ion-button
+          type="submit"
+          expand="block"
+          class="primary-btn"
+          [disabled]="loginForm.invalid || isLoggingIn">
+          <ion-spinner *ngIf="isLoggingIn" name="crescent"></ion-spinner>
+          <span *ngIf="!isLoggingIn">Sign In</span>
         </ion-button>
-      </p>
-    </div>
-      </ion-card>
+
+        <div class="divider"><span>or</span></div>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="google-btn"
+          (click)="googleLogin()"
+          [disabled]="isGoogleLoggingIn">
+          <ion-spinner *ngIf="isGoogleLoggingIn" name="crescent"></ion-spinner>
+          <span *ngIf="!isGoogleLoggingIn">
+            <ion-icon name="logo-google"></ion-icon>
+            Continue with Google
+          </span>
+        </ion-button>
+
+        <p class="signup-text">
+          New restaurant?
+          <button type="button" class="link-btn" (click)="goToSignup()">Create account</button>
+        </p>
+      </form>
     </div>
 
-    <!-- Sign Up Link -->
-
+    <div *ngIf="isLoading" class="loading-wrap">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Signing you in…</p>
+    </div>
   </div>
-</ion-content> 
+</ion-content>
