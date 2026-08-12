@@ -4,9 +4,14 @@
 
 export const environment = {
   production: false,
- // baseUrl:'https://nest-backend-1-xi1a.onrender.com' // WiFi IP for mobile app access
-  baseUrl: "http://192.168.1.3:3000",
-  socketUrl: "http://192.168.1.3:3000",
+  //baseUrl:'https://nest-backend-1-xi1a.onrender.com' // WiFi IP for mobile app access
+ baseUrl: 'http://localhost:3000',
+ socketUrl: 'http://localhost:3000',
+
+  //baseUrl:'http://192.168.1.5:3000',
+  //socketUrl: "http://192.168.1.5:3000",
+//  socketUrl:'https://nest-backend-1-xi1a.onrender.com' // WiFi IP for mobile app access
+
 };
 
 /*
