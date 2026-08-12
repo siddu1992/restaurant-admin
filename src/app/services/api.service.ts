@@ -103,7 +103,7 @@ export interface DeliveryPerson {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = environment.baseUrl;
+  private baseUrl = environment.apiBaseUrl || environment.baseUrl;
 
   constructor(private http: HttpClient) {}
 

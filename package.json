@@ -5,8 +5,15 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "ng serve --configuration=development --port=8101 --host=0.0.0.0",
+    "start:local": "ng serve --configuration=development --port=8101 --host=0.0.0.0",
+    "start:device": "ng serve --configuration=device --port=8101 --host=0.0.0.0",
+    "start:staging": "ng serve --configuration=staging --port=8101 --host=0.0.0.0",
+    "build": "ng build --configuration=production",
+    "build:dev": "ng build --configuration=development",
+    "build:device": "ng build --configuration=device",
+    "build:staging": "ng build --configuration=staging",
+    "build:prod": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
