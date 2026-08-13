@@ -25,6 +25,7 @@ import {
   getNextOrderStatuses,
   getOrderItemName,
   getOrderItemUnitPrice,
+  isIncomingOrder,
 } from '../../models';
 import { ApiService } from '../../services/api.service';
 
@@ -68,15 +69,14 @@ export class OrdersPage implements OnInit, OnDestroy {
   statusCounts: Record<string, number> = {};
 
   readonly statusOptions: StatusOption[] = [
-    { value: 'all', label: 'All' },
-    { value: 'pending', label: 'New' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'preparing', label: 'Preparing' },
-    { value: 'ready_for_pickup', label: 'Ready' },
-    { value: 'out_for_delivery', label: 'Out for delivery' },
+    { value: 'all', label: 'All tickets' },
+    { value: 'pending', label: 'Incoming' },
+    { value: 'preparing', label: 'In kitchen' },
+    { value: 'ready_for_pickup', label: 'Ready for courier' },
+    { value: 'assigned', label: 'Courier assigned' },
+    { value: 'out_for_delivery', label: 'Out with courier' },
     { value: 'delivered', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'assigned', label: 'Assigned' },
+    { value: 'cancelled', label: 'Declined / cancelled' },
   ];
 
   readonly paymentOptions: StatusOption[] = [
@@ -95,6 +95,7 @@ export class OrdersPage implements OnInit, OnDestroy {
   private restaurantId = '';
   private readonly searchSubject = new Subject<string>();
   private subs = new Subscription();
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private readonly api: ApiService,
@@ -148,10 +149,20 @@ export class OrdersPage implements OnInit, OnDestroy {
       this.isLoading = false;
       void this.router.navigate(['/restaurants']);
     }
+
+    this.pollTimer = setInterval(() => {
+      if (this.restaurantId && !this.isUpdating) {
+        void this.loadOrders(true);
+      }
+    }, 12000);
   }
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
   }
 
   onSearchInput(): void {
@@ -203,6 +214,28 @@ export class OrdersPage implements OnInit, OnDestroy {
     return this.getNextActions(order).includes('cancelled');
   }
 
+  isIncoming(order: Order): boolean {
+    return isIncomingOrder(order.status);
+  }
+
+  isInKitchen(order: Order): boolean {
+    return order.status === 'preparing';
+  }
+
+  courierStatus(order: Order): string | null {
+    const status = order.status;
+    if (status === 'ready_for_pickup' || status === 'ready') {
+      return 'Waiting for courier to pick up';
+    }
+    if (status === 'assigned') {
+      return 'Courier assigned — heading to restaurant';
+    }
+    if (status === 'out_for_delivery' || status === 'picked_up') {
+      return 'Courier is delivering to the customer';
+    }
+    return null;
+  }
+
   async applyStatus(order: Order, nextStatus: OrderStatus): Promise<void> {
     if (!this.getNextActions(order).includes(nextStatus) && nextStatus !== 'cancelled') {
       await this.showToast('Invalid status transition', 'danger');
@@ -217,14 +250,23 @@ export class OrdersPage implements OnInit, OnDestroy {
     await this.performStatusUpdate(order, nextStatus);
   }
 
-  async confirmCancel(order: Order): Promise<void> {
+  async acceptOrder(order: Order, event?: Event): Promise<void> {
+    event?.stopPropagation();
+    await this.performStatusUpdate(order, 'preparing');
+  }
+
+  async confirmCancel(order: Order, event?: Event): Promise<void> {
+    event?.stopPropagation();
+    const incoming = this.isIncoming(order);
     const alert = await this.alertController.create({
-      header: 'Cancel order',
-      message: `Cancel order #${this.orderNumber(order)}? This cannot be undone.`,
+      header: incoming ? 'Decline this order?' : 'Cancel order',
+      message: incoming
+        ? `Decline #${this.orderNumber(order)}? The customer will be notified.`
+        : `Cancel order #${this.orderNumber(order)}? This cannot be undone.`,
       buttons: [
-        { text: 'Keep order', role: 'cancel' },
+        { text: incoming ? 'Keep ticket' : 'Keep order', role: 'cancel' },
         {
-          text: 'Cancel order',
+          text: incoming ? 'Decline order' : 'Cancel order',
           role: 'destructive',
           handler: () => {
             void this.performStatusUpdate(order, 'cancelled');
@@ -241,33 +283,33 @@ export class OrdersPage implements OnInit, OnDestroy {
 
   formatStatus(status: string): string {
     const map: Record<string, string> = {
-      pending: 'New',
-      confirmed: 'Confirmed',
-      preparing: 'Preparing',
-      ready_for_pickup: 'Ready',
-      ready: 'Ready',
-      out_for_delivery: 'Out for delivery',
-      picked_up: 'Picked up',
+      pending: 'Incoming',
+      confirmed: 'Incoming',
+      preparing: 'In kitchen',
+      ready_for_pickup: 'Ready for courier',
+      ready: 'Ready for courier',
+      assigned: 'Courier assigned',
+      out_for_delivery: 'Out with courier',
+      picked_up: 'Out with courier',
       delivered: 'Completed',
-      cancelled: 'Cancelled',
-      assigned: 'Assigned',
+      cancelled: 'Declined',
     };
     return map[status] || status.replace(/_/g, ' ');
   }
 
   statusClass(status: string): string {
+    if (status === 'confirmed') {
+      return 'status-pending';
+    }
     const normalized = status === 'ready' ? 'ready_for_pickup' : status;
     return `status-${normalized}`;
   }
 
   actionLabel(status: OrderStatus): string {
     const map: Partial<Record<OrderStatus, string>> = {
-      confirmed: 'Confirm',
-      preparing: 'Start preparing',
-      ready_for_pickup: 'Mark ready',
-      out_for_delivery: 'Out for delivery',
-      delivered: 'Mark completed',
-      cancelled: 'Cancel',
+      preparing: 'Accept order',
+      ready_for_pickup: 'Food is ready',
+      cancelled: 'Decline',
     };
     return map[status] || this.formatStatus(status);
   }
@@ -306,12 +348,14 @@ export class OrdersPage implements OnInit, OnDestroy {
     return this.statusCounts['delivered'] || 0;
   }
 
-  private async loadOrders(): Promise<void> {
+  private async loadOrders(silent = false): Promise<void> {
     if (!this.restaurantId) {
       return;
     }
 
-    this.isLoading = true;
+    if (!silent) {
+      this.isLoading = true;
+    }
     this.loadError = null;
 
     try {
@@ -361,7 +405,17 @@ export class OrdersPage implements OnInit, OnDestroy {
       if (this.selectedOrder?._id === order._id) {
         this.selectedOrder = { ...this.selectedOrder, ...updated };
       }
-      await this.showToast(`Order marked as ${this.formatStatus(nextStatus)}`, 'success');
+      const success =
+        nextStatus === 'preparing'
+          ? 'Order accepted — kitchen started. Couriers are being notified.'
+          : nextStatus === 'ready_for_pickup'
+            ? 'Marked ready — waiting for courier pickup.'
+            : nextStatus === 'cancelled'
+              ? this.isIncoming(order)
+                ? 'Order declined.'
+                : 'Order cancelled.'
+              : `Order marked as ${this.formatStatus(nextStatus)}`;
+      await this.showToast(success, 'success');
       await this.loadOrders();
     } catch (error: unknown) {
       const message =

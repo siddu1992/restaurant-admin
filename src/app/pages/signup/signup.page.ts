@@ -1,26 +1,30 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
-  FormsModule,
-  AbstractControl,
   ValidationErrors,
+  Validators,
 } from '@angular/forms';
+
 import {
-  ToastController,
-  LoadingController,
+  IonBackButton,
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
+  IonLabel,
   IonTitle,
   IonToolbar,
-  IonIcon,
+  LoadingController,
+  ToastController,
 } from '@ionic/angular/standalone';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../core/auth.service';
 import { OwnerSignupRequest } from '../../models';
 
@@ -30,24 +34,25 @@ import { OwnerSignupRequest } from '../../models';
   styleUrls: ['./signup.page.scss'],
   standalone: true,
   imports: [
-    IonContent,
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+
     IonHeader,
-    IonTitle,
     IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonBackButton,
+    IonContent,
     IonInput,
     IonButton,
     IonIcon,
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
+    IonLabel,
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SignupPage {
   signupForm: FormGroup;
   isLoading = false;
-  showPassword = false;
 
   constructor(
     private readonly router: Router,
@@ -59,69 +64,144 @@ export class SignupPage {
     this.signupForm = this.formBuilder.group(
       {
         ownerName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', Validators.required],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        confirmPassword: ['', Validators.required],
+
+        email: [
+          '',
+          [
+            Validators.required,
+            Validators.email,
+          ],
+        ],
+
+        phone: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(/^[0-9]{10}$/),
+          ],
+        ],
+
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+          ],
+        ],
+
+        confirmPassword: [
+          '',
+          Validators.required,
+        ],
       },
-      { validators: this.passwordMatchValidator },
+      {
+        validators: this.passwordMatchValidator,
+      },
     );
   }
 
-  passwordMatchValidator(form: AbstractControl): ValidationErrors | null {
+  passwordMatchValidator(
+    form: AbstractControl,
+  ): ValidationErrors | null {
+
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
+
+    if (!password || !confirmPassword) {
+      return null;
     }
+
+    if (
+      password.value &&
+      confirmPassword.value &&
+      password.value !== confirmPassword.value
+    ) {
+      confirmPassword.setErrors({
+        ...confirmPassword.errors,
+        passwordMismatch: true,
+      });
+
+      return {
+        passwordMismatch: true,
+      };
+    }
+
+    if (confirmPassword.hasError('passwordMismatch')) {
+      const errors = { ...confirmPassword.errors };
+
+      delete errors['passwordMismatch'];
+
+      confirmPassword.setErrors(
+        Object.keys(errors).length > 0 ? errors : null,
+      );
+    }
+
     return null;
   }
 
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
-
   async signup(): Promise<void> {
+
     if (this.signupForm.invalid) {
-      await this.showToast('Please fill all required fields correctly');
+      this.signupForm.markAllAsTouched();
+
+      await this.showToast(
+        'Please fill all required fields correctly',
+      );
+
       return;
     }
 
-    const loading = await this.loadingController.create({ message: 'Signing up...' });
+    this.isLoading = true;
+
+    const loading = await this.loadingController.create({
+      message: 'Creating account...',
+    });
+
     await loading.present();
 
-    const { confirmPassword, ...rest } = this.signupForm.value as OwnerSignupRequest & {
-      confirmPassword: string;
-    };
-    void confirmPassword;
+    const formValue = this.signupForm.getRawValue();
 
     const payload: OwnerSignupRequest = {
-      ownerName: rest.ownerName,
-      email: rest.email,
-      password: rest.password,
-      phone: rest.phone,
+      ownerName: formValue.ownerName,
+      email: formValue.email,
+      phone: formValue.phone,
+      password: formValue.password,
     };
 
     this.auth.signupOwner(payload).subscribe({
       next: async () => {
+        this.isLoading = false;
+
         await loading.dismiss();
-        await this.showToast('Account created successfully! Please login.');
+
+        await this.showToast(
+          'Account created successfully! Please login.',
+        );
+
         void this.router.navigate(['/login']);
       },
+
       error: async () => {
+        this.isLoading = false;
+
         await loading.dismiss();
-        await this.showToast('Error creating account. Please try again.');
+
+        await this.showToast(
+          'Error creating account. Please try again.',
+        );
       },
     });
   }
 
   async showToast(message: string): Promise<void> {
+
     const toast = await this.toastController.create({
       message,
       duration: 3000,
       color: 'warning',
+      position: 'bottom',
     });
+
     await toast.present();
   }
 

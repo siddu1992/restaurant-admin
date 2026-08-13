@@ -63,16 +63,21 @@ export interface OrderSearchResponse {
   statusCounts: Record<string, number>;
 }
 
-/** Allowed next statuses for restaurant admin actions. */
+/**
+ * Restaurant kitchen flow (merchant POS):
+ * Incoming → Accept (start cooking + dispatch rider) / Decline
+ * In kitchen → Food is ready
+ * Ready / courier assigned → wait (rider marks pickup)
+ */
 export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ['confirmed', 'preparing', 'cancelled'],
+  pending: ['preparing', 'cancelled'],
   confirmed: ['preparing', 'cancelled'],
   preparing: ['ready_for_pickup', 'cancelled'],
-  ready_for_pickup: ['out_for_delivery', 'cancelled'],
-  ready: ['out_for_delivery', 'cancelled'],
-  assigned: ['ready_for_pickup', 'out_for_delivery', 'preparing', 'cancelled'],
-  out_for_delivery: ['delivered'],
-  picked_up: ['delivered'],
+  ready_for_pickup: [],
+  ready: [],
+  assigned: [],
+  out_for_delivery: [],
+  picked_up: [],
   delivered: [],
   cancelled: [],
 };
@@ -82,6 +87,10 @@ export function getNextOrderStatuses(status: OrderStatus): OrderStatus[] {
     return ORDER_STATUS_TRANSITIONS.ready_for_pickup;
   }
   return ORDER_STATUS_TRANSITIONS[status] || [];
+}
+
+export function isIncomingOrder(status: OrderStatus): boolean {
+  return status === 'pending' || status === 'confirmed';
 }
 
 export function getOrderItemName(item: OrderItem): string {

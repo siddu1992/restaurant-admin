@@ -1,66 +1,167 @@
 <ion-header>
   <ion-toolbar>
-     <ion-buttons slot="start">
+    <ion-buttons slot="start">
       <ion-back-button color="light"></ion-back-button>
     </ion-buttons>
+
     <ion-title>Edit Food</ion-title>
   </ion-toolbar>
 </ion-header>
+
 <ion-content>
-  <div *ngIf="isLoading">
-    <ion-spinner></ion-spinner>
-    <p>Loading...</p>
+
+  <div class="page-container">
+
+    <!-- Loading -->
+    <div
+      class="loading-container"
+      *ngIf="isLoading"
+    >
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading...</p>
+    </div>
+
+    <!-- Form -->
+    <form
+      *ngIf="!isLoading"
+      [formGroup]="foodForm"
+      (ngSubmit)="saveFood()"
+    >
+
+      <!-- Name -->
+      <div class="form-field">
+
+        <ion-label class="field-label">
+          Name
+        </ion-label>
+
+        <ion-input
+          formControlName="name"
+          fill="outline"
+          type="text"
+          placeholder="Enter food name"
+        ></ion-input>
+
+        <div
+          class="error"
+          *ngIf="
+            foodForm.get('name')?.invalid &&
+            foodForm.get('name')?.touched
+          "
+        >
+          Name is required
+        </div>
+
+      </div>
+
+      <!-- Description -->
+      <div class="form-field">
+
+        <ion-label class="field-label">
+          Description
+        </ion-label>
+
+        <ion-textarea
+          formControlName="description"
+          fill="outline"
+          rows="4"
+          placeholder="Enter food description"
+        ></ion-textarea>
+
+      </div>
+
+      <!-- Price -->
+      <div class="form-field">
+
+        <ion-label class="field-label">
+          Price
+        </ion-label>
+
+        <ion-input
+          formControlName="price"
+          fill="outline"
+          type="number"
+          placeholder="Enter price"
+        ></ion-input>
+
+        <div
+          class="error"
+          *ngIf="
+            foodForm.get('price')?.invalid &&
+            foodForm.get('price')?.touched
+          "
+        >
+          Price is required
+        </div>
+
+      </div>
+
+      <!-- Category -->
+      <div class="form-field">
+
+        <ion-label class="field-label">
+          Category
+        </ion-label>
+
+        <ion-input
+          formControlName="category"
+          fill="outline"
+          type="text"
+          placeholder="Enter category"
+        ></ion-input>
+
+      </div>
+
+      <!-- Image URL -->
+      <div class="form-field">
+
+        <ion-label class="field-label">
+          Image URL
+        </ion-label>
+
+        <ion-input
+          formControlName="image"
+          fill="outline"
+          type="url"
+          placeholder="Enter image URL"
+        ></ion-input>
+
+      </div>
+
+      <!-- Available -->
+      <div class="availability">
+
+        <div class="availability-text">
+
+          <ion-label class="availability-title">
+            Available
+          </ion-label>
+
+          <span class="availability-description">
+            Food is currently available
+          </span>
+
+        </div>
+
+        <ion-toggle
+          formControlName="available"
+          color="warning"
+        ></ion-toggle>
+
+      </div>
+
+      <!-- Save -->
+      <ion-button
+        expand="block"
+        type="submit"
+        class="save-button"
+        [disabled]="foodForm.invalid"
+      >
+        Save Food
+      </ion-button>
+
+    </form>
+
   </div>
-  <form *ngIf="!isLoading" [formGroup]="foodForm" (ngSubmit)="saveFood()">
-    <ion-list>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="name" 
-          label="Name" 
-          label-placement="floating" 
-          fill="solid" 
-          required>
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-textarea 
-          formControlName="description" 
-          label="Description" 
-          label-placement="floating" 
-          fill="solid">
-        </ion-textarea>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          type="number" 
-          formControlName="price" 
-          label="Price" 
-          label-placement="floating" 
-          fill="solid" 
-          required>
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="category" 
-          label="Category" 
-          label-placement="floating" 
-          fill="solid">
-        </ion-input>
-      </ion-item>
-      <ion-item class="custom-input">
-        <ion-input 
-          formControlName="image" 
-          label="Image URL" 
-          label-placement="floating" 
-          fill="solid">
-        </ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label>Available</ion-label>
-        <ion-toggle formControlName="available"></ion-toggle>
-      </ion-item>
-    </ion-list>
-    <ion-button expand="block" type="submit" [disabled]="foodForm.invalid">Save</ion-button>
-  </form>
+
 </ion-content>

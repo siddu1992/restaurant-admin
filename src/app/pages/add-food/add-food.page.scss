@@ -1,495 +1,281 @@
-// Add Food Page Styles
-.add-food-content {
-  --background: #ffffff; // Changed to white background
-  padding: 0;
+:host {
+  display: block;
 }
 
-// Header Styles
-.header-icon {
-  margin-right: 8px;
-  font-size: 1.2em;
+.admin-form-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  color: var(--admin-ink, #134e4a);
+  max-width: 920px;
 }
 
-// Form Container
-.form-container {
-  padding: 16px;
-  max-width: 600px;
-  margin: 0 auto;
+.page-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.85rem;
+}
+
+.page-toolbar h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--admin-muted, #64748b);
+}
+
+.state-card {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  gap: 0.65rem;
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 14px;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.state-card.error ion-icon {
+  color: #dc2626;
+  font-size: 1.8rem;
 }
 
 .form-card {
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); // Lighter shadow for white background
-  background: #ffffff; // Pure white background
-  overflow: hidden;
-  animation: slideInUp 0.6s ease-out;
-  border: 1px solid rgba(0, 0, 0, 0.05); // Subtle border
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.06));
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
 }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.form-section h3 {
+  margin: 0 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1rem;
 }
 
-.form-header {
-  background: linear-gradient(135deg, var(--ion-color-warning) 0%, #ff9500 100%);
-  color: white;
-  text-align: center;
-  padding: 24px 20px;
-  
-  ion-card-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    font-size: 1.5em;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  
-  .title-icon {
-    font-size: 1.3em;
-  }
-  
-  ion-card-subtitle {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1em;
-    margin: 0;
-  }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
 }
 
-// Image Upload Section
-.image-upload-section {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08); // Lighter border
-  background: #fafafa; // Light gray background for section
+label {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--admin-muted, #64748b);
+}
+
+label span {
+  font-weight: 600;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  color: var(--admin-ink, #134e4a);
+  background: #fff;
+  outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--admin-brand, #0f766e);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+label.invalid input,
+label.invalid textarea,
+label.invalid select {
+  border-color: #dc2626;
+}
+
+label small {
+  color: #dc2626;
+  font-size: 0.75rem;
+}
+
+.image-panel {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .image-preview {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 16px;
-  border-radius: 16px;
+  width: 100%;
+  min-height: 180px;
+  border: 1px dashed var(--admin-border, #d8ebe8);
+  border-radius: 14px;
   overflow: hidden;
-  background: #f5f5f5; // Light gray background
-  border: 2px dashed #e0e0e0; // Lighter dashed border
-  transition: all 0.3s ease;
+  background: #f3faf8;
+  padding: 0;
   cursor: pointer;
-  
-  &:hover {
-    border-color: var(--ion-color-warning);
-    transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(255, 149, 0, 0.2);
-  }
-  
-  &.has-image {
-    border: none;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
 }
 
-.preview-image {
+.image-preview img {
   width: 100%;
-  height: 100%;
+  height: 220px;
   object-fit: cover;
+  display: block;
 }
 
 .upload-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #666666; // Darker gray for better contrast
-  
-  .upload-icon {
-    font-size: 3em;
-    margin-bottom: 12px;
-    opacity: 0.7;
-    color: #999999;
-  }
-  
-  p {
-    margin: 0 0 4px 0;
-    font-weight: 500;
-    font-size: 1.1em;
-    color: #333333;
-  }
-  
-  span {
-    font-size: 0.9em;
-    opacity: 0.8;
-    color: #666666;
-  }
-}
-
-.image-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6); // Darker overlay for white background
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  
-  .overlay-icon {
-    color: white;
-    font-size: 2em;
-  }
-}
-
-.image-preview:hover .image-overlay {
-  opacity: 1;
-}
-
-.upload-btn {
-  --color: var(--ion-color-warning);
-  --background: rgba(255, 149, 0, 0.1); // Lighter background
-  --border-radius: 12px;
-  --padding-start: 20px;
-  --padding-end: 20px;
-  height: 40px;
-  font-weight: 500;
-  
-  &:hover {
-    --background: rgba(255, 149, 0, 0.2);
-  }
-}
-
-// Form Fields
-.form-fields {
-  padding: 20px;
-  background: #ffffff; // White background
-}
-
-.form-item {
-  --background: transparent;
-  --border-color: #e0e0e0; // Lighter border for white background
-  --border-radius: 12px;
-  --border-width: 1px;
-  --border-style: solid;
-  margin-bottom: 24px;
-  transition: all 0.3s ease;
-  padding: 8px 0;
-  background: #ffffff; // White background
-  
-  &:hover {
-    --border-color: var(--ion-color-warning);
-    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.1);
-  }
-  
-  &.error {
-    --border-color: var(--ion-color-danger);
-    --background: rgba(235, 68, 90, 0.05); // Very light red background
-  }
-  
-  // Fix for stacked labels
-  ion-label {
-    margin-bottom: 8px !important;
-    font-weight: 500;
-    color: #333333; // Darker text for white background
-    font-size: 0.95em;
-  }
-  
-  // Ensure proper spacing for inputs
-  ion-input,
-  ion-textarea,
-  ion-select {
-    margin-top: 8px;
-  }
-}
-
-.field-icon {
-  margin-right: 8px;
-  color: var(--ion-color-warning);
-  font-size: 1.1em;
-}
-
-// Form label styling
-.form-label {
-  margin-bottom: 12px !important;
-  font-weight: 500;
-  color: #333333; // Darker text for white background
-  font-size: 0.95em;
-  display: block;
-  line-height: 1.4;
-  
-  // Ensure proper spacing for stacked labels
-  &[position="stacked"] {
-    margin-bottom: 8px !important;
-    transform: none !important;
-  }
-}
-
-.custom-input,
-.custom-textarea {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --background: #f8f9fa; // Light gray background for inputs
-  --border-radius: 8px;
-  --color: #333333; // Dark text for readability
-  font-size: 1em;
-  margin-top: 8px;
-  border: 1px solid #e0e0e0; // Subtle border
-  
-  &:focus-within {
-    --background: #ffffff;
-    border-color: var(--ion-color-warning);
-    box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.2);
-  }
-}
-
-.custom-select {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --background: #f8f9fa; // Light gray background
-  --border-radius: 8px;
-  --color: #333333; // Dark text
-  font-size: 1em;
-  margin-top: 8px;
-  border: 1px solid #e0e0e0;
-  
-  &:focus-within {
-    --background: #ffffff;
-    border-color: var(--ion-color-warning);
-    box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.2);
-  }
-}
-
-ion-note {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.85em;
-  margin-top: 8px;
-  margin-bottom: 4px;
-  
-  ion-icon {
-    font-size: 0.9em;
-  }
-  
-  &[slot="error"] {
-    color: var(--ion-color-danger);
-  }
-  
-  &[slot="helper"] {
-    color: #666666; // Medium gray for helper text
-  }
-}
-
-// Form Row for Price and Category
-.form-row {
+  min-height: 180px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
+  place-items: center;
+  gap: 0.25rem;
+  color: var(--admin-muted, #64748b);
+  padding: 1.5rem;
 }
 
-.price-item,
-.category-item {
-  margin-bottom: 0;
+.upload-placeholder ion-icon {
+  font-size: 1.8rem;
+  color: var(--admin-brand, #0f766e);
 }
 
-// Availability Toggle
-.availability-item {
-  --background: rgba(46, 213, 115, 0.05); // Very light green background
-  --border-color: rgba(46, 213, 115, 0.2);
-  margin-bottom: 24px;
-  
-  ion-label {
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-    margin-bottom: 0 !important;
-    color: #333333; // Dark text
-  }
+.upload-placeholder strong {
+  color: var(--admin-ink, #134e4a);
 }
 
-.availability-toggle {
-  --background: rgba(0, 0, 0, 0.1); // Light gray for white background
-  --background-checked: var(--ion-color-success);
-  --handle-background: white;
-  --handle-background-checked: white;
+.upload-placeholder span {
+  font-size: 0.8rem;
 }
 
-// Form Actions
+.image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 12px;
+  background: #f8fcfb;
+}
+
+.toggle-row strong {
+  display: block;
+  color: var(--admin-ink, #134e4a);
+  margin-bottom: 0.15rem;
+}
+
+.toggle-row p {
+  margin: 0;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.8rem;
+}
+
+.toggle-input {
+  appearance: none;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.toggle-input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+  transition: transform 0.15s ease;
+}
+
+.toggle-input:checked {
+  background: var(--admin-brand, #0f766e);
+}
+
+.toggle-input:checked::after {
+  transform: translateX(20px);
+}
+
 .form-actions {
-  padding: 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08); // Lighter border
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: #fafafa; // Light gray background for actions section
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
 }
 
-.submit-btn {
-  --background: linear-gradient(135deg, var(--ion-color-warning) 0%, #ff9500 100%);
-  --color: white;
-  --border-radius: 12px;
-  --padding-start: 24px;
-  --padding-end: 24px;
-  height: 48px;
-  font-weight: 600;
-  font-size: 1.1em;
-  box-shadow: 0 4px 20px rgba(255, 149, 0, 0.3);
-  transition: all 0.3s ease;
-  
-  &:hover:not([disabled]) {
-    --box-shadow: 0 6px 25px rgba(255, 149, 0, 0.4);
-    transform: translateY(-1px);
-  }
-  
-  &[disabled] {
-    --background: rgba(0, 0, 0, 0.1); // Light gray when disabled
-    --color: rgba(0, 0, 0, 0.5);
-    --box-shadow: none;
-  }
-}
-
-.cancel-btn {
-  --color: #666666; // Medium gray for cancel button
-  --border-color: rgba(0, 0, 0, 0.2);
-  --border-radius: 12px;
-  --padding-start: 24px;
-  --padding-end: 24px;
-  height: 44px;
-  font-weight: 500;
-  
-  &:hover {
-    --background: rgba(0, 0, 0, 0.05);
-  }
-}
-
-// Loading Overlay
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
+.ghost-btn,
+.primary-btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-  
-  ion-spinner {
-    margin-bottom: 16px;
-  }
-  
-  p {
-    color: white;
-    font-size: 1.1em;
-    margin: 0;
-  }
+  gap: 0.35rem;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-  .form-container {
-    padding: 12px;
-  }
-  
-  .form-row {
+.ghost-btn {
+  background: #fff;
+  border: 1px solid var(--admin-border, #d8ebe8);
+  color: var(--admin-ink, #134e4a);
+}
+
+.primary-btn {
+  background: var(--admin-brand, #0f766e);
+  color: #fff;
+}
+
+.primary-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+  .grid-2 {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
-  
-  .image-preview {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .form-header {
-    padding: 20px 16px;
-    
-    ion-card-title {
-      font-size: 1.3em;
-    }
-  }
-  
-  .form-fields,
-  .form-actions {
-    padding: 16px;
+
+  .page-toolbar,
+  .form-actions,
+  .toggle-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
-
-@media (max-width: 480px) {
-  .form-card {
-    border-radius: 16px;
-  }
-  
-  .image-preview {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .upload-placeholder {
-    .upload-icon {
-      font-size: 2.5em;
-    }
-    
-    p {
-      font-size: 1em;
-    }
-    
-    span {
-      font-size: 0.8em;
-    }
-  }
-  
-  .submit-btn,
-  .cancel-btn {
-    height: 44px;
-    font-size: 1em;
-  }
-}
-
-// Animation for form fields
-.form-item {
-  animation: fadeInUp 0.6s ease-out;
-  
-  @for $i from 1 through 10 {
-    &:nth-child(#{$i}) {
-      animation-delay: #{$i * 0.1}s;
-    }
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Focus states
-.custom-input:focus-within,
-.custom-textarea:focus-within,
-.custom-select:focus-within {
-  --border-color: var(--ion-color-warning);
-  --background: #ffffff;
-  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.2);
-} 

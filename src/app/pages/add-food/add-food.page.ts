@@ -1,26 +1,57 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
-import { Router } from '@angular/router';
-import { IonicModule, ToastController, AlertController } from '@ionic/angular';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  AlertController,
+  IonIcon,
+  IonSpinner,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  alertCircleOutline,
+  arrowBackOutline,
+  cameraOutline,
+  checkmarkCircleOutline,
+  imageOutline,
+  restaurantOutline,
+} from 'ionicons/icons';
+import { firstValueFrom } from 'rxjs';
 import { RestaurantContextService } from '../../core/restaurant-context.service';
 import { CreateFoodRequest } from '../../models';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-add-food',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, IonIcon, IonSpinner],
   templateUrl: './add-food.page.html',
   styleUrls: ['./add-food.page.scss'],
-  standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule],
 })
-export class AddFoodPage {
+export class AddFoodPage implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   foodForm: FormGroup;
   isLoading = false;
   imagePreview: string | null = null;
   selectedFile: File | null = null;
+
+  readonly categories = [
+    { value: 'main-course', label: 'Main Course' },
+    { value: 'appetizer', label: 'Appetizer' },
+    { value: 'dessert', label: 'Dessert' },
+    { value: 'beverage', label: 'Beverage' },
+    { value: 'south-indian', label: 'South Indian' },
+    { value: 'north-indian', label: 'North Indian' },
+    { value: 'chinese', label: 'Chinese' },
+    { value: 'snacks', label: 'Snacks' },
+  ];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -30,17 +61,63 @@ export class AddFoodPage {
     private readonly toastController: ToastController,
     private readonly alertController: AlertController,
   ) {
+    addIcons({
+      alertCircleOutline,
+      arrowBackOutline,
+      cameraOutline,
+      checkmarkCircleOutline,
+      imageOutline,
+      restaurantOutline,
+    });
+
     this.foodForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-      description: [
-        '',
-        [Validators.required, Validators.minLength(10), Validators.maxLength(200)],
-      ],
-      price: ['', [Validators.required, Validators.min(1), Validators.max(10000)]],
+      description: ['', [Validators.maxLength(200)]],
+      price: [null as number | null, [Validators.required, Validators.min(1), Validators.max(10000)]],
       image: [''],
       available: [true],
       category: ['', Validators.required],
     });
+  }
+
+  ngOnDestroy(): void {
+    // no-op; kept for symmetry with other admin forms
+  }
+
+  get hasRestaurant(): boolean {
+    return !!this.restaurantContext.restaurantId;
+  }
+
+  get previewImage(): string {
+    return this.imagePreview || (this.foodForm.get('image')?.value as string) || '';
+  }
+
+  isInvalid(field: string): boolean {
+    const control = this.foodForm.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  fieldError(field: string): string {
+    const control = this.foodForm.get(field);
+    if (!control?.errors) {
+      return '';
+    }
+    if (control.errors['required']) {
+      return 'This field is required';
+    }
+    if (control.errors['minlength']) {
+      return `Must be at least ${control.errors['minlength'].requiredLength} characters`;
+    }
+    if (control.errors['maxlength']) {
+      return `Must be under ${control.errors['maxlength'].requiredLength} characters`;
+    }
+    if (control.errors['min']) {
+      return 'Must be at least ₹1';
+    }
+    if (control.errors['max']) {
+      return 'Must be ₹10,000 or less';
+    }
+    return 'Invalid value';
   }
 
   goBack(): void {
@@ -53,8 +130,8 @@ export class AddFoodPage {
 
   async showDiscardConfirmation(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Discard Changes?',
-      message: 'You have unsaved changes. Are you sure you want to leave?',
+      header: 'Discard changes?',
+      message: 'You have unsaved changes. Leave without saving?',
       buttons: [
         { text: 'Stay', role: 'cancel' },
         {
@@ -91,89 +168,66 @@ export class AddFoodPage {
     }
 
     this.selectedFile = file;
-
     const reader = new FileReader();
     reader.onload = () => {
       this.imagePreview = typeof reader.result === 'string' ? reader.result : null;
       this.foodForm.patchValue({ image: this.imagePreview });
+      this.foodForm.markAsDirty();
     };
     reader.readAsDataURL(file);
   }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.foodForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  getFieldError(fieldName: string): string {
-    const field = this.foodForm.get(fieldName);
-    if (field?.errors) {
-      if (field.errors['required']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-      }
-      if (field.errors['minlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['minlength'].requiredLength} characters`;
-      }
-      if (field.errors['maxlength']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be less than ${field.errors['maxlength'].requiredLength} characters`;
-      }
-      if (field.errors['min']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors['min'].min}`;
-      }
-      if (field.errors['max']) {
-        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be less than ${field.errors['max'].max}`;
-      }
+  clearImage(): void {
+    this.imagePreview = null;
+    this.selectedFile = null;
+    this.foodForm.patchValue({ image: '' });
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
     }
-    return '';
   }
 
-  async addFood(): Promise<void> {
+  async submit(): Promise<void> {
+    this.foodForm.markAllAsTouched();
     if (this.foodForm.invalid) {
-      this.markFormGroupTouched();
+      await this.showToast('Please complete required fields', 'warning');
+      return;
+    }
+
+    const restaurant = this.restaurantContext.selectedRestaurant;
+    if (!restaurant?._id) {
+      await this.showToast('Select a restaurant first', 'danger');
       return;
     }
 
     this.isLoading = true;
-    const restaurant = this.restaurantContext.selectedRestaurant;
+    try {
+      const formValue = this.foodForm.getRawValue();
+      const foodData: CreateFoodRequest = {
+        name: String(formValue.name).trim(),
+        description: String(formValue.description || '').trim(),
+        price: Number(formValue.price),
+        category: formValue.category,
+        available: !!formValue.available,
+        restaurant: restaurant._id,
+        image: this.imagePreview || formValue.image || undefined,
+      };
 
-    if (!restaurant?._id) {
-      await this.showToast('No restaurant selected', 'danger');
+      await firstValueFrom(this.apiService.addFood(foodData));
+      await this.showToast('Menu item added', 'success');
+      void this.router.navigate(['/food-management']);
+    } catch {
+      await this.showToast('Failed to add menu item. Please try again.', 'danger');
+    } finally {
       this.isLoading = false;
-      return;
     }
-
-    const foodData: CreateFoodRequest = {
-      ...this.foodForm.value,
-      restaurant: restaurant._id,
-      image: this.imagePreview || this.foodForm.value.image,
-    };
-
-    this.apiService.addFood(foodData).subscribe({
-      next: async () => {
-        this.isLoading = false;
-        await this.showToast('Food item added successfully!', 'success');
-        void this.router.navigate(['/food-management']);
-      },
-      error: async () => {
-        this.isLoading = false;
-        await this.showToast('Failed to add food item. Please try again.', 'danger');
-      },
-    });
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.foodForm.controls).forEach((key) => {
-      this.foodForm.get(key)?.markAsTouched();
-    });
-  }
-
-  async showToast(message: string, color: string = 'success'): Promise<void> {
+  private async showToast(message: string, color: string = 'success'): Promise<void> {
     const toast = await this.toastController.create({
       message,
-      duration: 3000,
+      duration: 2800,
       color,
       position: 'top',
-      buttons: [{ icon: 'close', role: 'cancel' }],
     });
     await toast.present();
   }
