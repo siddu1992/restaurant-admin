@@ -122,17 +122,27 @@
         </div>
 
         <div class="geo-box">
+          <div class="geo-actions">
+            <button type="button" class="detect-btn" (click)="detectCurrentLocation()" [disabled]="geoStatus === 'loading'">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ geoStatus === 'loading' ? 'Detecting…' : 'Detect my location' }}
+            </button>
+          </div>
+
           <div class="geo-status" [attr.data-status]="geoStatus">
             <ng-container [ngSwitch]="geoStatus">
-              <span *ngSwitchCase="'idle'">Update the address to refresh coordinates, or edit them manually.</span>
-              <span *ngSwitchCase="'loading'">Looking up coordinates…</span>
+              <span *ngSwitchCase="'idle'">Click the map or use "Detect my location" to set coordinates.</span>
+              <span *ngSwitchCase="'loading'">Looking up location…</span>
               <span *ngSwitchCase="'success'">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>
-                Coordinates ready
+                Coordinates &amp; address set
               </span>
-              <span *ngSwitchCase="'failed'">Auto-geocode unavailable. Enter latitude/longitude manually.</span>
+              <span *ngSwitchCase="'failed'">Could not detect location. Click the map or enter manually.</span>
             </ng-container>
           </div>
+
+          <div class="map-container" id="profile-map"></div>
+
           <div class="grid-2">
             <label [class.invalid]="isInvalid('latitude')">
               <span>Latitude *</span>

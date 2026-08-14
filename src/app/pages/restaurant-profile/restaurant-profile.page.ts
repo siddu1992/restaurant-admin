@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+declare var google: any;
+import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -15,6 +16,7 @@ import {
   checkmarkCircleOutline,
   imageOutline,
   locationOutline,
+  navigateOutline,
   saveOutline,
   storefrontOutline,
 } from 'ionicons/icons';
@@ -32,7 +34,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './restaurant-profile.page.html',
   styleUrls: ['./restaurant-profile.page.scss'],
 })
-export class RestaurantProfilePage implements OnInit, OnDestroy {
+export class RestaurantProfilePage implements OnInit, OnDestroy, AfterViewInit {
   restaurantForm!: FormGroup;
   restaurant: Restaurant | null = null;
   isLoading = true;
@@ -45,6 +47,9 @@ export class RestaurantProfilePage implements OnInit, OnDestroy {
   private readonly addressSubject = new Subject<string>();
   private readonly subs = new Subscription();
   private skipNextGeocode = false;
+  private map: any = null;
+  private mapMarker: any = null;
+  private mapReady = false;
 
   constructor(
     private readonly apiService: ApiService,
@@ -58,6 +63,7 @@ export class RestaurantProfilePage implements OnInit, OnDestroy {
       checkmarkCircleOutline,
       imageOutline,
       locationOutline,
+      navigateOutline,
       saveOutline,
       storefrontOutline,
     });
@@ -120,6 +126,11 @@ export class RestaurantProfilePage implements OnInit, OnDestroy {
         }
       }),
     );
+  }
+
+  ngAfterViewInit(): void {
+    // Delay to ensure the DOM container exists
+    setTimeout(() => this.initMap(), 500);
   }
 
   ngOnDestroy(): void {
@@ -239,6 +250,16 @@ export class RestaurantProfilePage implements OnInit, OnDestroy {
         this.imageBroken = false;
         this.geoStatus = restaurant.latitude && restaurant.longitude ? 'success' : 'idle';
         this.isLoading = false;
+
+        // Update map marker after load
+        setTimeout(() => {
+          if (!this.mapReady) {
+            this.initMap();
+          }
+          if (restaurant.latitude && restaurant.longitude) {
+            this.updateMapMarker(restaurant.latitude, restaurant.longitude);
+          }
+        }, 300);
       },
       error: () => {
         this.loadError = 'Failed to load restaurant details.';
@@ -275,6 +296,159 @@ export class RestaurantProfilePage implements OnInit, OnDestroy {
       }
     } catch {
       this.geoStatus = 'failed';
+    }
+  }
+
+  // ─── Map integration ───────────────────────────────────────────
+
+  private initMap(): void {
+    if (typeof google === 'undefined' || !google.maps) {
+      // Retry after a short delay (script might still be loading)
+      setTimeout(() => this.initMap(), 1000);
+      return;
+    }
+
+    const container = document.getElementById('profile-map');
+    if (!container) return;
+
+    const lat = this.restaurantForm.get('latitude')?.value || 17.385;
+    const lng = this.restaurantForm.get('longitude')?.value || 78.4867;
+
+    this.map = new google.maps.Map(container, {
+      center: { lat: Number(lat), lng: Number(lng) },
+      zoom: 15,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      zoomControl: true,
+      styles: [
+        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+      ],
+    });
+
+    // Restaurant icon SVG for the marker
+    const restaurantSvg = {
+      url:
+        'data:image/svg+xml;charset=UTF-8,' +
+        encodeURIComponent(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="#0F766E"/>
+            <path transform="translate(8, 8)" fill="#fff" d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>
+          </svg>`
+        ),
+      scaledSize: new google.maps.Size(40, 40),
+      anchor: new google.maps.Point(20, 20),
+    };
+
+    this.mapMarker = new google.maps.Marker({
+      position: { lat: Number(lat), lng: Number(lng) },
+      map: this.map,
+      draggable: true,
+      icon: restaurantSvg,
+      title: 'Restaurant location',
+    });
+
+    // Click on map → move marker + reverse geocode
+    this.map.addListener('click', (event: any) => {
+      if (!event.latLng) return;
+      const clickLat = event.latLng.lat();
+      const clickLng = event.latLng.lng();
+      this.updateMapMarker(clickLat, clickLng);
+      this.applyLocationToForm(clickLat, clickLng);
+    });
+
+    // Drag marker → reverse geocode
+    this.mapMarker.addListener('dragend', (event: any) => {
+      if (!event.latLng) return;
+      const dragLat = event.latLng.lat();
+      const dragLng = event.latLng.lng();
+      this.applyLocationToForm(dragLat, dragLng);
+    });
+
+    this.mapReady = true;
+  }
+
+  private updateMapMarker(lat: number, lng: number): void {
+    const pos = { lat, lng };
+    if (this.mapMarker) {
+      this.mapMarker.setPosition(pos);
+    }
+    if (this.map) {
+      this.map.panTo(pos);
+      this.map.setZoom(16);
+    }
+  }
+
+  private applyLocationToForm(lat: number, lng: number): void {
+    this.skipNextGeocode = true;
+    this.restaurantForm.patchValue({
+      latitude: parseFloat(lat.toFixed(6)),
+      longitude: parseFloat(lng.toFixed(6)),
+    });
+    this.geoStatus = 'success';
+    void this.reverseGeocode(lat, lng);
+  }
+
+  detectCurrentLocation(): void {
+    if (!navigator.geolocation) {
+      void this.showToast('Geolocation is not supported by your browser', 'warning');
+      this.geoStatus = 'failed';
+      return;
+    }
+
+    this.geoStatus = 'loading';
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        this.updateMapMarker(lat, lng);
+        this.applyLocationToForm(lat, lng);
+      },
+      () => {
+        this.geoStatus = 'failed';
+        void this.showToast('Could not detect your location', 'warning');
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  private async reverseGeocode(lat: number, lng: number): Promise<void> {
+    const apiKey = environment.googleMapsApiKey;
+    if (!apiKey) return;
+
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json() as {
+        status: string;
+        results?: Array<{
+          formatted_address: string;
+          address_components: Array<{
+            long_name: string;
+            short_name: string;
+            types: string[];
+          }>;
+        }>;
+      };
+
+      if (data.status === 'OK' && data.results?.[0]) {
+        const result = data.results[0];
+        const address = result.formatted_address;
+
+        // Extract pincode from address components
+        const pincodeComponent = result.address_components.find(
+          (c) => c.types.includes('postal_code')
+        );
+        const pincode = pincodeComponent?.long_name || '';
+
+        this.skipNextGeocode = true;
+        this.restaurantForm.patchValue({
+          address: address,
+          ...(pincode ? { pincode } : {}),
+        });
+      }
+    } catch {
+      console.warn('Reverse geocode failed');
     }
   }
 
