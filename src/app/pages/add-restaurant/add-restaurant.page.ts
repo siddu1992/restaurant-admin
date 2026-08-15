@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,7 +6,9 @@ import { IonIcon, ToastController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   arrowBackOutline,
+  cameraOutline,
   checkmarkCircleOutline,
+  imageOutline,
   locationOutline,
   storefrontOutline,
 } from 'ionicons/icons';
@@ -16,6 +18,7 @@ import { AuthService } from '../../core/auth.service';
 import { RestaurantContextService } from '../../core/restaurant-context.service';
 import { CreateRestaurantRequest } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { UploadService } from '../../services/upload.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -26,8 +29,12 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./add-restaurant.page.scss'],
 })
 export class AddRestaurantPage implements OnDestroy {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   restaurantForm: FormGroup;
   isSubmitting = false;
+  imagePreview: string | null = null;
+  selectedFile: File | null = null;
   geoStatus: 'idle' | 'loading' | 'success' | 'failed' = 'idle';
   private readonly addressSubject = new Subject<string>();
   private readonly subs = new Subscription();
@@ -35,6 +42,7 @@ export class AddRestaurantPage implements OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly apiService: ApiService,
+    private readonly uploadService: UploadService,
     private readonly auth: AuthService,
     private readonly restaurantContext: RestaurantContextService,
     private readonly formBuilder: FormBuilder,
@@ -42,7 +50,9 @@ export class AddRestaurantPage implements OnDestroy {
   ) {
     addIcons({
       arrowBackOutline,
+      cameraOutline,
       checkmarkCircleOutline,
+      imageOutline,
       locationOutline,
       storefrontOutline,
     });
@@ -53,6 +63,7 @@ export class AddRestaurantPage implements OnDestroy {
       pincode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
       cuisine: ['', Validators.required],
       description: [''],
+      image: [''],
       deliveryTime: ['25-35 min', Validators.required],
       minOrder: [15, [Validators.required, Validators.min(0)]],
       latitude: [null as number | null, Validators.required],
@@ -78,6 +89,50 @@ export class AddRestaurantPage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
+  }
+
+  get previewImage(): string {
+    return this.imagePreview || (this.restaurantForm.get('image')?.value as string) || '';
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      void this.showToast('Please select a valid image file', 'danger');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      void this.showToast('Image size should be less than 5MB', 'danger');
+      return;
+    }
+
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = typeof reader.result === 'string' ? reader.result : null;
+      this.restaurantForm.patchValue({ image: this.imagePreview });
+      this.restaurantForm.markAsDirty();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearImage(): void {
+    this.imagePreview = null;
+    this.selectedFile = null;
+    this.restaurantForm.patchValue({ image: '' });
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   isInvalid(field: string): boolean {
@@ -122,11 +177,19 @@ export class AddRestaurantPage implements OnDestroy {
     this.isSubmitting = true;
     try {
       const formValue = this.restaurantForm.getRawValue();
+      let imageUrl = formValue.image || undefined;
+
+      // Upload file if selected
+      if (this.selectedFile) {
+        imageUrl = await this.uploadService.uploadRestaurantImage(this.selectedFile);
+      }
+
       const restaurantData: CreateRestaurantRequest = {
         name: formValue.name,
         address: formValue.address,
         cuisine: formValue.cuisine,
         description: formValue.description || undefined,
+        image: imageUrl,
         deliveryTime: formValue.deliveryTime,
         minOrder: Number(formValue.minOrder),
         latitude: Number(formValue.latitude),
@@ -143,8 +206,9 @@ export class AddRestaurantPage implements OnDestroy {
       }
       await this.showToast('Restaurant added successfully', 'success');
       void this.router.navigate(['/dashboard']);
-    } catch {
-      await this.showToast('Could not add restaurant. Please try again.', 'danger');
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Could not add restaurant. Please try again.';
+      await this.showToast(errorMsg, 'danger');
     } finally {
       this.isSubmitting = false;
     }

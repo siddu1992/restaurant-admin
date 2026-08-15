@@ -28,6 +28,7 @@ import {
   isIncomingOrder,
 } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { WebSocketService } from '../../services/websocket.service';
 
 interface StatusOption {
   value: string;
@@ -100,6 +101,7 @@ export class OrdersPage implements OnInit, OnDestroy {
   constructor(
     private readonly api: ApiService,
     private readonly restaurantContext: RestaurantContextService,
+    private readonly wsService: WebSocketService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly toastController: ToastController,
@@ -136,6 +138,7 @@ export class OrdersPage implements OnInit, OnDestroy {
       this.restaurantContext.restaurant$.subscribe((restaurant) => {
         if (restaurant?._id) {
           this.restaurantId = restaurant._id;
+          this.wsService.joinRestaurantRoom(restaurant._id);
           void this.loadOrders();
         }
       }),
@@ -144,11 +147,20 @@ export class OrdersPage implements OnInit, OnDestroy {
     const selected = this.restaurantContext.selectedRestaurant;
     if (selected?._id) {
       this.restaurantId = selected._id;
+      this.wsService.joinRestaurantRoom(selected._id);
       void this.loadOrders();
     } else {
       this.isLoading = false;
       void this.router.navigate(['/restaurants']);
     }
+
+    // Auto refresh list immediately when WebSocket new order event arrives
+    this.subs.add(
+      this.wsService.getNewOrderUpdates().subscribe(() => {
+        console.log('🔄 New order received in OrdersPage, refreshing order list...');
+        void this.loadOrders(true);
+      }),
+    );
 
     this.pollTimer = setInterval(() => {
       if (this.restaurantId && !this.isUpdating) {

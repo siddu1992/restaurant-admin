@@ -175,7 +175,7 @@
 }
 
 .shell-search {
-  --background: #f3faf8;
+  --background: var(--admin-surface, #f3faf8);
   --border-radius: 12px;
   --box-shadow: none;
   padding: 0;
@@ -187,7 +187,7 @@
 .switcher-btn,
 .profile-btn {
   border: 1px solid var(--admin-border, #d8ebe8);
-  background: #fff;
+  background: var(--admin-surface, #fff);
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
@@ -225,7 +225,7 @@
   right: 0;
   top: calc(100% + 0.45rem);
   min-width: 220px;
-  background: #fff;
+  background: var(--admin-surface, #fff);
   border: 1px solid var(--admin-border, #d8ebe8);
   border-radius: 12px;
   box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.1));
@@ -251,7 +251,7 @@
 
 .dropdown-item:hover,
 .dropdown-item.link:hover {
-  background: #f3faf8;
+  background: var(--admin-surface, #f3faf8);
 }
 
 .dropdown-item.danger {

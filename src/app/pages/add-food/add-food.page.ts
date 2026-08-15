@@ -26,6 +26,7 @@ import { firstValueFrom } from 'rxjs';
 import { RestaurantContextService } from '../../core/restaurant-context.service';
 import { CreateFoodRequest } from '../../models';
 import { ApiService } from '../../services/api.service';
+import { UploadService } from '../../services/upload.service';
 
 @Component({
   selector: 'app-add-food',
@@ -56,6 +57,7 @@ export class AddFoodPage implements OnDestroy {
   constructor(
     private readonly fb: FormBuilder,
     private readonly apiService: ApiService,
+    private readonly uploadService: UploadService,
     private readonly restaurantContext: RestaurantContextService,
     private readonly router: Router,
     private readonly toastController: ToastController,
@@ -202,6 +204,13 @@ export class AddFoodPage implements OnDestroy {
     this.isLoading = true;
     try {
       const formValue = this.foodForm.getRawValue();
+      let imageUrl = formValue.image || undefined;
+
+      // Upload file if selected
+      if (this.selectedFile) {
+        imageUrl = await this.uploadService.uploadFoodImage(this.selectedFile);
+      }
+
       const foodData: CreateFoodRequest = {
         name: String(formValue.name).trim(),
         description: String(formValue.description || '').trim(),
@@ -209,14 +218,15 @@ export class AddFoodPage implements OnDestroy {
         category: formValue.category,
         available: !!formValue.available,
         restaurant: restaurant._id,
-        image: this.imagePreview || formValue.image || undefined,
+        image: imageUrl,
       };
 
       await firstValueFrom(this.apiService.addFood(foodData));
       await this.showToast('Menu item added', 'success');
       void this.router.navigate(['/food-management']);
-    } catch {
-      await this.showToast('Failed to add menu item. Please try again.', 'danger');
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to add menu item. Please try again.';
+      await this.showToast(errorMsg, 'danger');
     } finally {
       this.isLoading = false;
     }

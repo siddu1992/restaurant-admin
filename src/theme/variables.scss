@@ -19,7 +19,9 @@
   --ion-color-danger: #dc2626;
 
   --ion-background-color: #f4faf9;
+  --ion-background-color-rgb: 244, 250, 249;
   --ion-text-color: #134e4a;
+  --ion-text-color-rgb: 19, 78, 74;
   --ion-font-family: 'Sora', 'Segoe UI', system-ui, sans-serif;
 
   /* Admin design system */
@@ -50,3 +52,34 @@
   --text-lg: 1.25rem;
   --text-xl: 1.5rem;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root, body, body.dark, .ion-palette-dark {
+    --ion-background-color: #111827;
+    --ion-background-color-rgb: 17, 24, 39;
+    --ion-text-color: #f9fafb;
+    --ion-text-color-rgb: 249, 250, 251;
+
+    --admin-ink: #f9fafb;
+    --admin-muted: #9ca3af;
+    --admin-canvas: #111827;
+    --admin-surface: #1f2937;
+    --admin-border: #374151;
+    --admin-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+}
+
+body.dark, .ion-palette-dark, html.dark {
+  --ion-background-color: #111827;
+  --ion-background-color-rgb: 17, 24, 39;
+  --ion-text-color: #f9fafb;
+  --ion-text-color-rgb: 249, 250, 251;
+
+  --admin-ink: #f9fafb;
+  --admin-muted: #9ca3af;
+  --admin-canvas: #111827;
+  --admin-surface: #1f2937;
+  --admin-border: #374151;
+  --admin-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+

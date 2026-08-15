@@ -32,9 +32,85 @@
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+@media (prefers-color-scheme: dark) {
+  :root, body, body.dark, .ion-palette-dark {
+    --ion-background-color: #111827;
+    --ion-background-color-rgb: 17, 24, 39;
+    --ion-text-color: #f9fafb;
+    --ion-text-color-rgb: 249, 250, 251;
+  }
+
+  ion-content, .admin-shell, .admin-main, .sidebar, .page-container, body {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+  }
+
+  .sidebar, .navbar, .topbar, .card, .order-card, .modal-content, .table-container, ion-card, .stat-card, .filter-bar, .detail-drawer {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+  }
+
+  h1, h2, h3, h4, h5, h6, strong, b, td, th, .metric-value, .order-id {
+    color: #f9fafb !important;
+  }
+
+  p, span:not(.badge):not(.status-badge), label, .hint, .metric-label, .subtext {
+    color: #9ca3af !important;
+  }
+
+  ion-input,
+  ion-textarea,
+  ion-select,
+  input,
+  select,
+  textarea {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+    caret-color: #f9fafb !important;
+  }
+
+  ion-input,
+  ion-textarea,
+  ion-select {
+    --background: #1f2937 !important;
+    --color: #f9fafb !important;
+    --placeholder-color: #d1d5db !important;
+    --border-color: #4b5563 !important;
+    --highlight-color-focused: #fc8019 !important;
+    --highlight-color-valid: #34d399 !important;
+    --highlight-color-invalid: #f87171 !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder,
+  ion-input::placeholder,
+  ion-textarea::placeholder,
+  ion-select::part(text) {
+    color: #d1d5db !important;
+    opacity: 1;
+  }
+
+  .table, table {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    th, td {
+      border-color: #374151 !important;
+      color: #f9fafb !important;
+    }
+  }
+
+  .nav-item, .menu-item {
+    color: #d1d5db !important;
+    &:hover, &.active {
+      background-color: #374151 !important;
+      color: #ffffff !important;
+    }
+  }
+}
 
 /**
  * Android-specific fixes
