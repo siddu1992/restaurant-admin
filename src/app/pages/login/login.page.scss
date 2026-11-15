@@ -1,341 +1,184 @@
-// Login Header Styles
-.login-header {
-  --background: #f8f9fa !important;
-  --color: #2c3e50;
-  background: #f8f9fa !important;
-  border-bottom: 1px solid #e9ecef;
-  
-  .login-title {
-    color: #2c3e50;
-    font-weight: 600;
-    font-size: 1.2rem;
-    
-    .title-icon {
-      margin-right: 8px;
-      color: #667eea;
-    }
-  }
-}
-
 .login-content {
-  --background: #ffffff;
-  background: #ffffff;
-  min-height: 100vh;
+  --background: linear-gradient(160deg, #ecfdf8 0%, #d9f3ee 45%, #f4faf9 100%);
 }
 
-// Loading Container
-.loading-container {
+.login-shell {
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  
-  .loading-spinner {
-    width: 48px;
-    height: 48px;
-    color: #667eea;
-  }
-  
-  .loading-text {
-    margin-top: 16px;
-    color: #7f8c8d;
-    font-size: 16px;
-  }
+  padding: 28px 18px 36px;
+  max-width: 440px;
+  margin: 0 auto;
 }
 
-// Main Login Content
-.login-main {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 24px 16px;
-}
-
-// Welcome Section
-.welcome-section {
+.brand-panel {
   text-align: center;
-  margin-bottom: 32px;
-  padding: 32px 0;
-  
-  .welcome-icon {
-    margin-bottom: 24px;
-    
-    .welcome-icon-svg {
-      font-size: 64px;
-      color: #667eea;
+  margin-bottom: 24px;
+  animation: rise 0.5s ease both;
+}
+
+.brand-mark {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 12px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(145deg, #0f766e, #14b8a6);
+  box-shadow: 0 12px 26px rgba(15, 118, 110, 0.3);
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #134e4a;
+}
+
+.brand-tagline {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.form-panel {
+  background: #fff;
+  border-radius: 22px;
+  padding: 26px 20px;
+  border: 1px solid #d8ebe8;
+  box-shadow: 0 10px 30px rgba(15, 118, 110, 0.1);
+  animation: rise 0.6s ease 0.06s both;
+}
+
+.auth-form {
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #134e4a;
+  }
+
+  .sub {
+    margin: 0 0 20px;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}
+
+.field {
+  margin-bottom: 14px;
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  ion-input {
+    --background: #f4faf9;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    border: 1.5px solid #d8ebe8;
+    border-radius: 12px;
+    font-weight: 500;
+
+    &.error {
+      border-color: #dc2626;
     }
   }
-  
-  .welcome-title {
-    margin: 0 0 8px 0;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2c3e50;
-  }
-  
-  .welcome-subtitle {
-    margin: 0;
-    color: #7f8c8d;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
 }
 
-// Login Form Section
-.login-form-section {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-
-.login-form-card {
-  width: 100%;
-  max-width: 400px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e9ecef;
-  overflow: hidden;
-}
-
-.login-form {
-  padding: 0;
-}
-
-// Form Items
-.form-item {
-  --background: #f8f9fa;
-  --border-radius: 12px;
-  --border-width: 0;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  --inner-padding-end: 0;
-  margin-bottom: 16px;
-  border-radius: 12px;
-  background: #f8f9fa;
-  transition: all 0.3s ease;
-  
-  &:focus-within {
-    --background: #ffffff;
-    background: #ffffff;
-    box-shadow: 0 0 0 2px #667eea;
-  }
-  
-  &.error {
-    --background: #fff5f5;
-    background: #fff5f5;
-    box-shadow: 0 0 0 2px #e74c3c;
-  }
-}
-
-.form-item ion-input {
-  --color: #2c3e50;
-  --placeholder-color: #7f8c8d;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-// Error Messages
 .error-message {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #e74c3c;
-  font-size: 12px;
-  font-weight: 500;
+  color: #dc2626;
+  font-size: 0.8rem;
   margin-top: 4px;
-  margin-left: 16px;
-  
-  ion-icon {
-    font-size: 14px;
-  }
 }
 
-// Login Button
-.login-button {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --color: #ffffff;
+.primary-btn {
+  --background: #0f766e;
+  --background-activated: #0d685f;
   --border-radius: 12px;
-  --box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  font-size: 16px;
+  --box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
+  height: 50px;
+  font-weight: 700;
+  text-transform: none;
+  margin-top: 6px;
+}
+
+.google-btn {
+  --border-color: #0f766e;
+  --color: #0f766e;
+  --border-radius: 12px;
+  height: 50px;
   font-weight: 600;
-  height: 56px;
-  margin-bottom: 24px;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    --box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
-    transform: translateY(-2px);
-  }
-  
-  &:disabled {
-    --background: #bdc3c7;
-    --box-shadow: none;
-    transform: none;
-  }
-  
-  .button-spinner {
-    width: 20px;
-    height: 20px;
-    color: #ffffff;
+  text-transform: none;
+
+  ion-icon {
+    margin-right: 8px;
   }
 }
 
-// Divider
 .divider {
   position: relative;
   text-align: center;
-  margin: 24px 0;
-  
+  margin: 18px 0;
+
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
+    inset: 50% 0 auto;
     height: 1px;
-    background: #e9ecef;
+    background: #d8ebe8;
   }
-  
-  .divider-text {
-    background: #ffffff;
-    padding: 0 16px;
-    color: #7f8c8d;
-    font-size: 14px;
-    font-weight: 500;
+
+  span {
+    position: relative;
+    background: #fff;
+    padding: 0 12px;
+    color: #64748b;
+    font-size: 0.85rem;
   }
 }
 
-// Google Login Button
-.google-login-button {
-  --border-color: #4285f4;
-  --color: #4285f4;
-  --border-radius: 12px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  height: 56px;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    --background: #4285f4;
-    --color: #ffffff;
-    --box-shadow: 0 4px 20px rgba(66, 133, 244, 0.3);
-    transform: translateY(-2px);
-  }
-  
-  &:disabled {
-    --background: #bdc3c7;
-    --color: #7f8c8d;
-    --box-shadow: none;
-    transform: none;
-  }
-  
-  .button-spinner {
-    width: 20px;
-    height: 20px;
-    color: #4285f4;
-  }
-  
-  &:hover .button-spinner {
-    color: #ffffff;
-  }
-}
-
-// Sign Up Section
-.signup-section {
+.signup-text {
   text-align: center;
-  margin-top: auto;
-  
-  .signup-text {
-    margin: 0;
-    color: #7f8c8d;
-    font-size: 14px;
-    
-    .signup-link {
-      --color: #667eea;
-      font-weight: 600;
-      margin: 0;
-      padding: 0;
-      height: auto;
-      
-      &:hover {
-        --color: #764ba2;
-      }
-    }
-  }
+  margin: 18px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-  .login-main {
-    padding: 16px 12px;
-  }
-  
-  .welcome-section {
-    padding: 24px 0;
-    
-    .welcome-icon {
-      .welcome-icon-svg {
-        font-size: 48px;
-      }
-    }
-    
-    .welcome-title {
-      font-size: 1.75rem;
-    }
-  }
-  
-  .login-form-card {
-    max-width: 100%;
-  }
-  
-  .form-item {
-    --padding-start: 12px;
-    --padding-end: 12px;
-  }
-  
-  .login-button,
-  .google-login-button {
-    height: 52px;
-    font-size: 15px;
-  }
+.link-btn {
+  background: none;
+  border: none;
+  color: #0f766e;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
 }
 
-// Animation
-@keyframes fadeInUp {
+.loading-wrap {
+  text-align: center;
+  color: #64748b;
+  padding: 48px 0;
+}
+
+@keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.welcome-section,
-.login-form-card,
-.signup-section {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.welcome-section {
-  animation-delay: 0.1s;
-}
-
-.login-form-card {
-  animation-delay: 0.2s;
-}
-
-.signup-section {
-  animation-delay: 0.3s;
 }

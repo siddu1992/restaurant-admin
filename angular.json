@@ -67,6 +67,30 @@
               "sourceMap": true,
               "namedChunks": true
             },
+            "device": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.device.ts"
+                }
+              ]
+            },
+            "staging": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ]
+            },
             "ci": {
               "progress": false
             }
@@ -81,6 +105,13 @@
             },
             "development": {
               "buildTarget": "app:build:development"
+            },
+            "device": {
+              "buildTarget": "app:build:device",
+              "host": "0.0.0.0"
+            },
+            "staging": {
+              "buildTarget": "app:build:staging"
             },
             "ci": {
               "progress": false

@@ -1,0 +1,108 @@
+<div class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed" [class.mobile-nav-open]="mobileNavOpen">
+  <div class="shell-backdrop" *ngIf="mobileNavOpen" (click)="toggleMobileNav()"></div>
+
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <div class="brand-mark">KH</div>
+      <div class="brand-text" *ngIf="!sidebarCollapsed">
+        <strong>KitchenHub</strong>
+        <span>Restaurant Admin</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let item of visibleNavItems"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        class="nav-item"
+        [attr.title]="item.label"
+        (click)="closeMobileNav()">
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <button type="button" class="collapse-btn" (click)="toggleSidebar()" *ngIf="!mobileNavOpen">
+      <ion-icon name="menu-outline"></ion-icon>
+      <span *ngIf="!sidebarCollapsed">Collapse</span>
+    </button>
+  </aside>
+
+  <div class="shell-main" (click)="closeMenus()">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button type="button" class="icon-btn mobile-only" (click)="toggleMobileNav(); $event.stopPropagation()">
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        <div class="title-block">
+          <h1>{{ pageTitle }}</h1>
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+              <a *ngIf="crumb.path && !last" [routerLink]="crumb.path">{{ crumb.label }}</a>
+              <span *ngIf="!crumb.path || last">{{ crumb.label }}</span>
+              <ion-icon *ngIf="!last" name="chevron-forward-outline"></ion-icon>
+            </ng-container>
+          </nav>
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <ion-searchbar
+          [(ngModel)]="searchQuery"
+          placeholder="Search orders..."
+          debounce="400"
+          (keyup.enter)="onSearchSubmit()"
+          class="shell-search">
+        </ion-searchbar>
+      </div>
+
+      <div class="topbar-right" (click)="$event.stopPropagation()">
+        <div class="restaurant-switcher" *ngIf="restaurants.length">
+          <button type="button" class="switcher-btn" (click)="toggleRestaurantMenu()">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>{{ selectedRestaurant?.name || 'Select restaurant' }}</span>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </button>
+          <div class="dropdown" *ngIf="restaurantMenuOpen">
+            <button
+              type="button"
+              class="dropdown-item"
+              *ngFor="let restaurant of restaurants"
+              (click)="selectRestaurant(restaurant)">
+              {{ restaurant.name }}
+            </button>
+            <a routerLink="/restaurants" class="dropdown-item link" (click)="restaurantMenuOpen = false">
+              Manage restaurants
+            </a>
+          </div>
+        </div>
+
+        <button type="button" class="icon-btn" aria-label="Notifications">
+          <ion-icon name="notifications-outline"></ion-icon>
+        </button>
+
+        <div class="profile-menu">
+          <button type="button" class="profile-btn" (click)="toggleProfileMenu()">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <span class="profile-name">{{ user?.name || 'Account' }}</span>
+          </button>
+          <div class="dropdown" *ngIf="profileMenuOpen">
+            <div class="dropdown-meta">
+              <strong>{{ user?.name }}</strong>
+              <span>{{ user?.email }}</span>
+            </div>
+            <button type="button" class="dropdown-item danger" (click)="logout()">
+              <ion-icon name="log-out-outline"></ion-icon>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

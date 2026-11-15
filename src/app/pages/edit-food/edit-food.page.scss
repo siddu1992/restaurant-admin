@@ -1,38 +1,287 @@
+/* Page */
+
 ion-content {
-  padding: 16px;
+  --background: #f5f5f5;
 }
 
-ion-spinner {
-  display: block;
-  margin: 32px auto;
+/* Header */
+
+ion-toolbar {
+  --background: #fc8019;
+  --color: #ffffff;
 }
+
+ion-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Main container */
+
+.page-container {
+  width: 100%;
+  min-height: 100%;
+
+  display: flex;
+  justify-content: center;
+}
+
+/* Form */
 
 form {
-  max-width: 500px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 560px;
+
+  padding: 24px 20px 40px;
+
+  box-sizing: border-box;
 }
 
-ion-button {
-  margin-top: 24px;
+/* Field */
+
+.form-field {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-.custom-input {
-  --background: transparent;
-  --border-radius: 8px;
-  --highlight-color: #fc8019;
-  margin-bottom: 16px;
-  
-  ion-input, ion-textarea {
-    --background: #fff;
-    --padding-start: 12px;
-    --padding-end: 12px;
-    --border-radius: 8px;
-    --highlight-color-focused: #fc8019;
-    --color: #333;
-    --placeholder-color: #999;
+/* Static label */
+
+.field-label {
+  display: block;
+
+  margin: 0 0 7px 2px;
+
+  color: #334155;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  line-height: 20px;
+}
+
+/* Input */
+
+.form-field ion-input {
+  display: block;
+
+  width: 100%;
+
+  --background: #ffffff;
+
+  --color: #1f2937;
+
+  --placeholder-color: #94a3b8;
+
+  --border-color: #d1d5db;
+
+  --border-color-focused: #fc8019;
+
+  --highlight-color-focused: #fc8019;
+
+  --border-radius: 10px;
+
+  --padding-start: 14px;
+
+  --padding-end: 14px;
+
+  min-height: 52px;
+
+  box-sizing: border-box;
+}
+
+/* Textarea */
+
+.form-field ion-textarea {
+  display: block;
+
+  width: 100%;
+
+  --background: #ffffff;
+
+  --color: #1f2937;
+
+  --placeholder-color: #94a3b8;
+
+  --border-color: #d1d5db;
+
+  --border-color-focused: #fc8019;
+
+  --highlight-color-focused: #fc8019;
+
+  --border-radius: 10px;
+
+  --padding-start: 14px;
+
+  --padding-end: 14px;
+
+  --padding-top: 14px;
+
+  --padding-bottom: 14px;
+
+  min-height: 120px;
+
+  box-sizing: border-box;
+}
+
+/* Error */
+
+.error {
+  margin: 6px 3px 0;
+
+  color: #dc2626;
+
+  font-size: 12px;
+
+  line-height: 18px;
+}
+
+/* Availability */
+
+.availability {
+  width: 100%;
+
+  min-height: 72px;
+
+  box-sizing: border-box;
+
+  margin-top: 4px;
+  margin-bottom: 24px;
+
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* Availability text */
+
+.availability-text {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.availability-title {
+  display: block;
+
+  color: #1f2937;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.availability-description {
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 17px;
+}
+
+/* Toggle */
+
+.availability ion-toggle {
+  flex-shrink: 0;
+
+  --track-background: #d1d5db;
+
+  --track-background-checked: #fc8019;
+
+  --handle-background: #ffffff;
+
+  --handle-background-checked: #ffffff;
+}
+
+/* Save button */
+
+.save-button {
+  width: 100%;
+
+  height: 50px;
+
+  margin: 0;
+
+  --background: #fc8019;
+
+  --background-hover: #e66f0c;
+
+  --background-activated: #e66f0c;
+
+  --color: #ffffff;
+
+  --border-radius: 10px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  text-transform: none;
+}
+
+/* Loading */
+
+.loading-container {
+  width: 100%;
+  min-height: 70vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+.loading-container ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loading-container p {
+  margin-top: 12px;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+/* Desktop */
+
+@media (min-width: 601px) {
+
+  form {
+    padding-top: 30px;
   }
-  
-  &.ion-invalid.ion-touched ion-input, &.ion-invalid.ion-touched ion-textarea {
-    --border-color: #d32f2f;
+
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+  form {
+    padding: 20px 14px 30px;
   }
+
+  .form-field {
+    margin-bottom: 18px;
+  }
+
 }

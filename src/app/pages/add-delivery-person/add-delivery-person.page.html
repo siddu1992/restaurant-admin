@@ -1,233 +1,105 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="page-header">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/dashboard" color="light"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="page-title">
-      <ion-icon name="person-add" class="title-icon"></ion-icon>
-      Add Delivery Person
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="page-content">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
-    <p class="loading-text">Loading...</p>
+<div class="admin-form-page">
+  <div class="page-toolbar">
+    <div>
+      <p class="eyebrow">Staff</p>
+      <h2>Add delivery person</h2>
+      <p class="subtitle">Register a rider account for your delivery team</p>
+    </div>
+    <a routerLink="/dashboard" class="ghost-btn">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Back
+    </a>
   </div>
 
-  <!-- Main Content -->
-  <div *ngIf="!isLoading" class="main-content">
-    <!-- Header Section -->
-    <div class="header-section">
-      <div class="header-content">
-        <div class="header-icon">
-          <ion-icon name="bicycle" class="header-icon-svg"></ion-icon>
+  <div class="success-card" *ngIf="registrationSuccess; else formBlock">
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <h3>Registration successful</h3>
+    <p>The delivery person can now sign in with the email and password you set.</p>
+    <div class="form-actions">
+      <button type="button" class="ghost-btn" (click)="goBack()">Back to dashboard</button>
+      <button type="button" class="primary-btn" (click)="addAnother()">
+        <ion-icon name="person-add-outline"></ion-icon>
+        Add another
+      </button>
+    </div>
+  </div>
+
+  <ng-template #formBlock>
+    <form class="form-card" [formGroup]="deliveryForm" (ngSubmit)="registerDeliveryPerson()">
+      <section class="form-section">
+        <h3>
+          <ion-icon name="person-add-outline"></ion-icon>
+          Basic information
+        </h3>
+        <div class="grid-2">
+          <label [class.invalid]="isInvalid('name')">
+            <span>Full name *</span>
+            <input formControlName="name" type="text" placeholder="Rider full name" />
+            <small *ngIf="isInvalid('name')">{{ fieldError('name') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('phone')">
+            <span>Phone *</span>
+            <input formControlName="phone" type="tel" maxlength="10" placeholder="10-digit mobile" />
+            <small *ngIf="isInvalid('phone')">{{ fieldError('phone') }}</small>
+          </label>
         </div>
-        <div class="header-text">
-          <h2>Register New Delivery Person</h2>
-          <p>Add delivery personnel to your restaurant team</p>
+      </section>
+
+      <section class="form-section">
+        <h3>
+          <ion-icon name="bicycle-outline"></ion-icon>
+          Account access
+        </h3>
+        <div class="grid-2">
+          <label [class.invalid]="isInvalid('email')">
+            <span>Email *</span>
+            <input formControlName="email" type="email" placeholder="rider@email.com" />
+            <small *ngIf="isInvalid('email')">{{ fieldError('email') }}</small>
+          </label>
+          <label [class.invalid]="isInvalid('password')">
+            <span>Password *</span>
+            <input formControlName="password" type="password" placeholder="Min 6 characters" />
+            <small *ngIf="isInvalid('password')">{{ fieldError('password') }}</small>
+          </label>
         </div>
+      </section>
+
+      <section class="form-section">
+        <h3>
+          <ion-icon name="bicycle-outline"></ion-icon>
+          Vehicle & area
+        </h3>
+        <div class="grid-3">
+          <label>
+            <span>Vehicle type</span>
+            <select formControlName="vehicleType">
+              <option *ngFor="let type of vehicleTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>Vehicle number</span>
+            <input formControlName="vehicleNumber" type="text" placeholder="Optional" />
+          </label>
+          <label [class.invalid]="isInvalid('pincode')">
+            <span>Pincode *</span>
+            <input formControlName="pincode" type="text" maxlength="6" placeholder="500001" />
+            <small *ngIf="isInvalid('pincode')">{{ fieldError('pincode') }}</small>
+          </label>
+        </div>
+        <label>
+          <span>Address</span>
+          <textarea formControlName="address" rows="3" placeholder="Optional home/base address"></textarea>
+        </label>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="ghost-btn" (click)="goBack()">Cancel</button>
+        <button type="submit" class="primary-btn" [disabled]="isRegistering">
+          {{ isRegistering ? 'Registering…' : 'Register delivery person' }}
+        </button>
       </div>
-    </div>
-
-    <!-- Form Section -->
-    <div class="form-section">
-      <ion-card class="form-card">
-        <ion-card-content>
-          <form [formGroup]="deliveryForm" (ngSubmit)="registerDeliveryPerson()" class="delivery-form">
-            
-            <!-- Basic Information -->
-            <div class="form-group">
-              <h3 class="group-title">
-                <ion-icon name="person" class="group-icon"></ion-icon>
-                Basic Information
-              </h3>
-              
-              <div class="form-row">
-                <ion-item class="form-item custom-input">
-                  <ion-input 
-                    label="Full Name *"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="name" 
-                    placeholder="Enter full name"
-                    [clearOnEdit]="true"
-                    [class.error]="isFieldInvalid('name')">
-                  </ion-input>
-                  <div *ngIf="isFieldInvalid('name')" class="error-message">
-                    <ion-icon name="alert-circle"></ion-icon>
-                    {{ getFieldError('name') }}
-                  </div>
-                </ion-item>
-
-                <ion-item class="form-item custom-input">
-                  <ion-input 
-                    label="Phone Number *"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="phone" 
-                    type="tel" 
-                    placeholder="Enter phone number"
-                    [clearOnEdit]="true"
-                    [class.error]="isFieldInvalid('phone')">
-                  </ion-input>
-                  <div *ngIf="isFieldInvalid('phone')" class="error-message">
-                    <ion-icon name="alert-circle"></ion-icon>
-                    {{ getFieldError('phone') }}
-                  </div>
-                </ion-item>
-              </div>
-            </div>
-
-            <!-- Account Information -->
-            <div class="form-group">
-              <h3 class="group-title">
-                <ion-icon name="lock-closed" class="group-icon"></ion-icon>
-                Account Information
-              </h3>
-              
-              <div class="form-row">
-                <ion-item class="form-item custom-input">
-                  <ion-input 
-                    label="Email Address *"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="email" 
-                    type="email" 
-                    placeholder="Enter email address"
-                    [clearOnEdit]="true"
-                    [class.error]="isFieldInvalid('email')">
-                  </ion-input>
-                  <div *ngIf="isFieldInvalid('email')" class="error-message">
-                    <ion-icon name="alert-circle"></ion-icon>
-                    {{ getFieldError('email') }}
-                  </div>
-                </ion-item>
-
-                <ion-item class="form-item custom-input">
-                  <ion-input 
-                    label="Password *"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="password" 
-                    type="password" 
-                    placeholder="Enter password"
-                    [clearOnEdit]="true"
-                    [class.error]="isFieldInvalid('password')">
-                  </ion-input>
-                  <div *ngIf="isFieldInvalid('password')" class="error-message">
-                    <ion-icon name="alert-circle"></ion-icon>
-                    {{ getFieldError('password') }}
-                  </div>
-                </ion-item>
-              </div>
-            </div>
-
-            <!-- Additional Information -->
-            <div class="form-group">
-              <h3 class="group-title">
-                <ion-icon name="information-circle" class="group-icon"></ion-icon>
-                Additional Information
-              </h3>
-              
-              <div class="form-row">
-                <ion-item class="form-item custom-input">
-                  <ion-input 
-                    label="Vehicle Number"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="vehicleNumber" 
-                    placeholder="Enter vehicle number (optional)"
-                    [clearOnEdit]="true">
-                  </ion-input>
-                </ion-item>
-
-                <ion-item class="form-item custom-input">
-                  <ion-select 
-                    label="Vehicle Type"
-                    label-placement="floating"
-                    fill="solid"
-                    formControlName="vehicleType" 
-                    placeholder="Select vehicle type">
-                    <ion-select-option value="bicycle">Bicycle</ion-select-option>
-                    <ion-select-option value="motorcycle">Motorcycle</ion-select-option>
-                    <ion-select-option value="car">Car</ion-select-option>
-                    <ion-select-option value="scooter">Scooter</ion-select-option>
-                  </ion-select>
-                </ion-item>
-              </div>
-
-              <ion-item class="form-item full-width custom-input">
-                <ion-textarea 
-                  label="Address"
-                  label-placement="floating"
-                  fill="solid"
-                  formControlName="address" 
-                  placeholder="Enter delivery person's address"
-                  rows="3">
-                </ion-textarea>
-              </ion-item>
-                <ion-item class="custom-input">
-        <ion-input 
-          formControlName="pincode" 
-          label="pin code" 
-          label-placement="floating" 
-          fill="solid" 
-          type="number"
-          placeholder="pin">
-        </ion-input>
-      </ion-item>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <ion-button 
-                type="submit" 
-                expand="block" 
-                class="submit-button"
-                [disabled]="deliveryForm.invalid || isRegistering">
-                <ion-spinner *ngIf="isRegistering" name="crescent" class="button-spinner"></ion-spinner>
-                <span *ngIf="!isRegistering">
-                  <ion-icon name="person-add" slot="start"></ion-icon>
-                  Register Delivery Person
-                </span>
-              </ion-button>
-              
-              <ion-button 
-                fill="outline" 
-                expand="block" 
-                class="cancel-button"
-                (click)="goBack()">
-                <ion-icon name="arrow-back" slot="start"></ion-icon>
-                Cancel
-              </ion-button>
-            </div>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    </div>
-
-    <!-- Success Message -->
-    <div *ngIf="registrationSuccess" class="success-section">
-      <ion-card class="success-card">
-        <ion-card-content>
-          <div class="success-icon">
-            <ion-icon name="checkmark-circle" class="success-icon-svg"></ion-icon>
-          </div>
-          <h3>Registration Successful!</h3>
-          <p>The delivery person has been registered successfully.</p>
-          <ion-button expand="block" class="add-another-button" (click)="addAnother()">
-            <ion-icon name="add" slot="start"></ion-icon>
-            Add Another Delivery Person
-          </ion-button>
-          <ion-button fill="outline" expand="block" class="back-button" (click)="goBack()">
-            <ion-icon name="arrow-back" slot="start"></ion-icon>
-            Back to Dashboard
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    </div>
-  </div>
-</ion-content>
+    </form>
+  </ng-template>
+</div>

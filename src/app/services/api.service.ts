@@ -1,285 +1,268 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-
-export interface Restaurant {
-  _id: string;
-  name: string;
-  address: string;
-  cuisine: string;
-  image: string;
-  rating: number;
-  deliveryTime: string;
-  minOrder: number;
-  description?: string;
-  owner: string;
-  foodItems: string[];
-  latitude: number;
-  longitude: number;
-}
-
-export interface Food {
-  _id: string;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
-  available?: boolean;
-  restaurant: string;
-  quantity?: number
-}
-
-export interface Order {
-  _id: string;
-  customerName: string;
-  customerPhone: string;
-  items: Item[];
-  totalAmount: number;
-  status: string;
-  restaurant: string;
-  deliveryAddress: string;
-  createdAt: string;
-  updatedAt: string;
-  delivery?: { _id: string }; // Optional delivery property for assignment
-}
-
-export interface Item {
-  food: Food
-  quantity: number
-  price: number
-  _id: string
-}
-
-// Dashboard Interfaces
-export interface DashboardStats {
-  totalOrders: number;
-  pendingOrders: number;
-  completedOrders: number;
-  totalRevenue: number;
-  todayRevenue: number;
-  activeDeliveries: number;
-  totalDeliveryPeople: number;
-  averageOrderValue: number;
-}
-
-export interface OrderAnalytics {
-  ordersByStatus: {
-    pending: number;
-    confirmed: number;
-    preparing: number;
-    ready_for_pickup: number;
-    out_for_delivery: number;
-    delivered: number;
-    cancelled: number;
-  };
-  revenueByDay: Array<{
-    date: string;
-    revenue: number;
-    orders: number;
-  }>;
-  topItems: Array<{
-    foodId: string;
-    foodName: string;
-    quantity: number;
-    revenue: number;
-  }>;
-}
-
-export interface DeliveryPerson {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  isActive: boolean;
-  currentDeliveries: number;
-  totalDeliveries: number;
-  rating: number;
-}
+import {
+  AuthResponse,
+  CreateFoodRequest,
+  CreateRestaurantRequest,
+  DashboardOverview,
+  DashboardSales,
+  DashboardStats,
+  DeliveryPerson,
+  DeliveryStats,
+  Food,
+  GoogleLoginRequest,
+  LoginRequest,
+  Order,
+  OrderAnalytics,
+  OrderSearchParams,
+  OrderSearchResponse,
+  OwnerSignupRequest,
+  Restaurant,
+  SalesPeriod,
+  UpdateFoodRequest,
+  UpdateRestaurantRequest,
+} from '../models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
-  private baseUrl = environment.baseUrl;
+  private readonly baseUrl = environment.apiBaseUrl || environment.baseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   // Authentication
-  login(loginData: { email: string; password: string }): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/login`);
-    return this.http.post(`${this.baseUrl}/auth/login`, loginData);
+  login(loginData: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, loginData);
   }
 
-  signup(data: { name: string; email: string; password: string; phone?: string; role?: string }): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/signup`);
-    return this.http.post(`${this.baseUrl}/auth/signup`, data);
+  signup(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    role?: string;
+  }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.baseUrl}/auth/signup`, data);
   }
 
-  googleLogin(googleData: { 
-    email: string; 
-    name: string; 
-    picture: string; 
-    googleId: string;
-    accessToken?: string;
-    idToken?: string;
-  }): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/google-login`);
-    return this.http.post(`${this.baseUrl}/auth/google-login`, googleData);
+  googleLogin(googleData: GoogleLoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/google-login`, googleData);
   }
 
-  restaurantOwnerSignup(signupData: any): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/restaurant-owner/signup`);
-    return this.http.post(`${this.baseUrl}/auth/restaurant-owner/signup`, signupData);
+  restaurantOwnerSignup(
+    signupData: OwnerSignupRequest,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.baseUrl}/auth/restaurant-owner/signup`,
+      signupData,
+    );
   }
 
-  ownerSignup(signupData: any): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/owner/signup`);
-    return this.http.post(`${this.baseUrl}/auth/owner/signup`, signupData);
+  /** @deprecated Use restaurantOwnerSignup */
+  ownerSignup(signupData: OwnerSignupRequest): Observable<{ message: string }> {
+    return this.restaurantOwnerSignup(signupData);
   }
 
-  getProfile(): Observable<any> {
-    console.log('[ApiService] GET', `${this.baseUrl}/auth/profile`);
-    return this.http.get(`${this.baseUrl}/auth/profile`);
+  getProfile(): Observable<AuthResponse['user']> {
+    return this.http.get<AuthResponse['user']>(`${this.baseUrl}/auth/profile`);
   }
 
   // Restaurant Management
   getRestaurant(restaurantId: string): Observable<Restaurant> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/${restaurantId}`);
     return this.http.get<Restaurant>(`${this.baseUrl}/restaurants/${restaurantId}`);
   }
 
-  updateRestaurant(restaurantId: string, data: any): Observable<Restaurant> {
-    console.log('[ApiService] PUT', `${this.baseUrl}/restaurants/${restaurantId}`);
+  updateRestaurant(
+    restaurantId: string,
+    data: UpdateRestaurantRequest,
+  ): Observable<Restaurant> {
     return this.http.put<Restaurant>(`${this.baseUrl}/restaurants/${restaurantId}`, data);
   }
 
-  createRestaurant(restaurantData: any): Observable<any> {
-    console.log('[ApiService] POST', `${this.baseUrl}/restaurants`);
-    return this.http.post(`${this.baseUrl}/restaurants`, restaurantData);
+  createRestaurant(restaurantData: CreateRestaurantRequest): Observable<Restaurant> {
+    return this.http.post<Restaurant>(`${this.baseUrl}/restaurants`, restaurantData);
   }
 
   getRestaurantByOwner(ownerId: string): Observable<Restaurant[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/owner/${ownerId}`);
     return this.http.get<Restaurant[]>(`${this.baseUrl}/restaurants/owner/${ownerId}`);
   }
 
   getAllRestaurants(): Observable<Restaurant[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants`);
     return this.http.get<Restaurant[]>(`${this.baseUrl}/restaurants`);
   }
 
   // Food Management
   getRestaurantFoods(restaurantId: string): Observable<Food[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/foods/restaurant/${restaurantId}`);
     return this.http.get<Food[]>(`${this.baseUrl}/foods/restaurant/${restaurantId}`);
   }
 
-  createFood(foodData: any): Observable<Food> {
-    console.log('[ApiService] POST', `${this.baseUrl}/foods`);
+  createFood(foodData: CreateFoodRequest): Observable<Food> {
     return this.http.post<Food>(`${this.baseUrl}/foods`, foodData);
   }
 
-  updateFood(foodId: string, foodData: any): Observable<Food> {
-    console.log('[ApiService] PUT', `${this.baseUrl}/foods/${foodId}`);
+  updateFood(foodId: string, foodData: UpdateFoodRequest): Observable<Food> {
     return this.http.put<Food>(`${this.baseUrl}/foods/${foodId}`, foodData);
   }
 
-  deleteFood(foodId: string): Observable<any> {
-    console.log('[ApiService] DELETE', `${this.baseUrl}/foods/${foodId}`);
-    return this.http.delete(`${this.baseUrl}/foods/${foodId}`);
+  deleteFood(foodId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/foods/${foodId}`);
   }
 
-  addFood(foodData: any) {
-    console.log('[ApiService] POST', `${this.baseUrl}/foods`);
-    return this.http.post(`${this.baseUrl}/foods`, foodData);
+  addFood(foodData: CreateFoodRequest): Observable<Food> {
+    return this.createFood(foodData);
   }
 
-  getFoodById(foodId: string) {
-    console.log('[ApiService] GET', `${this.baseUrl}/foods/${foodId}`);
-    return this.http.get<any>(`${this.baseUrl}/foods/${foodId}`);
+  getFoodById(foodId: string): Observable<Food> {
+    return this.http.get<Food>(`${this.baseUrl}/foods/${foodId}`);
   }
 
   // Order Management
   getRestaurantOrders(restaurantId: string): Observable<Order[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/orders/restaurant/${restaurantId}`);
     return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}`);
   }
 
+  searchRestaurantOrders(
+    restaurantId: string,
+    params: OrderSearchParams = {},
+  ): Observable<OrderSearchResponse> {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.set(key, String(value));
+      }
+    });
+    const qs = query.toString();
+    return this.http.get<OrderSearchResponse>(
+      `${this.baseUrl}/orders/restaurant/${restaurantId}/search${qs ? `?${qs}` : ''}`,
+    );
+  }
+
+  getOrderById(orderId: string): Observable<Order> {
+    return this.http.get<Order>(`${this.baseUrl}/orders/${orderId}`);
+  }
+
   getRejectedOrders(restaurantId: string): Observable<Order[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/orders/restaurant/${restaurantId}/rejected`);
-    return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}/rejected`);
+    return this.http.get<Order[]>(
+      `${this.baseUrl}/orders/restaurant/${restaurantId}/rejected`,
+    );
   }
 
   updateOrderStatus(orderId: string, status: string): Observable<Order> {
-    console.log('[ApiService] PUT', `${this.baseUrl}/orders/${orderId}/status`);
     return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/status`, { status });
   }
 
+  cancelOrder(orderId: string): Observable<Order> {
+    return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/cancel`, {});
+  }
+
   reassignDelivery(orderId: string, deliveryPersonId: string): Observable<Order> {
-    console.log('[ApiService] PUT', `${this.baseUrl}/orders/${orderId}/reassign-delivery`);
-    return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/reassign-delivery`, { deliveryPersonId });
+    return this.http.put<Order>(`${this.baseUrl}/orders/${orderId}/reassign-delivery`, {
+      deliveryPersonId,
+    });
   }
 
   // Dashboard Analytics
-  getDashboardStats(restaurantId: string): Observable<DashboardStats> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/${restaurantId}/dashboard/stats`);
-    return this.http.get<DashboardStats>(`${this.baseUrl}/restaurants/${restaurantId}/dashboard/stats`);
+  getDashboardOverview(restaurantId: string): Observable<DashboardOverview> {
+    return this.http.get<DashboardOverview>(
+      `${this.baseUrl}/restaurants/${restaurantId}/dashboard`,
+    );
   }
 
-  getOrderAnalytics(restaurantId: string, period: string = '7days'): Observable<OrderAnalytics> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/${restaurantId}/analytics?period=${period}`);
-    return this.http.get<OrderAnalytics>(`${this.baseUrl}/restaurants/${restaurantId}/analytics?period=${period}`);
+  getDashboardStats(restaurantId: string): Observable<DashboardStats> {
+    return this.http.get<DashboardStats>(
+      `${this.baseUrl}/restaurants/${restaurantId}/dashboard/stats`,
+    );
+  }
+
+  getDashboardSales(
+    restaurantId: string,
+    period: SalesPeriod | string = '7days',
+    from?: string,
+    to?: string,
+  ): Observable<DashboardSales> {
+    const params = new URLSearchParams({ period });
+    if (from) {
+      params.set('from', from);
+    }
+    if (to) {
+      params.set('to', to);
+    }
+    return this.http.get<DashboardSales>(
+      `${this.baseUrl}/restaurants/${restaurantId}/dashboard/sales?${params.toString()}`,
+    );
+  }
+
+  getOrderAnalytics(
+    restaurantId: string,
+    period: string = '7days',
+  ): Observable<OrderAnalytics> {
+    return this.http.get<OrderAnalytics>(
+      `${this.baseUrl}/restaurants/${restaurantId}/analytics?period=${period}`,
+    );
   }
 
   getRecentOrders(restaurantId: string, limit: number = 10): Observable<Order[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/orders/restaurant/${restaurantId}/recent?limit=${limit}`);
-    return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}/recent?limit=${limit}`);
+    return this.http.get<Order[]>(
+      `${this.baseUrl}/orders/restaurant/${restaurantId}/recent?limit=${limit}`,
+    );
   }
 
   getPendingOrders(restaurantId: string): Observable<Order[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/orders/restaurant/${restaurantId}/pending`);
-    return this.http.get<Order[]>(`${this.baseUrl}/orders/restaurant/${restaurantId}/pending`);
+    return this.http.get<Order[]>(
+      `${this.baseUrl}/orders/restaurant/${restaurantId}/pending`,
+    );
   }
 
-  // Analytics
-  getRestaurantAnalytics(restaurantId: string): Observable<any> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/${restaurantId}/analytics`);
-    return this.http.get(`${this.baseUrl}/restaurants/${restaurantId}/analytics`);
+  getRestaurantAnalytics(restaurantId: string): Observable<OrderAnalytics> {
+    return this.getOrderAnalytics(restaurantId);
   }
 
   // Delivery Management
-  assignDeliveryPerson(deliveryId: string, deliveryPersonId: string): Observable<any> {
-    console.log('[ApiService] PUT', `${this.baseUrl}/delivery/${deliveryId}/assign`);
-    return this.http.put(`${this.baseUrl}/delivery/${deliveryId}/assign`, { deliveryPersonId });
+  assignDeliveryPerson(
+    deliveryId: string,
+    deliveryPersonId: string,
+  ): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(
+      `${this.baseUrl}/delivery/${deliveryId}/assign`,
+      { deliveryPersonId },
+    );
   }
 
   getAllDeliveryPeople(): Observable<DeliveryPerson[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/users?role=delivery`);
     return this.http.get<DeliveryPerson[]>(`${this.baseUrl}/users?role=delivery`);
   }
 
-  getActiveDeliveries(restaurantId: string): Observable<any[]> {
-    console.log('[ApiService] GET', `${this.baseUrl}/delivery/restaurant/${restaurantId}/active`);
-    return this.http.get<any[]>(`${this.baseUrl}/delivery/restaurant/${restaurantId}/active`);
+  getActiveDeliveries(restaurantId: string): Observable<Order[]> {
+    return this.http.get<Order[]>(
+      `${this.baseUrl}/delivery/restaurant/${restaurantId}/active`,
+    );
   }
 
-  getDeliveryStats(restaurantId: string): Observable<any> {
-    console.log('[ApiService] GET', `${this.baseUrl}/delivery/restaurant/${restaurantId}/stats`);
-    return this.http.get<any>(`${this.baseUrl}/delivery/restaurant/${restaurantId}/stats`);
+  getDeliveryStats(restaurantId: string): Observable<DeliveryStats> {
+    return this.http.get<DeliveryStats>(
+      `${this.baseUrl}/delivery/restaurant/${restaurantId}/stats`,
+    );
   }
 
-  registerDeliveryPerson(data: { name: string; email: string; password: string; phone?: string }): Observable<any> {
+  registerDeliveryPerson(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }): Observable<{ message: string }> {
     const payload = { ...data, role: 'delivery' };
-    console.log('[ApiService] POST', `${this.baseUrl}/auth/signup`, payload);
-    return this.http.post(`${this.baseUrl}/auth/signup`, payload);
+    return this.http.post<{ message: string }>(`${this.baseUrl}/auth/signup`, payload);
   }
 
-  // Real-time updates (WebSocket or polling)
-  getRealTimeUpdates(restaurantId: string): Observable<any> {
-    console.log('[ApiService] GET', `${this.baseUrl}/restaurants/${restaurantId}/realtime`);
-    return this.http.get(`${this.baseUrl}/restaurants/${restaurantId}/realtime`);
+  getRealTimeUpdates(restaurantId: string): Observable<{
+    recentOrders: number;
+    recentDeliveries: number;
+  }> {
+    return this.http.get<{ recentOrders: number; recentDeliveries: number }>(
+      `${this.baseUrl}/restaurants/${restaurantId}/realtime`,
+    );
   }
-} 
+}

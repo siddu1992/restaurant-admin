@@ -1,19 +1,10 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
-
 export const environment = {
   production: false,
- // baseUrl:'https://nest-backend-1-xi1a.onrender.com' // WiFi IP for mobile app access
-  baseUrl: "http://192.168.1.3:3000",
-  socketUrl: "http://192.168.1.3:3000",
+  appName: 'KitchenHub',
+  apiBaseUrl: 'http://localhost:3000',
+  socketUrl: 'http://localhost:3000',
+  /** Optional Maps key for address geocoding in admin forms */
+  googleMapsApiKey: 'AIzaSyDpTR0s1xZGwjOnKbMe65CuV0QQQM2F8FU',
+  /** @deprecated use apiBaseUrl */
+  baseUrl: 'http://localhost:3000',
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

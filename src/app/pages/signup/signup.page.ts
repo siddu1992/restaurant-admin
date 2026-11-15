@@ -1,99 +1,211 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
-import { IonIcon, ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar, IonCard, IonCardContent } from '@ionic/angular/standalone';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonLabel,
+  IonTitle,
+  IonToolbar,
+  LoadingController,
+  ToastController,
+} from '@ionic/angular/standalone';
+
+import { AuthService } from '../../core/auth.service';
+import { OwnerSignupRequest } from '../../models';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.page.html',
   styleUrls: ['./signup.page.scss'],
   standalone: true,
- imports: [
-  IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonInput, 
-    IonButton,  
-    IonIcon,
-    CommonModule, 
-    FormsModule, 
+  imports: [
+    CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    HttpClientModule, 
-    RouterModule,
-     IonContent
-   ],
-    providers:[ApiService],
-    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
+
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonBackButton,
+    IonContent,
+    IonInput,
+    IonButton,
+    IonIcon,
+    IonLabel,
+  ],
+})
 export class SignupPage {
   signupForm: FormGroup;
   isLoading = false;
-  showPassword = false;
 
   constructor(
-    private router: Router,
-    private apiService: ApiService,
-    private formBuilder: FormBuilder,
-    private toastController: ToastController,
-    private loadingController: LoadingController
+    private readonly router: Router,
+    private readonly auth: AuthService,
+    private readonly formBuilder: FormBuilder,
+    private readonly toastController: ToastController,
+    private readonly loadingController: LoadingController,
   ) {
-    this.signupForm = this.formBuilder.group({
-      ownerName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-    }, { validators: this.passwordMatchValidator });
+    this.signupForm = this.formBuilder.group(
+      {
+        ownerName: ['', Validators.required],
+
+        email: [
+          '',
+          [
+            Validators.required,
+            Validators.email,
+          ],
+        ],
+
+        phone: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(/^[0-9]{10}$/),
+          ],
+        ],
+
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(6),
+          ],
+        ],
+
+        confirmPassword: [
+          '',
+          Validators.required,
+        ],
+      },
+      {
+        validators: this.passwordMatchValidator,
+      },
+    );
   }
 
-  passwordMatchValidator(form: FormGroup) {
+  passwordMatchValidator(
+    form: AbstractControl,
+  ): ValidationErrors | null {
+
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
+
+    if (!password || !confirmPassword) {
+      return null;
     }
+
+    if (
+      password.value &&
+      confirmPassword.value &&
+      password.value !== confirmPassword.value
+    ) {
+      confirmPassword.setErrors({
+        ...confirmPassword.errors,
+        passwordMismatch: true,
+      });
+
+      return {
+        passwordMismatch: true,
+      };
+    }
+
+    if (confirmPassword.hasError('passwordMismatch')) {
+      const errors = { ...confirmPassword.errors };
+
+      delete errors['passwordMismatch'];
+
+      confirmPassword.setErrors(
+        Object.keys(errors).length > 0 ? errors : null,
+      );
+    }
+
     return null;
   }
 
-  togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
-  }
+  async signup(): Promise<void> {
 
-  async signup() {
     if (this.signupForm.invalid) {
-      await this.showToast('Please fill all required fields correctly');
+      this.signupForm.markAllAsTouched();
+
+      await this.showToast(
+        'Please fill all required fields correctly',
+      );
+
       return;
     }
-    const loading = await this.loadingController.create({ message: 'Signing up...' });
+
+    this.isLoading = true;
+
+    const loading = await this.loadingController.create({
+      message: 'Creating account...',
+    });
+
     await loading.present();
-    try {
-      const signupData = this.signupForm.value;
-      delete signupData.confirmPassword;
-      await this.apiService.ownerSignup(signupData).toPromise();
-      await this.showToast('Account created successfully! Please login.');
-      this.router.navigate(['/login']);
-    } catch (error) {
-      await this.showToast('Error creating account. Please try again.');
-    } finally {
-      await loading.dismiss();
-    }
+
+    const formValue = this.signupForm.getRawValue();
+
+    const payload: OwnerSignupRequest = {
+      ownerName: formValue.ownerName,
+      email: formValue.email,
+      phone: formValue.phone,
+      password: formValue.password,
+    };
+
+    this.auth.signupOwner(payload).subscribe({
+      next: async () => {
+        this.isLoading = false;
+
+        await loading.dismiss();
+
+        await this.showToast(
+          'Account created successfully! Please login.',
+        );
+
+        void this.router.navigate(['/login']);
+      },
+
+      error: async () => {
+        this.isLoading = false;
+
+        await loading.dismiss();
+
+        await this.showToast(
+          'Error creating account. Please try again.',
+        );
+      },
+    });
   }
 
-  async showToast(message: string) {
+  async showToast(message: string): Promise<void> {
+
     const toast = await this.toastController.create({
-      message: message,
+      message,
       duration: 3000,
-      color: 'warning'
+      color: 'warning',
+      position: 'bottom',
     });
+
     await toast.present();
   }
 
-  goToLogin() {
-    this.router.navigate(['/login']);
+  goToLogin(): void {
+    void this.router.navigate(['/login']);
   }
-} 
+}

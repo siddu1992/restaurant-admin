@@ -1,546 +1,495 @@
-:root {
-  --swiggy-primary: #fc8019;
-  --swiggy-bg: #f5f5f5;
-  --swiggy-card-bg: #fff;
-  --swiggy-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  --swiggy-radius: 16px;
+:host {
+  display: block;
 }
 
-ion-content {
-  background: var(--swiggy-bg);
-  padding: 1.5rem 0.5rem;
-}
-
-.swiggy-card {
-  background: var(--swiggy-card-bg);
-  border-radius: var(--swiggy-radius);
-  box-shadow: var(--swiggy-shadow);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-h2 {
-  color: var(--swiggy-primary);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.address, .cuisine, .desc {
-  color: #555;
-  margin-bottom: 0.5rem;
-}
-
-.meta {
+.dashboard-page {
   display: flex;
-  gap: 1.5rem;
-  color: #888;
-  font-size: 1rem;
-  margin-top: 1rem;
+  flex-direction: column;
+  gap: 1.25rem;
+  color: var(--admin-ink, #134e4a);
 }
 
-.dashboard-actions {
+.page-toolbar {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  margin-top: 2rem;
-  ion-card {
-    flex: 1;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 12px;
-    box-shadow: var(--swiggy-shadow);
-    transition: box-shadow 0.2s;
-    &:hover {
-      box-shadow: 0 4px 24px rgba(252,128,25,0.15);
-    }
-    ion-icon {
-      font-size: 2rem;
-      color: var(--swiggy-primary);
-      margin-bottom: 0.5rem;
-    }
-    h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      color: #222;
-    }
-  }
-} 
-
-.dashboard-content {
-  --background: #ffffff;
-  --padding-top: 0;
-  --padding-bottom: 20px;
 }
 
-.dashboard-header {
-  --background: #f8f9fa;
-  --color: #2c3e50;
-  border-bottom: 1px solid #e9ecef;
+.eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.85rem;
 }
 
-.dashboard-title {
-  display: flex;
-  align-items: center;
+.page-toolbar h2 {
+  margin: 0;
+  font-size: 1.45rem;
   font-weight: 700;
-  font-size: 1.2rem;
-  color: #2c3e50;
-  
-  .title-icon {
-    margin-right: 8px;
-    color: #667eea;
-  }
 }
 
-.loading-container {
-  display: flex;
+.ghost-btn,
+.primary-btn,
+.link-btn,
+.period-btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ghost-btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  height: 50vh;
-  
-  .loading-card {
-    text-align: center;
-    padding: 2rem;
-    
-    .loading-spinner {
-      margin-bottom: 1rem;
-    }
-    
-    h3 {
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-    }
-    
-    p {
-      color: #7f8c8d;
-    }
-  }
+  gap: 0.4rem;
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  color: var(--admin-ink, #134e4a);
 }
 
-.dashboard-main {
-  padding: 1rem;
+.primary-btn {
+  background: var(--admin-brand, #0f766e);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
 }
 
-.restaurant-info-card {
-  margin-bottom: 1.5rem;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  background: white;
-  
-  .restaurant-image-container {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-    
-    .restaurant-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    
-    &:hover .restaurant-image {
-      transform: scale(1.05);
-    }
-    
-    .image-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.3) 100%
-      );
-      display: flex;
-      align-items: flex-end;
-      padding: 1rem;
-      
-      .cuisine-badge {
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.5rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: #2c3e50;
-        
-        ion-icon {
-          margin-right: 0.25rem;
-          color: #667eea;
-        }
-      }
-    }
-  }
-  
-  .restaurant-header {
-    padding: 1.5rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    
-    .restaurant-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      
-      .avatar-icon {
-        font-size: 2rem;
-        color: white;
-      }
-    }
-    
-    .restaurant-details {
-      flex: 1;
-      
-      .restaurant-name {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #2c3e50;
-      }
-      
-      .restaurant-cuisine {
-        margin: 0 0 1rem 0;
-        color: #667eea;
-        font-weight: 500;
-        font-size: 1rem;
-      }
-      
-      .restaurant-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        
-        .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: #7f8c8d;
-          font-size: 0.9rem;
-          
-          .meta-icon {
-            color: #667eea;
-          }
-        }
-      }
-    }
-  }
-  
-  .restaurant-description {
-    padding: 0 1.5rem 1.5rem;
-    
-    p {
-      margin: 0;
-      color: #7f8c8d;
-      line-height: 1.6;
-    }
-  }
+.link-btn {
+  background: transparent;
+  color: var(--admin-brand, #0f766e);
+  font-weight: 600;
 }
 
-.stats-grid {
+.state-card {
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  place-items: center;
+  gap: 0.65rem;
+  min-height: 220px;
+}
+
+.state-card ion-icon {
+  font-size: 2rem;
+  color: var(--admin-brand, #0f766e);
+}
+
+.state-card.error ion-icon {
+  color: #dc2626;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.kpi-card {
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.08));
+}
+
+.kpi-card.clickable {
+  cursor: pointer;
+}
+
+.kpi-card span {
+  display: block;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.82rem;
+}
+
+.kpi-card strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.kpi-card small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.72rem;
+}
+
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon ion-icon {
+  font-size: 1.15rem;
+  color: #fff;
+}
+
+.kpi-icon.revenue { background: #0f766e; }
+.kpi-icon.orders { background: #0284c7; }
+.kpi-icon.aov { background: #7c3aed; }
+.kpi-icon.pending { background: #d97706; }
+.kpi-icon.done { background: #16a34a; }
+.kpi-icon.cancel { background: #dc2626; }
+.kpi-icon.stock { background: #64748b; }
+
+.panel {
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 16px;
+  padding: 1.1rem 1.15rem 1.25rem;
+  box-shadow: var(--admin-shadow, 0 10px 30px rgba(15, 118, 110, 0.06));
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 2rem;
-  
-  .stat-card {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    background: white;
-    height: 100px;
-    
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
-    
-    ion-card-content {
-      padding: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      height: 100%;
-      
-      .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        
-        .stat-icon-svg {
-          font-size: 1.5rem;
-          color: white;
-        }
-      }
-      
-      .stat-content {
-        flex: 1;
-        
-        .stat-number {
-          margin: 0 0 0.25rem 0;
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #2c3e50;
-          line-height: 1;
-        }
-        
-        .stat-label {
-          margin: 0;
-          color: #7f8c8d;
-          font-size: 0.9rem;
-          font-weight: 500;
-          line-height: 1.2;
-        }
-      }
-    }
-    
-    &.orders-card .stat-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    &.pending-card .stat-icon {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-    
-    &.revenue-card .stat-icon {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-    
-    &.delivery-card .stat-icon {
-      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    }
-  }
+  margin-bottom: 1rem;
 }
 
-.actions-section {
-  margin-bottom: 2rem;
-  
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-    
-    .section-icon {
-      color: #667eea;
-    }
-  }
-  
-  .actions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    
-    .action-card {
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: white;
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      }
-      
-      ion-card-content {
-        padding: 1.5rem;
-        text-align: center;
-        
-        .action-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 1rem;
-          
-          .action-icon-svg {
-            font-size: 1.8rem;
-            color: white;
-          }
-        }
-        
-        h3 {
-          margin: 0 0 0.5rem 0;
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #2c3e50;
-        }
-        
-        p {
-          margin: 0 0 1rem 0;
-          color: #7f8c8d;
-          font-size: 0.9rem;
-          line-height: 1.4;
-        }
-        
-        .action-button {
-          color: #667eea;
-          font-weight: 500;
-        }
-      }
-    }
-    
-    .food-management .action-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .orders-management .action-icon {
-      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-    }
-    
-    .analytics .action-icon {
-      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    }
-    
-    .delivery-management .action-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .add-delivery .action-icon {
-      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    }
-  }
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
 }
 
-.no-restaurant {
+.panel-header p {
+  margin: 0.25rem 0 0;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.85rem;
+}
+
+.period-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.period-btn {
+  background: var(--admin-surface, #f3faf8);
+  color: var(--admin-ink, #134e4a);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.period-btn.active {
+  background: var(--admin-brand, #0f766e);
+  color: #fff;
+}
+
+.custom-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.custom-range label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--admin-muted, #64748b);
+}
+
+.custom-range input {
+  border: 1px solid var(--admin-border, #d8ebe8);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+}
+
+.sales-loading {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+}
+
+.bar-chart {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(42px, 1fr);
+  gap: 0.55rem;
+  align-items: end;
+  min-height: 220px;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  min-height: 200px;
+}
+
+.bar {
+  width: 100%;
+  max-width: 36px;
+  min-height: 4px;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, #14b8a6 0%, #0f766e 100%);
+}
+
+.bar-value {
+  font-size: 0.68rem;
+  color: var(--admin-muted, #64748b);
+  white-space: nowrap;
+}
+
+.bar-label {
+  font-size: 0.72rem;
+  color: var(--admin-muted, #64748b);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1rem;
+}
+
+.content-grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.7rem 0.45rem;
+  border-bottom: 1px solid var(--admin-border, #e8f3f1);
+  vertical-align: top;
+}
+
+th {
+  color: var(--admin-muted, #64748b);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.cell-stack {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.cell-stack span {
+  color: var(--admin-muted, #64748b);
+  font-size: 0.78rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.status-pending,
+.status-confirmed { background: #ffedd5; color: #9a3412; }
+.status-preparing { background: #ccfbf1; color: #0f766e; }
+.status-ready_for_pickup,
+.status-ready { background: #dcfce7; color: #166534; }
+.status-out_for_delivery { background: #ede9fe; color: #5b21b6; }
+.status-delivered { background: #d1fae5; color: #065f46; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.status-assigned { background: #e2e8f0; color: #475569; }
+
+.status-list,
+.category-list,
+.rank-list,
+.method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.status-row,
+.category-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 48px;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.status-meta,
+.category-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 50vh;
-  
-  .no-restaurant-card {
-    text-align: center;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    background: white;
-    
-    .no-restaurant-icon {
-      margin-bottom: 1rem;
-      
-      .no-restaurant-svg {
-        font-size: 4rem;
-        color: #bdc3c7;
-      }
-    }
-    
-    h3 {
-      color: #2c3e50;
-      margin-bottom: 0.5rem;
-    }
-    
-    p {
-      color: #7f8c8d;
-      margin-bottom: 1.5rem;
-    }
+  gap: 0.45rem;
+  font-size: 0.88rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-track,
+.category-bar {
+  height: 8px;
+  background: var(--admin-surface, #eef7f5);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.status-fill,
+.category-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--admin-brand, #0f766e);
+}
+
+.rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rank-list li,
+.method-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--admin-surface, #f3faf8);
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--admin-brand, #0f766e);
+}
+
+.rank-list small,
+.category-meta small,
+.payment-kpis small,
+.method-list small {
+  color: var(--admin-muted, #64748b);
+  font-size: 0.78rem;
+}
+
+.rank-list div,
+.category-meta div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.rank-list em,
+.category-row em,
+.method-list em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.payment-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.payment-kpis > div {
+  background: var(--admin-surface, #f3faf8);
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.payment-kpis span {
+  display: block;
+  color: var(--admin-muted, #64748b);
+  font-size: 0.8rem;
+}
+
+.payment-kpis strong {
+  display: block;
+  margin: 0.2rem 0;
+  font-size: 1.1rem;
+}
+
+.method-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.method-list li {
+  grid-template-columns: 20px 1fr auto auto;
+}
+
+.empty-inline {
+  color: var(--admin-muted, #64748b);
+  font-size: 0.92rem;
+  padding: 1rem 0.25rem;
+}
+
+@media (max-width: 1200px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .content-grid.three {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (max-width: 768px) {
-  .dashboard-main {
-    padding: 16px;
-  }
-  
-  .restaurant-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 16px;
-  }
-  
-  .restaurant-meta {
-    justify-content: center;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .actions-grid {
+@media (max-width: 900px) {
+  .kpi-grid,
+  .content-grid,
+  .content-grid.three {
     grid-template-columns: 1fr;
   }
-  
-  .form-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .restaurant-avatar {
-    width: 60px;
-    height: 60px;
-    
-    .avatar-icon {
-      font-size: 1.5rem;
-    }
-  }
-  
-  .restaurant-name {
-    font-size: 1.5rem;
-  }
-  
-  .stat-card ion-card-content {
-    padding: 20px;
-  }
-  
-  .stat-icon {
-    width: 50px;
-    height: 50px;
-    
-    .stat-icon-svg {
-      font-size: 1.5rem;
-    }
-  }
-  
-  .stat-number {
-    font-size: 1.5rem;
+
+  .status-row,
+  .category-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
   }
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+@media (max-width: 640px) {
+  .page-toolbar {
+    flex-direction: column;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
-
-.dashboard-main > * {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.stat-card,
-.action-card {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.stat-card:nth-child(1) { animation-delay: 0.1s; }
-.stat-card:nth-child(2) { animation-delay: 0.2s; }
-.stat-card:nth-child(3) { animation-delay: 0.3s; }
-.stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-.action-card:nth-child(1) { animation-delay: 0.5s; }
-.action-card:nth-child(2) { animation-delay: 0.6s; }
-.action-card:nth-child(3) { animation-delay: 0.7s; }
-.action-card:nth-child(4) { animation-delay: 0.8s; }
-.action-card:nth-child(5) { animation-delay: 0.9s; } 

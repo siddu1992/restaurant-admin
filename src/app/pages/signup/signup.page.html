@@ -1,44 +1,227 @@
 <ion-header>
   <ion-toolbar>
-     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login" color="light"></ion-back-button>
+
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/login"
+        color="light">
+      </ion-back-button>
     </ion-buttons>
+
     <ion-title>Sign Up</ion-title>
+
   </ion-toolbar>
 </ion-header>
+
 <ion-content>
-  <div class="swiggy-signup-card">
-    <div class="swiggy-signup-header">
-      <ion-icon name="restaurant-outline" size="large"></ion-icon>
-      <h1>Create Your Owner Account</h1>
-      <p>Join the platform and manage your restaurant with ease</p>
-    </div>
-    <form [formGroup]="signupForm">
-      <ion-item>
-        <ion-label position="stacked">Owner Name</ion-label>
-        <ion-input formControlName="ownerName"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Email</ion-label>
-        <ion-input formControlName="email" type="email"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Phone</ion-label>
-        <ion-input formControlName="phone"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Password</ion-label>
-        <ion-input formControlName="password" type="password"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="stacked">Confirm Password</ion-label>
-        <ion-input formControlName="confirmPassword" type="password"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="signup()">Sign Up</ion-button>
-      <div class="swiggy-signup-footer">
-        <span>Already have an account?</span>
-        <ion-button fill="clear" (click)="goToLogin()">Login</ion-button>
+
+  <div class="signup-container">
+
+    <div class="signup-card">
+
+      <!-- Header -->
+      <div class="signup-header">
+
+        <div class="logo-container">
+          <ion-icon name="restaurant-outline"></ion-icon>
+        </div>
+
+        <h1>Create KitchenHub account</h1>
+
+        <p>
+          Register as a restaurant owner and start managing orders
+        </p>
+
       </div>
-    </form>
+
+      <!-- Form -->
+      <form
+        [formGroup]="signupForm"
+        (ngSubmit)="signup()">
+
+        <!-- Owner Name -->
+        <div class="form-field">
+
+          <ion-label>Owner Name</ion-label>
+
+          <ion-input
+            formControlName="ownerName"
+            fill="outline"
+            type="text"
+            placeholder="Enter owner name">
+          </ion-input>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('ownerName')?.touched &&
+              signupForm.get('ownerName')?.hasError('required')
+            "
+          >
+            Owner name is required
+          </div>
+
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+
+          <ion-label>Email</ion-label>
+
+          <ion-input
+            formControlName="email"
+            fill="outline"
+            type="email"
+            placeholder="Enter email address">
+          </ion-input>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('email')?.touched &&
+              signupForm.get('email')?.hasError('required')
+            "
+          >
+            Email is required
+          </div>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('email')?.touched &&
+              signupForm.get('email')?.hasError('email')
+            "
+          >
+            Please enter a valid email
+          </div>
+
+        </div>
+
+        <!-- Phone -->
+        <div class="form-field">
+
+          <ion-label>Phone</ion-label>
+
+          <ion-input
+            formControlName="phone"
+            fill="outline"
+            type="tel"
+            inputmode="numeric"
+            placeholder="Enter 10 digit phone number">
+          </ion-input>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('phone')?.touched &&
+              signupForm.get('phone')?.invalid
+            "
+          >
+            Enter a valid 10 digit phone number
+          </div>
+
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+
+          <ion-label>Password</ion-label>
+
+          <ion-input
+            formControlName="password"
+            fill="outline"
+            type="password"
+            placeholder="Enter password">
+          </ion-input>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('password')?.touched &&
+              signupForm.get('password')?.hasError('required')
+            "
+          >
+            Password is required
+          </div>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('password')?.touched &&
+              signupForm.get('password')?.hasError('minlength')
+            "
+          >
+            Password must be at least 6 characters
+          </div>
+
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-field">
+
+          <ion-label>Confirm Password</ion-label>
+
+          <ion-input
+            formControlName="confirmPassword"
+            fill="outline"
+            type="password"
+            placeholder="Confirm password">
+          </ion-input>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('confirmPassword')?.touched &&
+              signupForm.get('confirmPassword')?.hasError('required')
+            "
+          >
+            Please confirm your password
+          </div>
+
+          <div
+            class="error"
+            *ngIf="
+              signupForm.get('confirmPassword')?.touched &&
+              signupForm.get('confirmPassword')?.hasError('passwordMismatch')
+            "
+          >
+            Passwords do not match
+          </div>
+
+        </div>
+
+        <!-- Submit -->
+        <ion-button
+          expand="block"
+          type="submit"
+          class="signup-button"
+          [disabled]="signupForm.invalid || isLoading">
+
+          <span *ngIf="!isLoading">Sign Up</span>
+          <span *ngIf="isLoading">Creating Account...</span>
+
+        </ion-button>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="signup-footer">
+
+        <span>Already have an account?</span>
+
+        <ion-button
+          fill="clear"
+          type="button"
+          (click)="goToLogin()">
+
+          Login
+
+        </ion-button>
+
+      </div>
+
+    </div>
+
   </div>
-</ion-content> 
+
+</ion-content>

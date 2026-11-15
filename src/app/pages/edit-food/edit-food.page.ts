@@ -2,49 +2,54 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IonIcon, ToastController, LoadingController, IonButton, IonContent, IonHeader, IonInput, IonSpinner, IonTitle, IonToolbar, IonCard, IonCardContent, IonToggle, IonSelect } from '@ionic/angular/standalone';
+import {
+  ToastController,
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonTextarea,
+  IonTitle,
+  IonToolbar,
+  IonToggle,
+} from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-food',
   templateUrl: './edit-food.page.html',
   styleUrls: ['./edit-food.page.scss'],
   standalone: true,
-  providers: [ApiService],
-   imports: [
-  IonContent, 
-    IonHeader, 
-    IonTitle, 
-    IonToolbar, 
-    IonInput, 
-    IonButton,  
+  imports: [
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonInput,
+    IonTextarea,
+    IonButton,
     IonToggle,
     CommonModule,
-    FormsModule, 
+    FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    HttpClientModule, 
-    RouterModule,
-     IonContent
-   ],
-    schemas:[CUSTOM_ELEMENTS_SCHEMA]})
-
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
 export class EditFoodPage implements OnInit {
   foodForm!: FormGroup;
   isLoading = true;
   foodId!: string;
 
   constructor(
-    private route: ActivatedRoute,
-    private apiService: ApiService,
-    private fb: FormBuilder,
-    private toastController: ToastController,
-    private loadingController: LoadingController,
-    private router: Router
+    private readonly route: ActivatedRoute,
+    private readonly apiService: ApiService,
+    private readonly fb: FormBuilder,
+    private readonly toastController: ToastController,
+    private readonly router: Router,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.foodId = this.route.snapshot.paramMap.get('id') || '';
     this.foodForm = this.fb.group({
       name: ['', Validators.required],
@@ -52,40 +57,45 @@ export class EditFoodPage implements OnInit {
       price: [0, [Validators.required, Validators.min(0)]],
       category: [''],
       image: [''],
-      available: [true]
+      available: [true],
     });
     this.loadFood();
   }
 
-  loadFood() {
-    this.apiService.getFoodById(this.foodId).subscribe(food => {
-      this.foodForm.patchValue(food);
-      this.isLoading = false;
-    }, err => {
-      this.showToast('Failed to load food item.');
-      this.isLoading = false;
+  loadFood(): void {
+    this.apiService.getFoodById(this.foodId).subscribe({
+      next: (food) => {
+        this.foodForm.patchValue(food);
+        this.isLoading = false;
+      },
+      error: () => {
+        void this.showToast('Failed to load food item.');
+        this.isLoading = false;
+      },
     });
   }
 
-  saveFood() {
-    if (this.foodForm.invalid) return;
-    this.apiService.updateFood(this.foodId, this.foodForm.value).subscribe(
-      () => {
-        this.showToast('Food updated successfully.');
-        this.router.navigate(['/food-management']);
+  saveFood(): void {
+    if (this.foodForm.invalid) {
+      return;
+    }
+    this.apiService.updateFood(this.foodId, this.foodForm.value).subscribe({
+      next: () => {
+        void this.showToast('Food updated successfully.');
+        void this.router.navigate(['/food-management']);
       },
-      err => {
-        this.showToast('Failed to update food.');
-      }
-    );
+      error: () => {
+        void this.showToast('Failed to update food.');
+      },
+    });
   }
 
-  async showToast(message: string) {
+  async showToast(message: string): Promise<void> {
     const toast = await this.toastController.create({
       message,
       duration: 3000,
-      color: 'success'
+      color: 'success',
     });
     await toast.present();
   }
-} 
+}
