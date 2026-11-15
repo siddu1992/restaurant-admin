@@ -4,13 +4,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/siddu1992/restaurant-admin'
-            }
-        }
-
         stage('Check Node and NPM') {
             steps {
                 bat 'node --version'
