@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        PATH+DOCKER = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
+        DOCKER_BIN = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
         DOCKER_CONTEXT = 'desktop-linux'
     }
 
@@ -30,7 +30,8 @@ pipeline {
 
         stage('Check Jenkins Docker PATH') {
             steps {
-                bat '''
+                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
+                    bat '''
 echo ===== JENKINS USER =====
 whoami
 
@@ -49,18 +50,22 @@ docker context show
 echo ===== DOCKER ENGINE =====
 docker info --format "Docker Engine {{.ServerVersion}}"
 '''
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
+                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
+                    bat 'docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
+                }
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                bat '''
+                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
+                    bat '''
 docker ps -a --format "{{.Names}}" | findstr /x "restaurant-admin" >nul
 if not errorlevel 1 (
     docker rm -f restaurant-admin
@@ -68,6 +73,7 @@ if not errorlevel 1 (
 )
 docker run --rm -d -p 8081:80 --name restaurant-admin restaurant-admin:latest
 '''
+                }
             }
         }
 
