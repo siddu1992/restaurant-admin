@@ -23,6 +23,24 @@ pipeline {
             }
         }
 
+        stage('Check Jenkins Docker PATH') {
+            steps {
+                bat '''
+echo ===== JENKINS USER =====
+whoami
+
+echo ===== PATH =====
+echo %PATH%
+
+echo ===== DOCKER LOCATION =====
+where docker
+
+echo ===== DOCKER TEST =====
+"C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" --version
+'''
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 bat 'docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
