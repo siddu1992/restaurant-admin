@@ -43,7 +43,12 @@ echo ===== DOCKER TEST =====
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
+                bat '''
+set "PATH=C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
+where docker
+docker --version
+docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .
+'''
             }
         }
 
