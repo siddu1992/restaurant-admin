@@ -2,6 +2,11 @@
 pipeline {
     agent any
 
+    environment {
+        PATH+DOCKER = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
+        DOCKER_CONTEXT = 'desktop-linux'
+    }
+
     stages {
 
         stage('Check Node and NPM') {
@@ -35,20 +40,21 @@ echo %PATH%
 echo ===== DOCKER LOCATION =====
 where docker
 
-echo ===== DOCKER TEST =====
-"C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" --version
+echo ===== DOCKER CLIENT =====
+docker --version
+
+echo ===== DOCKER CONTEXT =====
+docker context show
+
+echo ===== DOCKER ENGINE =====
+docker info --format "Docker Engine {{.ServerVersion}}"
 '''
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat '''
-set "PATH=C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
-where docker
-docker --version
-docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .
-'''
+                bat 'docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
             }
         }
 
