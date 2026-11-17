@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         DOCKER_BIN = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
-        DOCKER_CONTEXT = 'desktop-linux'
+        DOCKER_HOST = 'npipe:////./pipe/dockerDesktopLinuxEngine'
     }
 
     stages {
@@ -44,8 +44,8 @@ where docker
 echo ===== DOCKER CLIENT =====
 docker --version
 
-echo ===== DOCKER CONTEXT =====
-docker context show
+echo ===== DOCKER ENGINE PIPE =====
+echo %DOCKER_HOST%
 
 echo ===== DOCKER ENGINE =====
 docker info --format "Docker Engine {{.ServerVersion}}"
