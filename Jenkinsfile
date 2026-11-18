@@ -11,7 +11,7 @@ pipeline {
         DOCKER_PATH = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
         IMAGE_NAME = 'restaurant-admin'
         CONTAINER_NAME = 'restaurant-admin'
-        DOCKER_BUILDKIT = '1'
+        APP_PORT = '8081'
     }
 
     stages {
@@ -19,21 +19,51 @@ pipeline {
         stage('Check Node and NPM') {
             steps {
                 bat '''
+                    @echo off
+                    echo ===== NODE VERSION =====
                     node --version
+                    if errorlevel 1 exit /b 1
+
+                    echo ===== NPM VERSION =====
                     npm --version
+                    if errorlevel 1 exit /b 1
                 '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm ci'
+                bat '''
+                    @echo off
+                    echo ===== INSTALLING NPM DEPENDENCIES =====
+
+                    npm ci
+
+                    if errorlevel 1 (
+                        echo ERROR: NPM INSTALLATION FAILED
+                        exit /b 1
+                    )
+
+                    echo ===== NPM INSTALL COMPLETED =====
+                '''
             }
         }
 
         stage('Angular Build') {
             steps {
-                bat 'npm run build'
+                bat '''
+                    @echo off
+                    echo ===== ANGULAR BUILD STARTED =====
+
+                    npm run build
+
+                    if errorlevel 1 (
+                        echo ERROR: ANGULAR BUILD FAILED
+                        exit /b 1
+                    )
+
+                    echo ===== ANGULAR BUILD COMPLETED =====
+                '''
             }
         }
 
@@ -45,17 +75,16 @@ pipeline {
                 bat '''
                     @echo off
 
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+
                     echo ===== JENKINS USER =====
                     whoami
 
-                    echo ===== DOCKER PATH =====
-                    set "PATH=%DOCKER_PATH%;%PATH%"
-
+                    echo ===== DOCKER LOCATION =====
                     where docker
-                    docker --version
 
-                    echo ===== DOCKER BUILDX =====
-                    docker buildx version
+                    echo ===== DOCKER VERSION =====
+                    docker --version
                     if errorlevel 1 exit /b 1
 
                     echo ===== DOCKER CONTEXT =====
@@ -63,12 +92,13 @@ pipeline {
 
                     echo ===== DOCKER ENGINE STATUS =====
                     docker info
+
                     if errorlevel 1 (
-                        echo ERROR: Docker Engine is not accessible!
+                        echo ERROR: DOCKER ENGINE NOT ACCESSIBLE
                         exit /b 1
                     )
 
-                    echo ===== DOCKER CHECK COMPLETED =====
+                    echo ===== DOCKER ENVIRONMENT READY =====
                 '''
             }
         }
@@ -82,31 +112,63 @@ pipeline {
                     @echo off
 
                     set "PATH=%DOCKER_PATH%;%PATH%"
-                    set "DOCKER_BUILDKIT=1"
 
                     echo ===== DOCKER BUILD STARTED =====
+                    echo Image Name: %IMAGE_NAME%
+                    echo Build Number: %BUILD_NUMBER%
 
-                    docker buildx build ^
+                    docker build ^
                     --progress=plain ^
-                    --load ^
                     -t %IMAGE_NAME%:%BUILD_NUMBER% ^
                     -t %IMAGE_NAME%:latest ^
                     .
 
                     if errorlevel 1 (
-                        echo ERROR: Docker image build failed!
+                        echo ERROR: DOCKER IMAGE BUILD FAILED
                         exit /b 1
                     )
 
                     echo ===== VERIFY GENERATED IMAGE =====
 
                     docker image inspect %IMAGE_NAME%:latest
-                    if errorlevel 1 exit /b 1
 
-                    echo ===== GENERATED IMAGES =====
+                    if errorlevel 1 (
+                        echo ERROR: IMAGE NOT FOUND
+                        exit /b 1
+                    )
+
+                    echo ===== GENERATED DOCKER IMAGES =====
+
                     docker images %IMAGE_NAME%
 
                     echo ===== DOCKER BUILD COMPLETED =====
+                '''
+            }
+        }
+
+        stage('Stop Existing Container') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+
+                    echo ===== CHECK EXISTING CONTAINER =====
+
+                    docker ps -a --format "{{.Names}}" | findstr /x "%CONTAINER_NAME%" >nul
+
+                    if not errorlevel 1 (
+                        echo ===== STOPPING OLD CONTAINER =====
+
+                        docker rm -f %CONTAINER_NAME%
+
+                        if errorlevel 1 (
+                            echo ERROR: FAILED TO REMOVE OLD CONTAINER
+                            exit /b 1
+                        )
+                    ) else (
+                        echo NO EXISTING CONTAINER FOUND
+                    )
                 '''
             }
         }
@@ -118,27 +180,29 @@ pipeline {
 
                     set "PATH=%DOCKER_PATH%;%PATH%"
 
-                    echo ===== STOP OLD CONTAINER =====
-
-                    docker rm -f %CONTAINER_NAME% 2>nul
-
-                    echo ===== START NEW CONTAINER =====
+                    echo ===== STARTING NEW CONTAINER =====
 
                     docker run -d ^
-                    -p 8081:80 ^
+                    -p %APP_PORT%:80 ^
                     --name %CONTAINER_NAME% ^
+                    --restart unless-stopped ^
                     %IMAGE_NAME%:latest
 
                     if errorlevel 1 (
-                        echo ERROR: Container startup failed!
+                        echo ERROR: CONTAINER START FAILED
                         exit /b 1
                     )
 
-                    echo ===== CONTAINER STATUS =====
+                    echo ===== VERIFY CONTAINER =====
 
                     docker ps
 
-                    echo ===== DEPLOYMENT COMPLETED =====
+                    echo ===== CONTAINER LOGS =====
+
+                    docker logs --tail 30 %CONTAINER_NAME%
+
+                    echo ===== APPLICATION DEPLOYED =====
+                    echo Application URL: http://localhost:%APP_PORT%
                 '''
             }
         }
@@ -146,11 +210,16 @@ pipeline {
 
     post {
         success {
-            echo 'SUCCESS: Angular build, Docker image generation and deployment completed!'
+            echo 'SUCCESS: Angular build, Docker image generation and container deployment completed!'
+            echo 'Application URL: http://localhost:8081'
         }
 
         failure {
-            echo 'ERROR: Jenkins pipeline failed. Check the stage logs for details.'
+            echo 'ERROR: Jenkins pipeline failed. Check the console output.'
+        }
+
+        always {
+            echo 'Jenkins pipeline execution finished.'
         }
     }
 }
