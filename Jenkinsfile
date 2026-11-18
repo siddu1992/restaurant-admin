@@ -9,6 +9,10 @@ pipeline {
 
     environment {
         DOCKER_PATH = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
+        DOCKER_PLUGIN_PATH = 'C:\\Users\\venka\\.docker\\cli-plugins'
+
+        DOCKER_CONTEXT = 'desktop-linux'
+
         IMAGE_NAME = 'restaurant-admin'
         CONTAINER_NAME = 'restaurant-admin'
         APP_PORT = '8081'
@@ -20,6 +24,7 @@ pipeline {
             steps {
                 bat '''
                     @echo off
+
                     echo ===== NODE VERSION =====
                     node --version
                     if errorlevel 1 exit /b 1
@@ -35,6 +40,7 @@ pipeline {
             steps {
                 bat '''
                     @echo off
+
                     echo ===== INSTALLING NPM DEPENDENCIES =====
 
                     npm ci
@@ -53,6 +59,7 @@ pipeline {
             steps {
                 bat '''
                     @echo off
+
                     echo ===== ANGULAR BUILD STARTED =====
 
                     npm run build
@@ -71,11 +78,12 @@ pipeline {
             options {
                 timeout(time: 3, unit: 'MINUTES')
             }
+
             steps {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
 
                     echo ===== JENKINS USER =====
                     whoami
@@ -87,11 +95,19 @@ pipeline {
                     docker --version
                     if errorlevel 1 exit /b 1
 
+                    echo ===== BUILDX VERSION =====
+                    docker buildx version
+                    if errorlevel 1 (
+                        echo ERROR: BUILDX PLUGIN NOT FOUND
+                        exit /b 1
+                    )
+
                     echo ===== DOCKER CONTEXT =====
                     docker context show
 
                     echo ===== DOCKER ENGINE STATUS =====
-                    docker info
+
+                    docker --context %DOCKER_CONTEXT% info
 
                     if errorlevel 1 (
                         echo ERROR: DOCKER ENGINE NOT ACCESSIBLE
@@ -107,18 +123,20 @@ pipeline {
             options {
                 timeout(time: 30, unit: 'MINUTES')
             }
+
             steps {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
 
                     echo ===== DOCKER BUILD STARTED =====
                     echo Image Name: %IMAGE_NAME%
                     echo Build Number: %BUILD_NUMBER%
 
-                    docker build ^
+                    docker --context %DOCKER_CONTEXT% buildx build ^
                     --progress=plain ^
+                    --load ^
                     -t %IMAGE_NAME%:%BUILD_NUMBER% ^
                     -t %IMAGE_NAME%:latest ^
                     .
@@ -130,7 +148,7 @@ pipeline {
 
                     echo ===== VERIFY GENERATED IMAGE =====
 
-                    docker image inspect %IMAGE_NAME%:latest
+                    docker --context %DOCKER_CONTEXT% image inspect %IMAGE_NAME%:latest
 
                     if errorlevel 1 (
                         echo ERROR: IMAGE NOT FOUND
@@ -139,7 +157,7 @@ pipeline {
 
                     echo ===== GENERATED DOCKER IMAGES =====
 
-                    docker images %IMAGE_NAME%
+                    docker --context %DOCKER_CONTEXT% images %IMAGE_NAME%
 
                     echo ===== DOCKER BUILD COMPLETED =====
                 '''
@@ -151,16 +169,16 @@ pipeline {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
 
                     echo ===== CHECK EXISTING CONTAINER =====
 
-                    docker ps -a --format "{{.Names}}" | findstr /x "%CONTAINER_NAME%" >nul
+                    docker --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x "%CONTAINER_NAME%" >nul
 
                     if not errorlevel 1 (
                         echo ===== STOPPING OLD CONTAINER =====
 
-                        docker rm -f %CONTAINER_NAME%
+                        docker --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
 
                         if errorlevel 1 (
                             echo ERROR: FAILED TO REMOVE OLD CONTAINER
@@ -178,11 +196,11 @@ pipeline {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
 
                     echo ===== STARTING NEW CONTAINER =====
 
-                    docker run -d ^
+                    docker --context %DOCKER_CONTEXT% run -d ^
                     -p %APP_PORT%:80 ^
                     --name %CONTAINER_NAME% ^
                     --restart unless-stopped ^
@@ -195,11 +213,11 @@ pipeline {
 
                     echo ===== VERIFY CONTAINER =====
 
-                    docker ps
+                    docker --context %DOCKER_CONTEXT% ps
 
                     echo ===== CONTAINER LOGS =====
 
-                    docker logs --tail 30 %CONTAINER_NAME%
+                    docker --context %DOCKER_CONTEXT% logs --tail 30 %CONTAINER_NAME%
 
                     echo ===== APPLICATION DEPLOYED =====
                     echo Application URL: http://localhost:%APP_PORT%
@@ -210,7 +228,7 @@ pipeline {
 
     post {
         success {
-            echo 'SUCCESS: Angular build, Docker image generation and container deployment completed!'
+            echo 'SUCCESS: Angular build, Docker BuildKit image generation and deployment completed!'
             echo 'Application URL: http://localhost:8081'
         }
 
