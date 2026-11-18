@@ -1,51 +1,275 @@
 
-@echo off
-setlocal
+pipeline {
+    agent any
 
-REM Configure Docker executable and plugin paths
-set "DOCKER_EXE=C:\Users\venka\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe"
-set "DOCKER_PLUGIN_PATH=C:\Users\venka\.docker\cli-plugins"
-set "DOCKER_CONFIG=C:\Users\venka\.docker"
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
 
-REM Add Docker to PATH
-set "PATH=C:\Users\venka\AppData\Local\Programs\DockerDesktop\resources\bin;%DOCKER_PLUGIN_PATH%;%PATH%"
+    environment {
+        DOCKER_PATH = 'C:/Users/venka/AppData/Local/Programs/DockerDesktop/resources/bin'
+        DOCKER_CONFIG = 'C:/Users/venka/.docker'
+        DOCKER_CONTEXT = 'desktop-linux'
 
-echo ===== CHECK DOCKER EXECUTABLE =====
+        IMAGE_NAME = 'restaurant-admin'
+        CONTAINER_NAME = 'restaurant-admin'
+        APP_PORT = '8081'
+    }
 
-if not exist "%DOCKER_EXE%" (
-    echo ERROR: Docker executable not found
-    echo Expected: %DOCKER_EXE%
-    exit /b 1
-)
+    stages {
 
-"%DOCKER_EXE%" --version
+        stage('Checkout') {
+            steps {
+                echo '===== CHECKOUT SOURCE CODE ====='
+                checkout scm
+            }
+        }
 
-if errorlevel 1 exit /b 1
+        stage('Check Node and NPM') {
+            steps {
+                bat '''
+                    @echo off
 
-echo ===== CHECK DOCKER ENGINE =====
+                    echo ===== NODE VERSION =====
+                    where node
+                    node --version
 
-"%DOCKER_EXE%" --context desktop-linux info
+                    if errorlevel 1 exit /b 1
 
-if errorlevel 1 (
-    echo ERROR: Docker Engine is not accessible
-    exit /b 1
-)
+                    echo ===== NPM VERSION =====
+                    npm --version
 
-echo ===== CHECK EXISTING CONTAINER =====
+                    if errorlevel 1 exit /b 1
 
-"%DOCKER_EXE%" --context desktop-linux ps -a --format "{{.Names}}" | findstr /x /c:"restaurant-admin" >nul
+                    echo NODE AND NPM CHECK COMPLETED
+                '''
+            }
+        }
 
-if %ERRORLEVEL% EQU 0 (
-    echo EXISTING CONTAINER FOUND
+        stage('Install Dependencies') {
+            steps {
+                bat '''
+                    @echo off
 
-    "%DOCKER_EXE%" --context desktop-linux rm -f restaurant-admin
+                    echo ===== INSTALLING NPM DEPENDENCIES =====
 
-    if errorlevel 1 exit /b 1
-) else (
-    echo NO EXISTING CONTAINER FOUND
-)
+                    npm ci
 
-echo ===== CONTAINER CLEANUP COMPLETED =====
+                    if errorlevel 1 (
+                        echo ERROR: NPM INSTALLATION FAILED
+                        exit /b 1
+                    )
 
-endlocal
-exit /b 0
+                    echo DEPENDENCIES INSTALLED SUCCESSFULLY
+                '''
+            }
+        }
+
+        stage('Build Angular Application') {
+            steps {
+                bat '''
+                    @echo off
+
+                    echo ===== BUILDING ANGULAR APPLICATION =====
+
+                    npm run build
+
+                    if errorlevel 1 (
+                        echo ERROR: ANGULAR BUILD FAILED
+                        exit /b 1
+                    )
+
+                    echo ===== VERIFY BUILD OUTPUT =====
+
+                    if not exist "www\\index.html" (
+                        echo ERROR: www/index.html NOT FOUND
+                        exit /b 1
+                    )
+
+                    echo ANGULAR BUILD COMPLETED SUCCESSFULLY
+                '''
+            }
+        }
+
+        stage('Check Docker Environment') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== CHECK DOCKER EXECUTABLE =====
+
+                    if not exist "%DOCKER_PATH%\\docker.exe" (
+                        echo ERROR: Docker executable not found
+                        exit /b 1
+                    )
+
+                    "%DOCKER_PATH%\\docker.exe" --version
+
+                    if errorlevel 1 exit /b 1
+
+                    echo ===== CHECK DOCKER ENGINE =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% info
+
+                    if errorlevel 1 (
+                        echo ERROR: Docker Engine is not accessible
+                        exit /b 1
+                    )
+
+                    echo DOCKER ENVIRONMENT READY
+                '''
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== BUILDING DOCKER IMAGE =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% build ^
+                    --progress=plain ^
+                    -t %IMAGE_NAME%:%BUILD_NUMBER% ^
+                    -t %IMAGE_NAME%:latest ^
+                    .
+
+                    if errorlevel 1 (
+                        echo ERROR: DOCKER BUILD FAILED
+                        exit /b 1
+                    )
+
+                    echo ===== DOCKER BUILD COMPLETED =====
+                '''
+            }
+        }
+
+        stage('Verify Docker Image') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== VERIFY DOCKER IMAGE =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% image inspect %IMAGE_NAME%:latest
+
+                    if errorlevel 1 (
+                        echo ERROR: DOCKER IMAGE NOT FOUND
+                        exit /b 1
+                    )
+
+                    echo ===== AVAILABLE APPLICATION IMAGES =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% images %IMAGE_NAME%
+
+                    echo DOCKER IMAGE VERIFIED
+                '''
+            }
+        }
+
+        stage('Stop Existing Container') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== CHECK EXISTING CONTAINER =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
+
+                    if errorlevel 1 (
+                        echo NO EXISTING CONTAINER FOUND
+                    ) else (
+                        echo ===== EXISTING CONTAINER FOUND =====
+
+                        "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
+
+                        if errorlevel 1 (
+                            echo ERROR: FAILED TO REMOVE EXISTING CONTAINER
+                            exit /b 1
+                        )
+
+                        echo OLD CONTAINER REMOVED SUCCESSFULLY
+                    )
+
+                    echo ===== CONTAINER CLEANUP COMPLETED =====
+                '''
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== STARTING APPLICATION CONTAINER =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% run -d ^
+                    -p %APP_PORT%:80 ^
+                    --name %CONTAINER_NAME% ^
+                    --restart unless-stopped ^
+                    %IMAGE_NAME%:latest
+
+                    if errorlevel 1 (
+                        echo ERROR: FAILED TO START CONTAINER
+                        exit /b 1
+                    )
+
+                    echo CONTAINER STARTED SUCCESSFULLY
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat '''
+                    @echo off
+
+                    set "PATH=%DOCKER_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+
+                    echo ===== RUNNING CONTAINERS =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps
+
+                    echo ===== CONTAINER LOGS =====
+
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% logs --tail 30 %CONTAINER_NAME%
+
+                    echo ===== DEPLOYMENT COMPLETED =====
+                    echo APPLICATION URL: http://localhost:%APP_PORT%
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'SUCCESS: Angular application deployed successfully.'
+            echo 'Application URL: http://localhost:8081'
+        }
+
+        failure {
+            echo 'ERROR: Jenkins pipeline failed. Check the failed stage logs.'
+        }
+
+        always {
+            echo '===== JENKINS PIPELINE FINISHED ====='
+        }
+    }
+}
