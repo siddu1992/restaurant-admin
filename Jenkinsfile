@@ -2,10 +2,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_BIN = 'C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
-    }
-
     stages {
 
         stage('Check Node and NPM') {
@@ -29,8 +25,7 @@ pipeline {
 
         stage('Check Jenkins Docker PATH') {
             steps {
-                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
-                    bat '''
+                bat '''
 echo ===== JENKINS USER =====
 whoami
 
@@ -39,47 +34,27 @@ echo %PATH%
 
 echo ===== DOCKER LOCATION =====
 where docker
-if errorlevel 1 (
-    echo Docker CLI is not on the Jenkins agent PATH.
-    exit /b 1
-)
 
-echo ===== DOCKER CLIENT =====
-docker --version
-if errorlevel 1 exit /b 1
-
-echo ===== DOCKER BUILDX =====
-docker buildx version
-if errorlevel 1 exit /b 1
-
-echo ===== DOCKER CONTEXT =====
-docker context show
-if errorlevel 1 exit /b 1
-
-echo ===== DOCKER ENGINE =====
-docker info --format "Docker Engine {{.ServerVersion}}"
-if errorlevel 1 (
-    echo Docker Engine is unavailable to this Jenkins agent.
-    echo Start Docker Desktop under the agent's Windows account, or configure a reachable Docker Engine for this agent.
-    exit /b 1
-)
+echo ===== DOCKER TEST =====
+"C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" --version
 '''
-                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
-                    bat 'docker buildx build --load -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .'
-                }
+                bat '''
+set "PATH=C:\\Users\\venka\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
+where docker
+docker --version
+docker build -t restaurant-admin:%BUILD_NUMBER% -t restaurant-admin:latest .
+'''
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                withEnv(["PATH=${env.DOCKER_BIN};${env.PATH}"]) {
-                    bat '''
+                bat '''
 docker ps -a --format "{{.Names}}" | findstr /x "restaurant-admin" >nul
 if not errorlevel 1 (
     docker rm -f restaurant-admin
@@ -87,7 +62,6 @@ if not errorlevel 1 (
 )
 docker run --rm -d -p 8081:80 --name restaurant-admin restaurant-admin:latest
 '''
-                }
             }
         }
 
