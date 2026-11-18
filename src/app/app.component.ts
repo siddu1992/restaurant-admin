@@ -43,6 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subs.unsubscribe();
+    
   }
 
   private async handleNewOrderAlert(order: NewOrderEvent) {
