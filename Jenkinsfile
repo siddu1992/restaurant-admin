@@ -1,42 +1,51 @@
 
-pipeline {
-    agent any
+@echo off
+setlocal
 
-    stages {
-        stage('Stop Existing Container') {
-            steps {
-                bat '''
-                    @echo off
-                    setlocal
+REM Configure Docker executable and plugin paths
+set "DOCKER_EXE=C:\Users\venka\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe"
+set "DOCKER_PLUGIN_PATH=C:\Users\venka\.docker\cli-plugins"
+set "DOCKER_CONFIG=C:\Users\venka\.docker"
 
-                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
-                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+REM Add Docker to PATH
+set "PATH=C:\Users\venka\AppData\Local\Programs\DockerDesktop\resources\bin;%DOCKER_PLUGIN_PATH%;%PATH%"
 
-                    echo ===== CHECK EXISTING CONTAINER =====
+echo ===== CHECK DOCKER EXECUTABLE =====
 
-                    docker --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
+if not exist "%DOCKER_EXE%" (
+    echo ERROR: Docker executable not found
+    echo Expected: %DOCKER_EXE%
+    exit /b 1
+)
 
-                    if %ERRORLEVEL% EQU 0 (
-                        echo ===== EXISTING CONTAINER FOUND =====
+"%DOCKER_EXE%" --version
 
-                        docker --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
+if errorlevel 1 exit /b 1
 
-                        if errorlevel 1 (
-                            echo ERROR: Failed to remove existing container
-                            exit /b 1
-                        )
+echo ===== CHECK DOCKER ENGINE =====
 
-                        echo OLD CONTAINER REMOVED SUCCESSFULLY
-                    ) else (
-                        echo NO EXISTING CONTAINER FOUND
-                    )
+"%DOCKER_EXE%" --context desktop-linux info
 
-                    echo ===== CONTAINER CLEANUP COMPLETED =====
+if errorlevel 1 (
+    echo ERROR: Docker Engine is not accessible
+    exit /b 1
+)
 
-                    endlocal
-                    exit /b 0
-                '''
-            }
-        }
-    }
-}
+echo ===== CHECK EXISTING CONTAINER =====
+
+"%DOCKER_EXE%" --context desktop-linux ps -a --format "{{.Names}}" | findstr /x /c:"restaurant-admin" >nul
+
+if %ERRORLEVEL% EQU 0 (
+    echo EXISTING CONTAINER FOUND
+
+    "%DOCKER_EXE%" --context desktop-linux rm -f restaurant-admin
+
+    if errorlevel 1 exit /b 1
+) else (
+    echo NO EXISTING CONTAINER FOUND
+)
+
+echo ===== CONTAINER CLEANUP COMPLETED =====
+
+endlocal
+exit /b 0
