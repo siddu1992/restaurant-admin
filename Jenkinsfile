@@ -177,37 +177,44 @@ pipeline {
             }
         }
 
-        stage('Stop Existing Container') {
-            steps {
-                bat '''
-                    @echo off
+    
+stage('Stop Existing Container') {
+    steps {
+        bat '''
+            @echo off
+            setlocal
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
-                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+            set "PATH=%DOCKER_PATH%;%PATH%"
+            set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
-                    echo ===== CHECK EXISTING CONTAINER =====
+            echo ===== CHECK EXISTING CONTAINER =====
 
-                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
+            "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
 
-                    if errorlevel 1 (
-                        echo NO EXISTING CONTAINER FOUND
-                    ) else (
-                        echo ===== EXISTING CONTAINER FOUND =====
+            if errorlevel 1 (
+                echo NO EXISTING CONTAINER FOUND
+            ) else (
+                echo ===== EXISTING CONTAINER FOUND =====
 
-                        "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
+                "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
 
-                        if errorlevel 1 (
-                            echo ERROR: FAILED TO REMOVE EXISTING CONTAINER
-                            exit /b 1
-                        )
+                if errorlevel 1 (
+                    echo ERROR: FAILED TO REMOVE EXISTING CONTAINER
+                    endlocal
+                    exit /b 1
+                )
 
-                        echo OLD CONTAINER REMOVED SUCCESSFULLY
-                    )
+                echo OLD CONTAINER REMOVED SUCCESSFULLY
+            )
 
-                    echo ===== CONTAINER CLEANUP COMPLETED =====
-                '''
-            }
-        }
+            echo ===== CONTAINER CLEANUP COMPLETED =====
+
+            endlocal
+            exit /b 0
+        '''
+    }
+}
+
 
         stage('Run Docker Container') {
             steps {
