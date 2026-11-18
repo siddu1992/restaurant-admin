@@ -1,36 +1,42 @@
 
-stage('Stop Existing Container') {
-    steps {
-        bat '''
-            @echo off
-            setlocal
+pipeline {
+    agent any
 
-            set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
-            set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+    stages {
+        stage('Stop Existing Container') {
+            steps {
+                bat '''
+                    @echo off
+                    setlocal
 
-            echo ===== CHECK EXISTING CONTAINER =====
+                    set "PATH=%DOCKER_PATH%;%DOCKER_PLUGIN_PATH%;%PATH%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
-            docker --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
+                    echo ===== CHECK EXISTING CONTAINER =====
 
-            if %ERRORLEVEL% EQU 0 (
-                echo ===== EXISTING CONTAINER FOUND =====
+                    docker --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
 
-                docker --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
+                    if %ERRORLEVEL% EQU 0 (
+                        echo ===== EXISTING CONTAINER FOUND =====
 
-                if errorlevel 1 (
-                    echo ERROR: Failed to remove existing container
-                    exit /b 1
-                )
+                        docker --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
 
-                echo OLD CONTAINER REMOVED SUCCESSFULLY
-            ) else (
-                echo NO EXISTING CONTAINER FOUND
-            )
+                        if errorlevel 1 (
+                            echo ERROR: Failed to remove existing container
+                            exit /b 1
+                        )
 
-            echo ===== CONTAINER CLEANUP COMPLETED =====
+                        echo OLD CONTAINER REMOVED SUCCESSFULLY
+                    ) else (
+                        echo NO EXISTING CONTAINER FOUND
+                    )
 
-            endlocal
-            exit /b 0
-        '''
+                    echo ===== CONTAINER CLEANUP COMPLETED =====
+
+                    endlocal
+                    exit /b 0
+                '''
+            }
+        }
     }
 }
