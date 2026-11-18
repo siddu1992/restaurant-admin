@@ -7,6 +7,11 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    // Automatically check GitHub for new commits every 2 minutes
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     environment {
         DOCKER_PATH = 'C:/Users/venka/AppData/Local/Programs/DockerDesktop/resources/bin'
         DOCKER_CONFIG = 'C:/Users/venka/.docker'
@@ -19,7 +24,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
                 echo '===== CHECKOUT SOURCE CODE ====='
                 checkout scm
@@ -34,12 +39,10 @@ pipeline {
                     echo ===== NODE VERSION =====
                     where node
                     node --version
-
                     if errorlevel 1 exit /b 1
 
                     echo ===== NPM VERSION =====
                     npm --version
-
                     if errorlevel 1 exit /b 1
 
                     echo NODE AND NPM CHECK COMPLETED
@@ -52,12 +55,12 @@ pipeline {
                 bat '''
                     @echo off
 
-                    echo ===== INSTALLING NPM DEPENDENCIES =====
+                    echo ===== INSTALLING DEPENDENCIES =====
 
-                    npm ci
+                    call npm ci
 
                     if errorlevel 1 (
-                        echo ERROR: NPM INSTALLATION FAILED
+                        echo ERROR: NPM INSTALL FAILED
                         exit /b 1
                     )
 
@@ -73,7 +76,7 @@ pipeline {
 
                     echo ===== BUILDING ANGULAR APPLICATION =====
 
-                    npm run build
+                    call npm run build
 
                     if errorlevel 1 (
                         echo ERROR: ANGULAR BUILD FAILED
@@ -103,7 +106,7 @@ pipeline {
                     echo ===== CHECK DOCKER EXECUTABLE =====
 
                     if not exist "%DOCKER_PATH%\\docker.exe" (
-                        echo ERROR: Docker executable not found
+                        echo ERROR: DOCKER NOT FOUND
                         exit /b 1
                     )
 
@@ -116,7 +119,7 @@ pipeline {
                     "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% info
 
                     if errorlevel 1 (
-                        echo ERROR: Docker Engine is not accessible
+                        echo ERROR: DOCKER ENGINE NOT ACCESSIBLE
                         exit /b 1
                     )
 
@@ -135,18 +138,14 @@ pipeline {
 
                     echo ===== BUILDING DOCKER IMAGE =====
 
-                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% build ^
-                    --progress=plain ^
-                    -t %IMAGE_NAME%:%BUILD_NUMBER% ^
-                    -t %IMAGE_NAME%:latest ^
-                    .
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% build --progress=plain -t %IMAGE_NAME%:%BUILD_NUMBER% -t %IMAGE_NAME%:latest .
 
                     if errorlevel 1 (
                         echo ERROR: DOCKER BUILD FAILED
                         exit /b 1
                     )
 
-                    echo ===== DOCKER BUILD COMPLETED =====
+                    echo DOCKER IMAGE BUILD COMPLETED
                 '''
             }
         }
@@ -156,7 +155,6 @@ pipeline {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
                     set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
                     echo ===== VERIFY DOCKER IMAGE =====
@@ -168,8 +166,6 @@ pipeline {
                         exit /b 1
                     )
 
-                    echo ===== AVAILABLE APPLICATION IMAGES =====
-
                     "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% images %IMAGE_NAME%
 
                     echo DOCKER IMAGE VERIFIED
@@ -177,60 +173,51 @@ pipeline {
             }
         }
 
-    
-stage('Stop Existing Container') {
-    steps {
-        bat '''
-            @echo off
-            setlocal
+        stage('Stop Existing Container') {
+            steps {
+                bat '''
+                    @echo off
 
-            set "PATH=%DOCKER_PATH%;%PATH%"
-            set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
-            echo ===== CHECK EXISTING CONTAINER =====
+                    echo ===== CHECK EXISTING CONTAINER =====
 
-            "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -a --format "{{.Names}}" | findstr /x /c:"%CONTAINER_NAME%" >nul
+                    set "CONTAINER_ID="
 
-            if errorlevel 1 (
-                echo NO EXISTING CONTAINER FOUND
-            ) else (
-                echo ===== EXISTING CONTAINER FOUND =====
+                    for /f "delims=" %%i in ('"%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -aq --filter "name=^/%CONTAINER_NAME%$"') do set "CONTAINER_ID=%%i"
 
-                "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
+                    if defined CONTAINER_ID (
+                        echo ===== EXISTING CONTAINER FOUND =====
 
-                if errorlevel 1 (
-                    echo ERROR: FAILED TO REMOVE EXISTING CONTAINER
-                    endlocal
-                    exit /b 1
-                )
+                        "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
 
-                echo OLD CONTAINER REMOVED SUCCESSFULLY
-            )
+                        if errorlevel 1 (
+                            echo ERROR: FAILED TO REMOVE OLD CONTAINER
+                            exit /b 1
+                        )
 
-            echo ===== CONTAINER CLEANUP COMPLETED =====
+                        echo OLD CONTAINER REMOVED
+                    ) else (
+                        echo NO EXISTING CONTAINER FOUND
+                    )
 
-            endlocal
-            exit /b 0
-        '''
-    }
-}
+                    echo ===== CONTAINER CLEANUP COMPLETED =====
 
+                    exit /b 0
+                '''
+            }
+        }
 
         stage('Run Docker Container') {
             steps {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
                     set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
-                    echo ===== STARTING APPLICATION CONTAINER =====
+                    echo ===== STARTING DOCKER CONTAINER =====
 
-                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% run -d ^
-                    -p %APP_PORT%:80 ^
-                    --name %CONTAINER_NAME% ^
-                    --restart unless-stopped ^
-                    %IMAGE_NAME%:latest
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% run -d -p %APP_PORT%:80 --name %CONTAINER_NAME% --restart unless-stopped %IMAGE_NAME%:latest
 
                     if errorlevel 1 (
                         echo ERROR: FAILED TO START CONTAINER
@@ -247,18 +234,19 @@ stage('Stop Existing Container') {
                 bat '''
                     @echo off
 
-                    set "PATH=%DOCKER_PATH%;%PATH%"
                     set "DOCKER_CONFIG=%DOCKER_CONFIG%"
 
-                    echo ===== RUNNING CONTAINERS =====
+                    echo ===== VERIFY RUNNING CONTAINER =====
 
-                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps
+                    "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps --filter "name=^/%CONTAINER_NAME%$"
+
+                    if errorlevel 1 exit /b 1
 
                     echo ===== CONTAINER LOGS =====
 
                     "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% logs --tail 30 %CONTAINER_NAME%
 
-                    echo ===== DEPLOYMENT COMPLETED =====
+                    echo ===== DEPLOYMENT SUCCESSFUL =====
                     echo APPLICATION URL: http://localhost:%APP_PORT%
                 '''
             }
@@ -267,12 +255,15 @@ stage('Stop Existing Container') {
 
     post {
         success {
-            echo 'SUCCESS: Angular application deployed successfully.'
-            echo 'Application URL: http://localhost:8081'
+            echo '========================================'
+            echo 'SUCCESS: APPLICATION DEPLOYED'
+            echo 'URL: http://localhost:8081'
+            echo '========================================'
         }
 
         failure {
-            echo 'ERROR: Jenkins pipeline failed. Check the failed stage logs.'
+            echo 'ERROR: PIPELINE FAILED'
+            echo 'Please check the failed stage console output.'
         }
 
         always {
