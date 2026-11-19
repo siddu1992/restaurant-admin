@@ -1,6 +1,8 @@
 
 pipeline {
-    agent any
+     agent {
+        label 'Windows_NODE'
+    }
 
     options {
         timestamps()
@@ -8,9 +10,9 @@ pipeline {
     }
 
     // Automatically check GitHub for new commits every 2 minutes
-    triggers {
-        pollSCM('H/2 * * * *')
-    }
+   triggers {
+    githubPush()
+}
 
     environment {
         DOCKER_PATH = 'C:/Users/venka/AppData/Local/Programs/DockerDesktop/resources/bin'
