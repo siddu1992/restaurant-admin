@@ -1,7 +1,8 @@
 
 pipeline {
-    agent 'Windows_NODE'
-
+agent {
+    label 'Windows_NODE'
+}
     options {
         timestamps()
         disableConcurrentBuilds()
