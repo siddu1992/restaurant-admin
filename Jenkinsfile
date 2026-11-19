@@ -174,40 +174,31 @@ agent {
             }
         }
 
-        stage('Stop Existing Container') {
-            steps {
-                bat '''
-                    @echo off
+      
+stage('Stop Existing Container') {
+    steps {
+        bat '''
+            @echo off
+            setlocal
 
-                    set "DOCKER_CONFIG=%DOCKER_CONFIG%"
+            echo ===== CHECK EXISTING CONTAINER =====
 
-                    echo ===== CHECK EXISTING CONTAINER =====
+            "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
 
-                    set "CONTAINER_ID="
+            if errorlevel 1 (
+                echo ERROR: DOCKER CONTAINER CLEANUP FAILED
+                endlocal
+                exit /b 1
+            )
 
-                    for /f "delims=" %%i in ('"%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% ps -aq --filter "name=^/%CONTAINER_NAME%$"') do set "CONTAINER_ID=%%i"
+            echo ===== CONTAINER CLEANUP COMPLETED =====
 
-                    if defined CONTAINER_ID (
-                        echo ===== EXISTING CONTAINER FOUND =====
+            endlocal
+            exit /b 0
+        '''
+    }
+}
 
-                        "%DOCKER_PATH%\\docker.exe" --context %DOCKER_CONTEXT% rm -f %CONTAINER_NAME%
-
-                        if errorlevel 1 (
-                            echo ERROR: FAILED TO REMOVE OLD CONTAINER
-                            exit /b 1
-                        )
-
-                        echo OLD CONTAINER REMOVED
-                    ) else (
-                        echo NO EXISTING CONTAINER FOUND
-                    )
-
-                    echo ===== CONTAINER CLEANUP COMPLETED =====
-
-                    exit /b 0
-                '''
-            }
-        }
 
         stage('Run Docker Container') {
             steps {
