@@ -1,7 +1,7 @@
 
 pipeline {
 agent {
-    label 'Windows_NODE'
+    label 'Windoes_NODE'
 }
     options {
         timestamps()
